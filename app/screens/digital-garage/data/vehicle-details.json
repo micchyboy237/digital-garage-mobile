@@ -1,0 +1,92 @@
+{
+  "overview": {
+    "purchasedDate": "early 2022",
+    "condition": "good",
+    "details": "Purchased from Mr Davies for £10,000.",
+    "specification": "Standard specification aside from being fitted with a tow bar.",
+    "technical": {
+      "make": "Volvo",
+      "model": "XC60 T5 Momentum",
+      "year": 2019,
+      "registration": "AE68 FWG",
+      "colour": "Black",
+      "body": "SUV",
+      "transmission": "Automatic",
+      "drive": "RHD"
+    }
+  },
+  "history": [
+    {
+      "date": "02 June 2024",
+      "event": "Volvo Main Dealer",
+      "details": "Replacement timing chain cover",
+      "type": "Invoice",
+      "amount": "£35.00"
+    },
+    {
+      "date": "19 June 2024",
+      "event": "MOT Due",
+      "details": "",
+      "type": "Reminder"
+    },
+    {
+      "date": "02 August 2024",
+      "event": "V5 Proof of Ownership",
+      "details": "Replacement received from DVLA.",
+      "type": "Document"
+    }
+  ],
+  "gallery": [
+    {
+      "date": "27 June 2024",
+      "event": "National Car Rally",
+      "description": "Great event, took a bit of time to get there but took some great pictures.",
+      "images": ["image1.jpg", "image2.jpg", "image3.jpg", "image4.jpg", "image5.jpg", "image6.jpg"]
+    },
+    {
+      "date": "08 August 2024",
+      "event": "National Car Rally",
+      "description": "Great event, took a bit of time to get there but took some great pictures.",
+      "images": [
+        "image7.jpg",
+        "image8.jpg",
+        "image9.jpg",
+        "image10.jpg",
+        "image11.jpg",
+        "image12.jpg"
+      ]
+    }
+  ],
+  "share": {
+    "qrCode": "QRCodeImage.png",
+    "printQrText": "Use the following QR code to share your vehicle details and history with your friends. If you are going to a show or event, don't forget to print it out and display it on your windscreen.",
+    "printQrButton": "Print QR",
+    "generateLinkText": "Alternatively, you may want to share a weblink to your vehicle that you can include within a listing, or email.",
+    "generateLinkButton": "Generate",
+    "webLink": "https://digitalgarage.app/links/ab34cd56ef",
+    "deleteLinkButton": "Delete"
+  },
+  "transfer": {
+    "instructionText": "Use this option only when you have sold your vehicle and you are ready to handover the history file to the new owner. Here you can start the process by searching for the new owner by using their email.",
+    "emailPlaceholder": "Please enter their email",
+    "searchButton": "Search",
+    "searchResults": [
+      {
+        "name": "Paul Thomas",
+        "profileImage": "PaulThomas.png"
+      }
+    ],
+    "dataItemsToShare": {
+      "history": {
+        "notes": false,
+        "documents": true,
+        "invoices": false
+      },
+      "gallery": {
+        "photos": true,
+        "video": true
+      }
+    },
+    "transferButton": "Transfer"
+  }
+}
