@@ -39,18 +39,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         <Button title="User 2" onPress={() => setUser(mock2ndUser)} />
       </View>
       <View style={styles.userInfo}>
-        {user.profilePicture ? (
-          <Image source={{ uri: user.profilePicture }} style={styles.userPicture} />
-        ) : (
-          <View style={styles.userPicturePlaceholder} />
+        {user.profilePicture && (
+          <View>
+            <Image source={{ uri: user.profilePicture }} style={styles.userPicture} />
+          </View>
         )}
-        <Text style={styles.fullName}>
-          {user.firstName} {user.lastName}
-        </Text>
-        <Text style={styles.location}>{user.location}</Text>
-        <Text style={styles.ownedVehicleCount}>
-          Owned Vehicle Count: {user.vehicleOwnerships.length}
-        </Text>
+        <View>
+          <Text style={styles.fullName}>
+            {user.firstName} {user.lastName}
+          </Text>
+          <Text style={styles.location}>{user.location}</Text>
+          <Text style={styles.ownedVehicleCount}>
+            Owned Vehicle Count: {user.vehicleOwnerships.length}
+          </Text>
+        </View>
       </View>
       <View style={styles.vehicleSection}>
         <Text style={styles.sectionTitle}>Current Vehicles</Text>
@@ -137,19 +139,13 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     marginBottom: 16,
+    flexDirection: "row",
     alignItems: "center",
   },
   userPicture: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 8,
-  },
-  userPicturePlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 8,
     backgroundColor: "#cccccc",
   },
   fullName: {
