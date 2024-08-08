@@ -1,3 +1,4 @@
+import { mockAssets } from "app/screens/digital-garage/data/mock-assets"
 import {
   Document,
   DocumentType,
@@ -26,7 +27,7 @@ const mockUser: User = {
   firstName: "John",
   lastName: "Doe",
   email: "john.doe@example.com",
-  profilePicture: "https://example.com/profile.jpg",
+  profilePicture: mockAssets.USER1_PROFILE_PIC,
   location: "New York, USA",
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -60,7 +61,7 @@ const mock2ndUser: User = {
   firstName: "Jane",
   lastName: "Smith",
   email: "jane.smith@example.com",
-  profilePicture: "https://example.com/profile2.jpg",
+  profilePicture: mockAssets.USER2_PROFILE_PIC,
   location: "Los Angeles, USA",
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -120,7 +121,7 @@ const mockVehicle: Vehicle = {
 const mockPhoto1: MediaFile = {
   id: "photo-1",
   type: MediaFileType.photo,
-  url: "https://example.com/photo1.jpg",
+  url: mockAssets.VEHICLE1_GALLERY_PIC,
   documentId: "document-1",
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -129,7 +130,7 @@ const mockPhoto1: MediaFile = {
 const mockPhoto2: MediaFile = {
   id: "photo-2",
   type: MediaFileType.photo,
-  url: "https://example.com/photo2.jpg",
+  url: mockAssets.VEHICLE1_GALLERY_PIC,
   documentId: "document-1",
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -152,7 +153,7 @@ const mockInvoiceDocument: Document = {
   id: "document-1",
   type: DocumentType.invoice,
   date: new Date(),
-  title: "Monthly subscription invoice",
+  title: "Invoice from Volvo Main Dealer",
   vehicle: mockVehicle,
   vehicleId: "vehicle-1",
   createdBy: mockUser,
@@ -166,7 +167,7 @@ const mockProofOfOwnershipDocument: Document = {
   id: "document-2",
   type: DocumentType.receipt,
   date: new Date(),
-  title: "Monthly subscription receipt",
+  title: "Proof of Ownership from DVLA",
   vehicle: mockVehicle,
   vehicleId: "vehicle-1",
   createdBy: mockUser,
@@ -332,7 +333,7 @@ const mockPreviousVehicle: Vehicle = {
 const mockDisplayPhoto1: MediaFile = {
   id: "display-photo-1",
   type: MediaFileType.photo,
-  url: "https://example.com/photo.jpg",
+  url: mockAssets.VEHICLE1_DISPLAY_PIC,
   document: {} as Document, // Circular reference, will be assigned later
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -341,7 +342,7 @@ const mockDisplayPhoto1: MediaFile = {
 const mockDisplayPhoto2: MediaFile = {
   id: "display-photo-2",
   type: MediaFileType.photo,
-  url: "https://example.com/photo.jpg",
+  url: mockAssets.VEHICLE2_DISPLAY_PIC,
   document: {} as Document, // Circular reference, will be assigned later
   createdAt: new Date(),
   updatedAt: new Date(),
