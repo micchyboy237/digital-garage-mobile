@@ -39,6 +39,12 @@ export const VehicleDetailsScreen: React.FC<VehicleDetailsScreenProps> = () => {
         // set default props for all tabs
         screenOptions={{
           lazy: true,
+          tabBarStyle: {
+            backgroundColor: "#eeeeee",
+          },
+          tabBarLabelStyle: {
+            textTransform: "none",
+          },
         }}
       >
         <Tab.Screen name="Overview">

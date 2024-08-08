@@ -24,9 +24,9 @@ const OverviewRoute: React.FC<OverviewRouteProps> = ({ vehicleOwnership }) => {
         Vehicle Overview
       </Text>
       <View>
-        <Text>Description: {description}</Text>
-        <Text>Start Date: {startDate?.toDateString()}</Text>
-        <Text>End Date: {endDate?.toDateString()}</Text>
+        {!!description && <Text>Description: {description}</Text>}
+        {!!startDate && <Text>Start Date: {startDate.toDateString()}</Text>}
+        {!!endDate && <Text>End Date: {endDate.toDateString()}</Text>}
         <Text>Current Owner: {isCurrentOwner ? "Yes" : "No"}</Text>
         <Text>Temporary Owner: {isTemporaryOwner ? "Yes" : "No"}</Text>
         <Text>Can Edit Documents: {canEditDocuments ? "Yes" : "No"}</Text>

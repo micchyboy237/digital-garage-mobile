@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native"
-import { Checkbox } from "app/screens/digital-garage/components/Checkbox"
+import { Toggle } from "app/components"
 import { mock2ndUser, mockUser } from "app/screens/digital-garage/data/mock"
 import { EventType, VehicleEvent, VehicleOwnership } from "app/types"
 import React, { useState } from "react"
@@ -120,59 +120,105 @@ const TransferRoute: React.FC<TransferRouteProps> = ({ vehicleOwnership }) => {
   }
 
   return (
-    <ScrollView>
-      <Text>Enter the email address of the person you want to transfer the vehicle to:</Text>
-      <TextInput
-        placeholder="Email address"
-        style={{ borderWidth: 1, marginBottom: 10 }}
-        value={email}
-        onChangeText={setEmail}
-      />
-      <Button title="Search" onPress={handleSearch} />
-      {email === "jane.smith@example.com" && (
-        <View>
-          <Text>New Owner:</Text>
-          <Text>
-            Name: {mock2ndUser.firstName} {mock2ndUser.lastName}
-          </Text>
-          <Image
-            source={{ uri: mock2ndUser.profilePicture || "" }}
-            style={{ width: 50, height: 50 }}
-          />
-        </View>
-      )}
-      <Text
+    <ScrollView
+      contentContainerStyle={{
+        padding: 20,
+        gap: 20,
+      }}
+    >
+      <View
         style={{
-          fontWeight: "bold",
+          padding: 10,
+          borderWidth: 1,
+          borderColor: "black",
         }}
       >
-        Data Items to Share
-      </Text>
+        <Text>Enter the email address of the person you want to transfer the vehicle to:</Text>
+        <TextInput
+          placeholder="Email address"
+          style={{ borderWidth: 1, marginBottom: 10 }}
+          value={email}
+          onChangeText={setEmail}
+        />
+        <Button title="Search" onPress={handleSearch} />
+        {email === "jane.smith@example.com" && (
+          <View>
+            <Text>New Owner:</Text>
+            <Text>
+              Name: {mock2ndUser.firstName} {mock2ndUser.lastName}
+            </Text>
+            <Image
+              source={{ uri: mock2ndUser.profilePicture || "" }}
+              style={{ width: 50, height: 50, borderRadius: 25 }}
+            />
+          </View>
+        )}
+      </View>
 
-      <Text>Gallery</Text>
-      <Checkbox
-        label="Transfer Gallery"
-        value={transferGallery}
-        onValueChange={setTransferGallery}
-      />
+      <View
+        style={{
+          padding: 10,
+          borderWidth: 1,
+          borderColor: "black",
+        }}
+      >
+        <Text
+          style={{
+            fontWeight: "bold",
+          }}
+        >
+          Data Items to Share
+        </Text>
 
-      <Text>History</Text>
-      <Checkbox
-        label="Transfer Reminders"
-        value={transferReminders}
-        onValueChange={setTransferReminders}
-      />
-      <Checkbox
-        label="Transfer Invoices"
-        value={transferInvoices}
-        onValueChange={setTransferInvoices}
-      />
-      <Checkbox
-        label="Transfer Documents"
-        value={transferDocuments}
-        onValueChange={setTransferDocuments}
-      />
-      <Button title="Transfer" onPress={handleTransfer} />
+        <View style={{ gap: 20, paddingVertical: 10 }}>
+          <View>
+            <Text>Gallery</Text>
+            <View
+              style={{
+                marginTop: 10,
+                gap: 10,
+              }}
+            >
+              <Toggle
+                variant="switch"
+                label="Transfer Gallery"
+                value={transferGallery}
+                onValueChange={setTransferGallery}
+              />
+            </View>
+          </View>
+
+          <View>
+            <Text>History</Text>
+            <View
+              style={{
+                marginTop: 10,
+                gap: 10,
+              }}
+            >
+              <Toggle
+                variant="switch"
+                label="Transfer Reminders"
+                value={transferReminders}
+                onValueChange={setTransferReminders}
+              />
+              <Toggle
+                variant="switch"
+                label="Transfer Invoices"
+                value={transferInvoices}
+                onValueChange={setTransferInvoices}
+              />
+              <Toggle
+                variant="switch"
+                label="Transfer Documents"
+                value={transferDocuments}
+                onValueChange={setTransferDocuments}
+              />
+            </View>
+          </View>
+        </View>
+        <Button title="Transfer" onPress={handleTransfer} />
+      </View>
     </ScrollView>
   )
 }
