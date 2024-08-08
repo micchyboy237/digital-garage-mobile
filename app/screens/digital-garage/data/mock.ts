@@ -118,25 +118,27 @@ const mockVehicle: Vehicle = {
   events: [], // Will be populated with mock events
 }
 
-const mockPhoto1: MediaFile = {
+const mockPhotoFile1: MediaFile = {
   id: "photo-1",
   type: MediaFileType.photo,
   url: mockAssets.VEHICLE1_GALLERY_PIC,
+  mimeType: "image/jpeg",
   documentId: "document-1",
   createdAt: new Date(),
   updatedAt: new Date(),
 }
 
-const mockPhoto2: MediaFile = {
+const mockPhotoFile2: MediaFile = {
   id: "photo-2",
   type: MediaFileType.photo,
   url: mockAssets.VEHICLE1_GALLERY_PIC,
+  mimeType: "image/jpeg",
   documentId: "document-1",
   createdAt: new Date(),
   updatedAt: new Date(),
 }
 
-const mockEventPhoto1: Document = {
+const mockEventPhotoDocument1: Document = {
   id: "event-photo-1",
   type: DocumentType.photo,
   date: new Date(),
@@ -144,7 +146,27 @@ const mockEventPhoto1: Document = {
   vehicleId: "vehicle-1",
   createdBy: mockUser,
   createdById: "user-1",
-  files: [mockPhoto1, mockPhoto2],
+  files: [mockPhotoFile1, mockPhotoFile2],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+const mockInvoiceFile: MediaFile = {
+  id: "file-1",
+  type: MediaFileType.document,
+  url: mockAssets.VEHICLE1_INVOICE,
+  mimeType: "application/pdf",
+  documentId: "document-1",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+const mockProofOfOwnershipFile: MediaFile = {
+  id: "file-2",
+  type: MediaFileType.document,
+  url: mockAssets.VEHICLE1_PROOF_OF_OWNERSHIP,
+  mimeType: "application/pdf",
+  documentId: "document-2",
   createdAt: new Date(),
   updatedAt: new Date(),
 }
@@ -158,7 +180,7 @@ const mockInvoiceDocument: Document = {
   vehicleId: "vehicle-1",
   createdBy: mockUser,
   createdById: "user-1",
-  files: [],
+  files: [mockInvoiceFile],
   createdAt: new Date(),
   updatedAt: new Date(),
 }
@@ -172,7 +194,7 @@ const mockProofOfOwnershipDocument: Document = {
   vehicleId: "vehicle-1",
   createdBy: mockUser,
   createdById: "user-1",
-  files: [],
+  files: [mockProofOfOwnershipFile],
   createdAt: new Date(),
   updatedAt: new Date(),
 }
@@ -189,7 +211,7 @@ const mockVehicleEvents: VehicleEvent[] = [
     vehicle: mockVehicle,
     createdById: "user-1",
     createdBy: mockUser,
-    documents: [mockEventPhoto1],
+    documents: [mockEventPhotoDocument1],
   },
   {
     id: "event-2",
@@ -205,7 +227,7 @@ const mockVehicleEvents: VehicleEvent[] = [
     id: "event-3",
     type: EventType.invoice,
     header: "Volvo Main Dealer",
-    description: "Replacement timing chain cover",
+    description: "Oil change and service",
     date: new Date("2024-06-02"),
     price: 9.99,
     documents: [mockInvoiceDocument],
@@ -218,7 +240,7 @@ const mockVehicleEvents: VehicleEvent[] = [
     id: "event-4",
     type: EventType.document,
     header: "V5 Proof of Ownership",
-    description: "Replacement received from DVLA.",
+    description: "Vehicle ownership affidavit from DVLA",
     date: new Date("2024-08-02"),
     documents: [mockProofOfOwnershipDocument],
     vehicleId: "vehicle-1",
@@ -334,6 +356,7 @@ const mockDisplayPhoto1: MediaFile = {
   id: "display-photo-1",
   type: MediaFileType.photo,
   url: mockAssets.VEHICLE1_DISPLAY_PIC,
+  mimeType: "image/jpeg",
   document: {} as Document, // Circular reference, will be assigned later
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -343,6 +366,7 @@ const mockDisplayPhoto2: MediaFile = {
   id: "display-photo-2",
   type: MediaFileType.photo,
   url: mockAssets.VEHICLE2_DISPLAY_PIC,
+  mimeType: "image/jpeg",
   document: {} as Document, // Circular reference, will be assigned later
   createdAt: new Date(),
   updatedAt: new Date(),

@@ -183,6 +183,7 @@ export interface Document extends BaseEntity {
 
 export interface MediaFile extends BaseEntity {
   type: MediaFileType
+  mimeType: string
   url: string
   description?: string
   document?: Document

@@ -1,6 +1,6 @@
 import { Document, EventType, MediaFile, MediaFileType, VehicleOwnership } from "app/types"
 import React from "react"
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native"
+import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 
 interface HistoryRouteProps {
   vehicleOwnership: VehicleOwnership
@@ -16,6 +16,23 @@ const HistoryRoute: React.FC<HistoryRouteProps> = ({ vehicleOwnership }) => {
     if (document.type === MediaFileType.photo) {
       DocumentComp = (
         <Image style={{ width: "100%", height: "100%" }} source={{ uri: document.url }} />
+      )
+    } else if (document.mimeType === "application/pdf") {
+      DocumentComp = (
+        <TouchableOpacity
+          style={{ width: "100%", height: "100%", justifyContent: "center", alignItems: "center" }}
+          onPress={() => Linking.openURL(document.url)}
+        >
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: "bold",
+              color: "white",
+            }}
+          >
+            PDF
+          </Text>
+        </TouchableOpacity>
       )
     }
 
