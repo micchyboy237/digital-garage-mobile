@@ -12,6 +12,12 @@ import {
 } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 import * as Screens from "app/screens"
+import { ForgotPasswordScreen } from "app/screens/ForgotPasswordScreen"
+import { ForgotPasswordSuccessScreen } from "app/screens/ForgotPasswordSuccessScreen"
+import { OnboardingScreen } from "app/screens/OnboardingScreen"
+import { ResetPasswordScreen } from "app/screens/ResetPasswordScreen"
+import { ResetPasswordSuccessScreen } from "app/screens/ResetPasswordSuccessScreen"
+import { SubscriptionScreen } from "app/screens/SubscriptionScreen"
 import { colors } from "app/theme"
 import { observer } from "mobx-react-lite"
 import React from "react"
@@ -68,6 +74,7 @@ const AppStack = observer(function AppStack() {
       screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
       // initialRouteName={isAuthenticated ? "Welcome" : "Login"} // @demo remove-current-line
       initialRouteName={isAuthenticated ? "Dashboard" : "Login"}
+      // initialRouteName="Subscription"
     >
       {/* @demo remove-block-start */}
       {isAuthenticated ? (
@@ -82,6 +89,13 @@ const AppStack = observer(function AppStack() {
       ) : (
         <>
           <Stack.Screen name="Login" component={Screens.LoginScreen} />
+          <Stack.Screen name="SignUp" component={Screens.SignUpScreen} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+          <Stack.Screen name="ForgotPasswordSuccess" component={ForgotPasswordSuccessScreen} />
+          <Stack.Screen name="ResetPasswordSuccess" component={ResetPasswordSuccessScreen} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          <Stack.Screen name="Subscription" component={SubscriptionScreen} />
         </>
       )}
       {/* @demo remove-block-end */}

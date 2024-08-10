@@ -5,6 +5,7 @@ export * from "./DemoDebugScreen"
 export * from "./DemoFeaturesScreen"
 export * from "./DemoShowroomScreen/DemoShowroomScreen"
 export * from "./LoginScreen"
+export * from "./SignUpScreen"
 // @demo remove-block-end
 export * from "./ErrorScreen/ErrorBoundary"
 // export other screens here

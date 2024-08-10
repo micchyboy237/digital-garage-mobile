@@ -1,16 +1,35 @@
+import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 import { Screen } from "app/components"
+import { useStores } from "app/models"
 import { mock2ndUser, mockUser } from "app/screens/digital-garage/data/mock"
+import { AddVehicleForm } from "app/screens/digital-garage/screens/dashboard/AddVehicleForm"
 import { spacing } from "app/theme"
 import { VehicleOwnership } from "app/types"
 import React, { useState } from "react"
-import { Button, Image, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native"
+import {
+  Button,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 interface DashboardScreenProps {}
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   const [user, setUser] = useState(mockUser)
+  const [isAddingVehicle, setIsAddingVehicle] = useState(false)
   const navigation = useNavigation()
+  const insets = useSafeAreaInsets()
+
+  const {
+    authenticationStore: { logout },
+  } = useStores()
 
   const currentVehicles = user.vehicleOwnerships.filter(
     (ownership) => ownership.isCurrentOwner || ownership.isTemporaryOwner,
@@ -24,14 +43,30 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     navigation.navigate("VehicleDetails", { vehicleOwnership })
   }
 
+  const handleAddVehicle = (newVehicle: VehicleOwnership) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      vehicleOwnerships: [...prevUser.vehicleOwnerships, newVehicle],
+    }))
+  }
+
   return (
     <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
       <View style={styles.topBar}>
         <Text style={styles.topBarText}>Digital Garage</Text>
         <View style={styles.topBarRight}>
-          <Text style={styles.topBarRightText}>Add Vehicle</Text>
-          <Text style={styles.topBarRightText}>Notifications</Text>
-          <Text style={styles.topBarRightText}>Settings</Text>
+          <TouchableOpacity onPress={() => setIsAddingVehicle(true)}>
+            <Ionicons name="add-circle-outline" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
+            <Ionicons name="notifications-outline" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+            <Ionicons name="settings-outline" size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={logout}>
+            <Ionicons name="log-out-outline" size={24} color="black" />
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.userSelection}>
@@ -54,6 +89,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           </Text>
         </View>
       </View>
+      <Modal visible={isAddingVehicle} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View
+            style={[
+              styles.modalContent,
+              {
+                marginTop: insets.top,
+                marginBottom: insets.bottom,
+              },
+            ]}
+          >
+            <AddVehicleForm
+              user={user}
+              onAddVehicle={handleAddVehicle}
+              onClose={() => setIsAddingVehicle(false)}
+            />
+          </View>
+        </View>
+      </Modal>
       <View style={styles.vehicleSection}>
         <Text style={styles.sectionTitle}>Current Vehicles</Text>
         {currentVehicles.map((vehicleOwnership) => (
@@ -128,10 +182,6 @@ const styles = StyleSheet.create({
   topBarRight: {
     flexDirection: "row",
   },
-  topBarRightText: {
-    marginLeft: 16,
-    fontSize: 16,
-  },
   userSelection: {
     flexDirection: "row",
     justifyContent: "center",
@@ -180,5 +230,17 @@ const styles = StyleSheet.create({
   },
   vehicleItem: {
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 8,
   },
 })
