@@ -173,7 +173,7 @@ const mockProofOfOwnershipFile: MediaFile = {
 
 const mockInvoiceDocument: Document = {
   id: "document-1",
-  type: DocumentType.invoice,
+  type: DocumentType.general,
   date: new Date(),
   title: "Invoice from Volvo Main Dealer",
   vehicle: mockVehicle,
@@ -187,7 +187,7 @@ const mockInvoiceDocument: Document = {
 
 const mockProofOfOwnershipDocument: Document = {
   id: "document-2",
-  type: DocumentType.receipt,
+  type: DocumentType.general,
   date: new Date(),
   title: "Proof of Ownership from DVLA",
   vehicle: mockVehicle,

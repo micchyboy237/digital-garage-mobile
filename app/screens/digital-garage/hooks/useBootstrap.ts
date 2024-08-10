@@ -25,7 +25,7 @@ export const useBootstrap = () => {
     isAnonymous: true,
   }
   const [state, setState] = useState(initialState)
-  const [inputUserId, setInputUserId] = useState("jet@agileminds.com")
+  const [inputUserId, setInputUserId] = useState("dg.tester2@gmail.com")
   const [productId, setProductId] = useState("rc_dg_premium_trial_14d_3.99_4.99")
 
   const hasKeys = () => {
@@ -34,10 +34,6 @@ export const useBootstrap = () => {
 
   const getInfo = async () => {
     console.log("Getting info")
-    // const logoutResult = await Purchases.logOut()
-    // console.log("Logout result", JSON.stringify(logoutResult, null, 2))
-    const loginResult = await Purchases.logIn(inputUserId)
-    console.log("Login result", JSON.stringify(loginResult, null, 2))
 
     try {
       const customerInfo = await Purchases.getCustomerInfo()
@@ -53,9 +49,26 @@ export const useBootstrap = () => {
       console.log("Offerings: ", JSON.stringify(offerings, null, 2))
       const products = await Purchases.getProducts([productId])
       console.log("Products: ", JSON.stringify(products, null, 2))
-      await triggerPurchase()
     } catch (e) {
       console.log("Purchase get info error", e)
+    }
+  }
+
+  const login = async () => {
+    try {
+      const loginResult = await Purchases.logIn(inputUserId)
+      console.log("Login result", JSON.stringify(loginResult, null, 2))
+    } catch (e) {
+      console.log("Login error", e)
+    }
+  }
+
+  const logout = async () => {
+    try {
+      const logoutResult = await Purchases.logOut()
+      console.log("Logout result", JSON.stringify(logoutResult, null, 2))
+    } catch (e) {
+      console.log("Logout error", e)
     }
   }
 
@@ -66,6 +79,13 @@ export const useBootstrap = () => {
     } catch (e) {
       console.log("Purchase error", e)
     }
+  }
+
+  const sampleTriggers = async () => {
+    // await logout()
+    await login()
+    await getInfo()
+    // await triggerPurchase()
   }
 
   useEffect(() => {
@@ -98,7 +118,7 @@ export const useBootstrap = () => {
       })
     }
 
-    getInfo()
+    sampleTriggers()
   }, [])
 
   return null

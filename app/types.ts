@@ -16,9 +16,8 @@ export enum EventType {
 }
 
 export enum DocumentType {
+  general = "general",
   photo = "photo",
-  invoice = "invoice",
-  receipt = "receipt",
 }
 
 export enum MediaFileType {
