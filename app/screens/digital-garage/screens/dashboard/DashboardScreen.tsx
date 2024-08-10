@@ -76,7 +76,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
       <View style={styles.userInfo}>
         {user.profilePicture && (
           <View>
-            <Image source={{ uri: user.profilePicture }} style={styles.userPicture} />
+            <Image source={{ uri: user.profilePicture.url }} style={styles.userPicture} />
           </View>
         )}
         <View>

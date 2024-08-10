@@ -148,7 +148,7 @@ const TransferRoute: React.FC<TransferRouteProps> = ({ vehicleOwnership }) => {
               Name: {mock2ndUser.firstName} {mock2ndUser.lastName}
             </Text>
             <Image
-              source={{ uri: mock2ndUser.profilePicture || "" }}
+              source={{ uri: mock2ndUser.profilePicture?.url || "" }}
               style={{ width: 50, height: 50, borderRadius: 25 }}
             />
           </View>

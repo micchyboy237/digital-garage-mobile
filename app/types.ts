@@ -95,7 +95,7 @@ export interface User extends BaseEntity {
   firstName?: string
   lastName?: string
   email: string
-  profilePicture?: string
+  profilePicture?: MediaFile
   location?: string
   auth?: Auth
   session: Session[]

@@ -21,13 +21,33 @@ import {
   VehicleOwnership,
 } from "../../../types"
 
+const mockProfilePic1: MediaFile = {
+  id: "profile-pic-1",
+  type: MediaFileType.photo,
+  url: mockAssets.USER1_PROFILE_PIC,
+  mimeType: "image/jpeg",
+  document: {} as Document, // Circular reference, will be assigned later
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+const mockProfilePic2: MediaFile = {
+  id: "profile-pic-2",
+  type: MediaFileType.photo,
+  url: mockAssets.USER2_PROFILE_PIC,
+  mimeType: "image/jpeg",
+  document: {} as Document, // Circular reference, will be assigned later
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
 const mockUser: User = {
   id: "user-1",
   role: UserRole.user,
   firstName: "John",
   lastName: "Doe",
   email: "john.doe@example.com",
-  profilePicture: mockAssets.USER1_PROFILE_PIC,
+  profilePicture: mockProfilePic1,
   location: "New York, USA",
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -61,7 +81,7 @@ const mock2ndUser: User = {
   firstName: "Jane",
   lastName: "Smith",
   email: "jane.smith@example.com",
-  profilePicture: mockAssets.USER2_PROFILE_PIC,
+  profilePicture: mockProfilePic2,
   location: "Los Angeles, USA",
   createdAt: new Date(),
   updatedAt: new Date(),
