@@ -52,6 +52,12 @@
       "bundler": "metro"
     },
     "plugins": [
+      [
+        "expo-dev-launcher",
+        {
+          "launchMode": "most-recent"
+        }
+      ],
       "expo-localization",
       [
         "expo-build-properties",

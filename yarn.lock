@@ -2435,6 +2435,11 @@
   dependencies:
     nanoid "^3.1.23"
 
+"@revenuecat/purchases-typescript-internal@13.0.1":
+  version "13.0.1"
+  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-typescript-internal/-/purchases-typescript-internal-13.0.1.tgz#9cd36e9fc2096800fb54e5cf3ecfebb66c5b8f8a"
+  integrity sha512-204CIUcKUNlsaVZH0vieN3EpAFYpuOvZDSwhB6zfA9j9QGtfJqDQ+OG6gTBoVuTqAInIBuFV4dJwQPXViSlcNg==
+
 "@rnx-kit/chromium-edge-launcher@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@rnx-kit/chromium-edge-launcher/-/chromium-edge-launcher-1.0.0.tgz#c0df8ea00a902c7a417cd9655aab06de398b939c"
@@ -8004,6 +8009,21 @@ react-native-pager-view@6.3.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-6.3.0.tgz#7e734e84b1692f877591335373f6fd92f0d67aa6"
   integrity sha512-ufJOoVa9pFL1J/yb4hpsCqp8n1qTlcF5VvwqvCacHX//D7hSeRscsiIXg1u1pXNWwllvACb+mqxec/3Uj2mxrA==
+
+react-native-purchases-ui@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-purchases-ui/-/react-native-purchases-ui-8.0.1.tgz#031643ed77a94e8e17d17348cc0930460557b8a5"
+  integrity sha512-nmXPkW8vrSbJ7ch6QcJiOhY7cyw7DQ/3TeKxXFWkv4MO1z9peWhZXdYRsCR5GNeuJzwmHgU+38BdeFvNwvUx4w==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "13.0.1"
+    react-native-purchases "8.0.1"
+
+react-native-purchases@8.0.1, react-native-purchases@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-purchases/-/react-native-purchases-8.0.1.tgz#ff800b6e36e8a3010aa7d241285ca3f1bc23a3de"
+  integrity sha512-+dAwPszw/L5N48FF8V3EluAo33xQlxJ7doo7VugqvHsz1Zu+VoO7aBZS9t3gWM9XaV+MquPtdE/mePyt+vYIxA==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "13.0.1"
 
 react-native-reanimated@~3.10.1:
   version "3.10.1"

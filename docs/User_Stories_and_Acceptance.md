@@ -330,8 +330,8 @@ As a developer, I want to use RevenueCat to manage in-app subscriptions, so I ca
 
 ### [Notifications and Alerts](#notifications-and-alerts)
 #### 1. **Reminders and Alerts**
-   - **User Story:** As a user, I want to receive reminders for upcoming maintenance and document expirations, so that I can stay on top of important tasks.
-   - **Acceptance Criteria:** Users receive timely notifications and can customize settings.
+   - **User Story:** As a user, I want to receive reminders for upcoming MOT expiry date. 7 days before and actual day.
+   - **Acceptance Criteria:** Users receive notifications for upcoming MOT expiry date.
 
 ### [User Experience](#user-experience)
 #### 1. **User-Friendly Interface**
