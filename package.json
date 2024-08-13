@@ -40,7 +40,7 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
     "@shopify/flash-list": "^1.6.4",
-    "@tanstack/react-query": "^5.51.21",
+    "@tanstack/react-query": "4.36.1",
     "@trpc/client": "^10.45.2",
     "@trpc/react-query": "^10.45.2",
     "@trpc/server": "^10.45.2",

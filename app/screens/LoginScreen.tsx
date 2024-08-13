@@ -1,5 +1,7 @@
 import { FontAwesome } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
+import { ErrorMessages } from "app/errors"
+import { trpc } from "app/services/api"
 import { observer } from "mobx-react-lite"
 import React, { ComponentType, FC, useEffect, useMemo, useRef, useState } from "react"
 import { Image, TextInput, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
@@ -23,36 +25,59 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const {
     authenticationStore: { authEmail, setAuthEmail, setAuthToken, validationError },
   } = useStores()
+  const mutation = trpc.oldAuth.login.useMutation({
+    onSuccess: (data) => {
+      console.log("login success:", data)
+      setAuthToken(data.accessToken)
+    },
+  })
 
   useEffect(() => {
     // Here is where you could fetch credentials from keychain or storage
     // and pre-fill the form fields.
-    // setAuthEmail("ignite@infinite.red")
-    // setAuthPassword("ign1teIses0m3")
+    setAuthEmail("micchyboy.developer@gmail.com")
+    setAuthPassword("asdasd!123")
 
     // Return a "cleanup" function that React will run when the component unmounts
     return () => {
       setAuthPassword("")
-      setAuthEmail("")
+      // setAuthEmail("")
     }
   }, [])
 
-  const error = isSubmitted ? validationError : ""
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      const response = mutation.data
+    }
+  }, [mutation.isSuccess])
 
-  function login() {
-    setIsSubmitted(true)
-    setAttemptsCount(attemptsCount + 1)
+  console.log("login mutation:", {
+    isSuccess: mutation.isSuccess,
+    isLoading: mutation.isLoading,
+    isError: mutation.isError,
+    errorCode: mutation.error?.message,
+    data: mutation.data,
+    error: ErrorMessages[mutation.error?.message],
+  })
 
-    if (validationError) return
+  // const error = isSubmitted ? validationError : ""
+  const error = mutation.isError && ErrorMessages[mutation.error?.message]
 
-    // Make a request to your server to get an authentication token.
-    // If successful, reset the fields and set the token.
-    setIsSubmitted(false)
-    setAuthPassword("")
-    setAuthEmail("")
+  async function handleLogin() {
+    mutation.mutate({ email: authEmail, password: authPassword })
+    // setIsSubmitted(true)
+    // setAttemptsCount(attemptsCount + 1)
 
-    // We'll mock this with a fake token.
-    setAuthToken(String(Date.now()))
+    // if (validationError) return
+
+    // // Make a request to your server to get an authentication token.
+    // // If successful, reset the fields and set the token.
+    // setIsSubmitted(false)
+    // setAuthPassword("")
+    // // setAuthEmail("")
+
+    // // We'll mock this with a fake token.
+    // setAuthToken(String(Date.now()))
   }
 
   const PasswordRightAccessory: ComponentType<TextFieldAccessoryProps> = useMemo(
@@ -96,8 +121,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         keyboardType="email-address"
         labelTx="loginScreen.emailFieldLabel"
         placeholderTx="loginScreen.emailFieldPlaceholder"
-        helper={error}
-        status={error ? "error" : undefined}
+        // helper={error}
+        // status={error ? "error" : undefined}
         onSubmitEditing={() => authPasswordInput.current?.focus()}
       />
 
@@ -112,11 +137,23 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         secureTextEntry={isAuthPasswordHidden}
         labelTx="loginScreen.passwordFieldLabel"
         placeholderTx="loginScreen.passwordFieldPlaceholder"
-        onSubmitEditing={login}
+        onSubmitEditing={handleLogin}
         RightAccessory={PasswordRightAccessory}
       />
 
-      <Button testID="login-button" style={$logIn} preset="reversed" onPress={login}>
+      {error && (
+        <Text
+          style={{
+            color: colors.error,
+            marginBottom: spacing.sm,
+            textAlign: "center",
+          }}
+        >
+          {error}
+        </Text>
+      )}
+
+      <Button testID="login-button" style={$logIn} preset="reversed" onPress={handleLogin}>
         Log In
       </Button>
 

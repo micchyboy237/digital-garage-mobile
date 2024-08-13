@@ -94,6 +94,7 @@ import { createTRPCReact } from "@trpc/react-query"
 import React from "react"
 
 // import type { AppRouter } from "@acme/api";
+import { RootStore, useStores } from "app/models"
 import type { AppRouter } from "../../../../digital-garage/packages/api"
 
 /**
@@ -101,21 +102,36 @@ import type { AppRouter } from "../../../../digital-garage/packages/api"
  */
 export const trpc = createTRPCReact<AppRouter>()
 
-export const trpcClient = trpc.createClient({
-  links: [
-    httpBatchLink({
-      url: Config.API_TRPC_URL,
-    }),
-  ],
-})
-
 export const queryClient = new QueryClient()
+
+export const createTrpcClient = (rootStore: RootStore) =>
+  trpc.createClient({
+    links: [
+      httpBatchLink({
+        url: Config.API_TRPC_URL,
+        headers: async () => {
+          console.log("rootStore:", rootStore)
+          const token = rootStore.authenticationStore.authToken
+          console.log("headers token:", token)
+          if (!token) {
+            return {}
+          }
+          return {
+            Authorization: token ? "Bearer " + token : "",
+          }
+        },
+      }),
+    ],
+  })
 
 /**
  * A wrapper for your app that provides the TRPC context.
  * Use only in _app.tsx
  */
 export function TRPCProvider(props: { children: React.ReactNode }) {
+  const rootStore = useStores() // Get root store from context
+  const trpcClient = React.useMemo(() => createTrpcClient(rootStore), [rootStore])
+
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>

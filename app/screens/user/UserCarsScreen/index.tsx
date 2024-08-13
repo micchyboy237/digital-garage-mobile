@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
-import { ListingsProps } from "app/screens/user/UserCarsScreen/types"
+import { Screen } from "app/components"
 import { MOCK_CARS } from "app/screens/user/UserCarsScreen/mock"
+import { ListingsProps } from "app/screens/user/UserCarsScreen/types"
+import { trpc } from "app/services/api"
 import React, { useEffect, useRef, useState } from "react"
 import {
   FlatList,
@@ -14,17 +16,47 @@ import {
 } from "react-native"
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated"
 
-
-
-
 export const UserCarsScreen = () => {
   const [loading, setLoading] = useState(false)
   const [category, setCategory] = useState("all")
   const listRef = useRef<FlatList>(null)
   const navigation = useNavigation()
-  
+
   const data = MOCK_CARS
-  
+  // const {
+  //   data: dbData,
+  //   error: dbError,
+  //   isLoading: dbLoading,
+  // } = trpc.user.findManyUser.useQuery({
+  //   select: {
+  //     id: true,
+  //     session: true,
+  //     subscription: true,
+  //     vehicleOwnerships: true,
+  //     documents: true,
+  //   },
+  // })
+  const {
+    data: userData,
+    error: userError,
+    isLoading: userLoading,
+  } = trpc.user.findUniqueUser.useQuery({
+    where: {
+      id: "user-1",
+    },
+    include: {
+      session: true,
+      subscription: true,
+      vehicleOwnerships: true,
+      documents: true,
+    },
+  })
+  console.log("User query:", {
+    userData,
+    userError,
+    userLoading,
+  })
+
   useEffect(() => {
     setLoading(true)
     setTimeout(() => {
@@ -83,13 +115,9 @@ export const UserCarsScreen = () => {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-      }}
-    >
+    <Screen preset="fixed" safeAreaEdges={["top"]}>
       <FlatList renderItem={renderRow} data={loading ? [] : data} ref={listRef} />
-    </View>
+    </Screen>
   )
 }
 
