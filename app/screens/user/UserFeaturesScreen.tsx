@@ -13,8 +13,10 @@ import {
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
+const TABS = ["db", "api"]
+
 export function UserFeaturesScreen() {
-  const [selectedTab, setSelectedTab] = useState("api")
+  const [selectedTab, setSelectedTab] = useState("db")
   const [expandedItems, setExpandedItems] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
   const [currentFormFields, setCurrentFormFields] = useState({})
@@ -71,7 +73,7 @@ export function UserFeaturesScreen() {
 
   const renderTabs = () => (
     <View style={styles.tabsContainer}>
-      {["api", "db"].map((tab) => (
+      {TABS.map((tab) => (
         <TouchableOpacity
           key={tab}
           style={[styles.tabButton, selectedTab === tab && styles.activeTabButton]}
@@ -112,17 +114,27 @@ export function UserFeaturesScreen() {
     } else if (selectedTab === "db") {
       const dbRoutes = routesData?.filter((route) => route.key.includes(".findMany")) || []
       return (
-        <ScrollView style={{ padding: 16 }}>
-          {dbRoutes.map((route) => {
-            const [dbType, dbMethod] = route.key.split(".")
+        <View style={{ height: "100%" }}>
+          <ScrollView contentContainerStyle={{ padding: 16 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                width: "100%",
+              }}
+            >
+              {dbRoutes.map((route) => {
+                const [dbType, dbMethod] = route.key.split(".")
 
-            return (
-              <View key={route.key}>
-                <DBTab type={dbType} method={dbMethod} renderItem={renderNestedObject} />
-              </View>
-            )
-          })}
-        </ScrollView>
+                return (
+                  <View key={route.key}>
+                    <DBTab type={dbType} method={dbMethod} renderItem={renderNestedObject} />
+                  </View>
+                )
+              })}
+            </View>
+          </ScrollView>
+        </View>
       )
     }
   }
@@ -179,11 +191,6 @@ export function DBTab({
       id: true,
     },
   })
-  console.log("DBTab result:\n", {
-    dbData,
-    dbError,
-    dbLoading,
-  })
 
   if (!dbLoading && !dbData?.length) {
     return null
@@ -191,7 +198,17 @@ export function DBTab({
 
   return (
     <View style={{ padding: 16 }}>
-      <Text style={styles.title}>{`${type}.${method}`}</Text>
+      {/* <Text style={styles.title}>{`${type}.${method}`}</Text> */}
+      <Text
+        style={[
+          styles.title,
+          {
+            textTransform: "capitalize",
+          },
+        ]}
+      >
+        {type} ({dbData?.length ? dbData.length : ""})
+      </Text>
       {dbLoading && <Loading />}
       {dbError && <Text>Error: {dbError.message}</Text>}
       {!!dbData?.length ? (
@@ -219,7 +236,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
-    // marginBottom: 10,
+    marginBottom: 10,
   },
   nestedObjectContainer: {
     marginLeft: 10,
