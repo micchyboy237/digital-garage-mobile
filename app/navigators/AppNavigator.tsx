@@ -11,13 +11,13 @@ import {
   NavigatorScreenParams, // @demo remove-current-line
 } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
+import { UserNavigator } from "app/navigators/UserNavigator"
 import * as Screens from "app/screens"
 import { ForgotPasswordScreen } from "app/screens/ForgotPasswordScreen"
 import { ForgotPasswordSuccessScreen } from "app/screens/ForgotPasswordSuccessScreen"
-import { OnboardingScreen } from "app/screens/OnboardingScreen"
 import { ResetPasswordScreen } from "app/screens/ResetPasswordScreen"
 import { ResetPasswordSuccessScreen } from "app/screens/ResetPasswordSuccessScreen"
-import { SubscriptionScreen } from "app/screens/SubscriptionScreen"
+import { CarDetailsScreen } from "app/screens/user/UserCarsScreen/CarDetails"
 import { colors } from "app/theme"
 import { observer } from "mobx-react-lite"
 import React from "react"
@@ -45,6 +45,17 @@ export type AppStackParamList = {
   Login: undefined // @demo remove-current-line
   Demo: NavigatorScreenParams<DemoTabParamList> // @demo remove-current-line
   // 🔥 Your screens go here
+  SignUp: undefined
+  ForgotPassword: undefined
+  ResetPassword: undefined
+  ForgotPasswordSuccess: undefined
+  ResetPasswordSuccess: undefined
+  Onboarding: undefined
+  Subscription: undefined
+  User: undefined
+  Dashboard: undefined
+  VehicleDetails: undefined
+  CarDetails: undefined
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
@@ -73,16 +84,21 @@ const AppStack = observer(function AppStack() {
     <Stack.Navigator
       screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
       // initialRouteName={isAuthenticated ? "Welcome" : "Login"} // @demo remove-current-line
-      initialRouteName={isAuthenticated ? "Dashboard" : "Login"}
+      initialRouteName={isAuthenticated ? "User" : "Login"}
+      // initialRouteName={isAuthenticated ? "Onboarding" : "Login"}
       // initialRouteName="Subscription"
     >
       {/* @demo remove-block-start */}
       {isAuthenticated ? (
         <>
+          {/* <Stack.Screen name="Onboarding" component={OnboardingScreen} /> */}
+          {/* <Stack.Screen name="Subscription" component={SubscriptionScreen} /> */}
+          <Stack.Screen name="User" component={UserNavigator} />
+          <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
           <Stack.Screen name="Dashboard" component={Screens.DashboardScreen} />
           <Stack.Screen name="VehicleDetails" component={Screens.VehicleDetailsScreen} />
           {/* @demo remove-block-end */}
-          {/* <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} /> */}
+          <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
           {/* @demo remove-block-start */}
           {/* <Stack.Screen name="Demo" component={DemoNavigator} /> */}
         </>
@@ -94,8 +110,8 @@ const AppStack = observer(function AppStack() {
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="ForgotPasswordSuccess" component={ForgotPasswordSuccessScreen} />
           <Stack.Screen name="ResetPasswordSuccess" component={ResetPasswordSuccessScreen} />
-          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          <Stack.Screen name="Subscription" component={SubscriptionScreen} />
+          {/* <Stack.Screen name="Onboarding" component={OnboardingScreen} /> */}
+          {/* <Stack.Screen name="Subscription" component={SubscriptionScreen} /> */}
         </>
       )}
       {/* @demo remove-block-end */}

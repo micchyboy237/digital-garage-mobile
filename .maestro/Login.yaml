@@ -10,8 +10,14 @@ appId: com.agileminds.digitalgarage # the app id of the app we want to test
 - clearState # clears the state of our app (navigation and authentication)
 - launchApp # launches the app
 - assertVisible: "Log In"
+- inputText:
+    id: "email-input"
+    text: "jet@agileminds.com"
+- inputText:
+    id: "password-input"
+    text: "asdasdasd"
 - tapOn:
-    text: "Tap to Log in!"
+    text: "Log In"
 - assertVisible: "Your app, almost ready for launch!"
 - tapOn:
     text: "Let's go!"

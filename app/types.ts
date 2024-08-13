@@ -184,6 +184,7 @@ export interface MediaFile extends BaseEntity {
   type: MediaFileType
   mimeType: string
   url: string
+  thumbnailUrl?: string
   description?: string
   document?: Document
   documentId?: string

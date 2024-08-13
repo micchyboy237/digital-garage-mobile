@@ -11,3 +11,4 @@ export * from "./ErrorScreen/ErrorBoundary"
 // export other screens here
 export * from "./digital-garage/screens/dashboard"
 export * from "./digital-garage/screens/vehicle-details"
+export * from "./user"

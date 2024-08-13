@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons"
 import * as React from "react"
 import { ComponentType } from "react"
 import {
@@ -11,7 +12,7 @@ import {
   ViewStyle,
 } from "react-native"
 
-export type IconTypes = keyof typeof iconRegistry
+export type IconTypes = keyof typeof iconRegistry | keyof typeof Ionicons.glyphMap
 
 interface IconProps extends TouchableOpacityProps {
   /**
@@ -46,9 +47,8 @@ interface IconProps extends TouchableOpacityProps {
 }
 
 /**
- * A component to render a registered icon.
+ * A component to render a registered icon or Ionicon.
  * It is wrapped in a <TouchableOpacity /> if `onPress` is provided, otherwise a <View />.
- * @see [Documentation and Examples]{@link https://docs.infinite.red/ignite-cli/boilerplate/components/Icon/}
  * @param {IconProps} props - The props for the `Icon` component.
  * @returns {JSX.Element} The rendered `Icon` component.
  */
@@ -67,20 +67,39 @@ export function Icon(props: IconProps) {
     TouchableOpacityProps | ViewProps
   >
 
-  const $imageStyle: StyleProp<ImageStyle> = [
-    $imageStyleBase,
-    color !== undefined && { tintColor: color },
-    size !== undefined && { width: size, height: size },
-    $imageStyleOverride,
-  ]
+  // Check if the icon is in the iconRegistry
+  if (icon in iconRegistry) {
+    const $imageStyle: StyleProp<ImageStyle> = [
+      $imageStyleBase,
+      color !== undefined && { tintColor: color },
+      size !== undefined && { width: size, height: size },
+      $imageStyleOverride,
+    ]
 
+    return (
+      <Wrapper
+        accessibilityRole={isPressable ? "imagebutton" : undefined}
+        {...WrapperProps}
+        style={$containerStyleOverride}
+      >
+        <Image style={$imageStyle} source={iconRegistry[icon]} />
+      </Wrapper>
+    )
+  }
+
+  // Otherwise, assume it is an Ionicons icon
   return (
     <Wrapper
       accessibilityRole={isPressable ? "imagebutton" : undefined}
       {...WrapperProps}
       style={$containerStyleOverride}
     >
-      <Image style={$imageStyle} source={iconRegistry[icon]} />
+      <Ionicons
+        name={icon as keyof typeof Ionicons.glyphMap}
+        size={size}
+        color={color}
+        style={$imageStyleOverride as any}
+      />
     </Wrapper>
   )
 }
@@ -108,6 +127,21 @@ export const iconRegistry = {
   slack: require("../../assets/icons/demo/slack.png"), // @demo remove-current-line
   view: require("../../assets/icons/view.png"),
   x: require("../../assets/icons/x.png"),
+  // add more icons here
+  homeGarage: require("../../assets/icons/user/Home garage.png"),
+  book: require("../../assets/icons/user/Book.png"),
+  email: require("../../assets/icons/user/Email.png"),
+  dataShare: require("../../assets/icons/user/Data share.png"),
+  search: require("../../assets/icons/user/Search.png"),
+  shareKnowledge: require("../../assets/icons/user/Share knowledge.png"),
+  camera: require("../../assets/icons/user/Camera.png"),
+  notificationNew: require("../../assets/icons/user/Notification new.png"),
+  car: require("../../assets/icons/user/Car.png"),
+  // tab icons
+  tabHomeGarage: require("../../assets/icons/user/Tab_Home garage.png"),
+  tabCurrencyPound: require("../../assets/icons/user/Currency pound.png"),
+  tabMostlyCloudy: require("../../assets/icons/user/Mostly cloudy.png"),
+  tabEvents: require("../../assets/icons/user/Events.png"),
 }
 
 const $imageStyleBase: ImageStyle = {
