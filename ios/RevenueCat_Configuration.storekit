@@ -1,0 +1,234 @@
+{
+  "identifier" : "4C015B6B",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6636554744",
+    "_developerTeamID" : "ZYB3VW3AV4",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 745495026.14940798,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21526170",
+      "localizations" : [
+
+      ],
+      "name" : "Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "69.99",
+          "familyShareable" : false,
+          "groupNumber" : 6,
+          "internalID" : "6639611620",
+          "introductoryOffer" : null,
+          "localizations" : [
+
+          ],
+          "productID" : "rc_cg_annual_premium_69.99",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Annual Premium (up to 7 vehicles) £69.99",
+          "subscriptionGroupID" : "21526170",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "99.99",
+          "familyShareable" : false,
+          "groupNumber" : 5,
+          "internalID" : "6639611781",
+          "introductoryOffer" : null,
+          "localizations" : [
+
+          ],
+          "productID" : "rc_cg_annual_premium_plus_99.99",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Annual Premium Plus (up to 12 vehicles) £99.99",
+          "subscriptionGroupID" : "21526170",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "49.99",
+          "familyShareable" : false,
+          "groupNumber" : 7,
+          "internalID" : "6639611754",
+          "introductoryOffer" : null,
+          "localizations" : [
+
+          ],
+          "productID" : "rc_cg_annual_standard_49.99",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Annual Standard (1-3 vehicles) £49.99",
+          "subscriptionGroupID" : "21526170",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "6.99",
+          "familyShareable" : false,
+          "groupNumber" : 4,
+          "internalID" : "6639611727",
+          "introductoryOffer" : null,
+          "localizations" : [
+
+          ],
+          "productID" : "rc_cg_monthly_premium_6.99",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly Premium (up to 7 vehicles) £6.99",
+          "subscriptionGroupID" : "21526170",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "9.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6639611592",
+          "introductoryOffer" : null,
+          "localizations" : [
+
+          ],
+          "productID" : "rc_cg_monthly_premium_plus_9.99",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly Premium Plus (up to 12 vehicles) £9.99",
+          "subscriptionGroupID" : "21526170",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6639611590",
+          "introductoryOffer" : null,
+          "localizations" : [
+
+          ],
+          "productID" : "rc_cg_monthly_standard_4.99",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly Standard (1-3 vehicles) £4.99",
+          "subscriptionGroupID" : "21526170",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+            {
+              "displayPrice" : "3.99",
+              "internalID" : "14D1EEB0",
+              "numberOfPeriods" : 3,
+              "offerID" : "rc_cg_promo_premium_reduced_3months_3.99",
+              "paymentMode" : "payAsYouGo",
+              "referenceName" : "Reduced rate for 3 months to £3.99",
+              "subscriptionPeriod" : "P1M"
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6639611630",
+          "introductoryOffer" : null,
+          "localizations" : [
+
+          ],
+          "productID" : "rc_cg_premium_trial_14d_3.99_4.99",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium 14-day trial (1-3 vehicles) £0.00 | 3-mos £3.99 | £4.99",
+          "subscriptionGroupID" : "21526170",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

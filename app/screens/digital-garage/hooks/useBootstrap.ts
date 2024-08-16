@@ -26,7 +26,7 @@ export const useBootstrap = () => {
   }
   const [state, setState] = useState(initialState)
   const [inputUserId, setInputUserId] = useState("dg.tester2@gmail.com")
-  const [productId, setProductId] = useState("rc_dg_premium_trial_14d_3.99_4.99")
+  const [productId, setProductId] = useState("rc_cg_premium_trial_14d_3.99_4.99")
 
   const hasKeys = () => {
     return APIKeys.apple.length > 0 || APIKeys.google.length > 0 || APIKeys.amazon.length > 0
@@ -45,8 +45,8 @@ export const useBootstrap = () => {
       const canMakePayments = await Purchases.canMakePayments()
       console.log("Can make payments", JSON.stringify(canMakePayments, null, 2))
 
-      const offerings = await Purchases.getOfferings()
-      console.log("Offerings: ", JSON.stringify(offerings, null, 2))
+      // const offerings = await Purchases.getOfferings()
+      // console.log("Offerings: ", JSON.stringify(offerings, null, 2))
       const products = await Purchases.getProducts([productId])
       console.log("Products: ", JSON.stringify(products, null, 2))
     } catch (e) {

@@ -16,6 +16,7 @@ if (__DEV__) {
   // If you turn it off in metro.config.js, you'll have to manually import it.
   require("./devtools/ReactotronConfig.ts")
 }
+import { useBootstrap } from "app/screens/digital-garage/hooks/useBootstrap"
 import { useFonts } from "expo-font"
 import * as Linking from "expo-linking"
 import React from "react"
@@ -74,7 +75,7 @@ function App(props: AppProps) {
   } = useNavigationPersistence(storage, NAVIGATION_PERSISTENCE_KEY)
 
   const [areFontsLoaded, fontLoadError] = useFonts(customFontsToLoad)
-  // useBootstrap()
+  useBootstrap()
 
   console.log("BEFORE useInitialRootStore")
   const { rehydrated } = useInitialRootStore(() => {

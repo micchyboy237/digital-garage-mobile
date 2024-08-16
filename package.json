@@ -6,6 +6,7 @@
   "scripts": {
     "start": "yarn clean:watchman && yarn clean:derived && npx expo start -c",
     "ios": "expo run:ios",
+    "ios:scheme:storekit": "expo run:ios --scheme ClassicGarage_TestStoreKit",
     "android": "expo run:android",
     "web": "npx expo start --web",
     "compile": "tsc --noEmit -p . --pretty",
@@ -19,7 +20,6 @@
     "postinstall": "patch-package",
     "bundle:visualize": "npx react-native-bundle-visualizer",
     "bundle:visualize:dev": "npx react-native-bundle-visualizer --dev",
-    "ios:scheme:storekit": "expo run:ios --scheme ClassicGarageStoreKit",
     "bundle:web": "npx expo export --platform web",
     "serve:web": "npx server dist",
     "clean": "yarn clean:derived && yarn clean:folders && yarn clean:watchman",
