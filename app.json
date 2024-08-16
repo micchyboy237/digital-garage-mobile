@@ -1,10 +1,10 @@
 {
-  "name": "DigitalGarage",
-  "displayName": "Digital Garage",
+  "name": "Classic Garage",
+  "displayName": "Classic Garage",
   "expo": {
-    "name": "Digital Garage",
-    "slug": "digital-garage",
-    "scheme": "digitalgarage",
+    "name": "Classic Garage",
+    "slug": "classic-garage",
+    "scheme": "classicgarage",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon-all.png",
@@ -20,7 +20,7 @@
     "assetBundlePatterns": ["**/*"],
     "android": {
       "icon": "./assets/images/app-icon-android-legacy.png",
-      "package": "com.agileminds.digitalgarage",
+      "package": "com.agileminds.classicgarage",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
         "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
@@ -32,9 +32,26 @@
       }
     },
     "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "buildNumber": "1",
+      "bundleIdentifier": "com.agileminds.classicgarage",
+      "associatedDomains": [
+        "applinks:classicgarage.app",
+        "applinks:www.classicgarage.app",
+        "applinks:dev.classicgarage.app",
+        "applinks:staging.classicgarage.app",
+        "applinks:classicgarage.uk",
+        "applinks:www.classicgarage.uk",
+        "applinks:dev.classicgarage.uk",
+        "applinks:staging.classicgarage.uk"
+      ],
+      "entitlements": {
+        "aps-environment": "production",
+        "com.apple.developer.applesignin": ["Default"]
+      },
       "icon": "./assets/images/app-icon-ios.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.agileminds.digitalgarage",
+      "usesAppleSignIn": true,
       "splash": {
         "image": "./assets/images/splash-logo-ios-mobile.png",
         "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
@@ -70,7 +87,20 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-apple-authentication",
+      "@react-native-google-signin/google-signin",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
     ],
     "experiments": {
       "tsconfigPaths": true

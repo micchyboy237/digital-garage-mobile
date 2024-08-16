@@ -1,6 +1,8 @@
-import { FontAwesome } from "@expo/vector-icons"
+import { AppleButton } from "@invertase/react-native-apple-authentication"
 import { useNavigation } from "@react-navigation/native"
 import { ErrorMessages } from "app/errors"
+import { useAppleAuth } from "app/screens/auth/useAppleAuth"
+import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import { trpc } from "app/services/api"
 import { observer } from "mobx-react-lite"
 import React, { ComponentType, FC, useEffect, useMemo, useRef, useState } from "react"
@@ -18,17 +20,44 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const navigation = useNavigation()
   const authPasswordInput = useRef<TextInput>(null)
 
+  const { authenticationStore } = useStores()
+
+  const appleAuth = useAppleAuth({
+    onSignIn: (state) => {
+      console.log("Apple sign in successful:", state)
+      authenticationStore.setAuthUser(state.user)
+      authenticationStore.setAuthSession(state.session)
+    },
+    onSignOut: (user) => {
+      console.log("Apple sign out successful:", user)
+    },
+  })
+
+  const googleAuth = useGoogleAuth({
+    onSignIn: (state) => {
+      console.log("Google sign in successful:", state)
+      authenticationStore.setAuthUser(state.user)
+      authenticationStore.setAuthSession(state.session)
+    },
+    onSignOut: (user) => {
+      console.log("Google sign out successful:", user)
+    },
+  })
+
+  // useEffect(() => {
+  //   signOutAsync()
+  // }, [])
+
+  const [authEmail, setAuthEmail] = useState("")
   const [authPassword, setAuthPassword] = useState("")
   const [isAuthPasswordHidden, setIsAuthPasswordHidden] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
-  const {
-    authenticationStore: { authEmail, setAuthEmail, setAuthToken, validationError },
-  } = useStores()
+
   const mutation = trpc.oldAuth.login.useMutation({
     onSuccess: (data) => {
       console.log("login success:", data)
-      setAuthToken(data.accessToken)
+      // setAuthToken(data.accessToken)
     },
   })
 
@@ -50,15 +79,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       const response = mutation.data
     }
   }, [mutation.isSuccess])
-
-  console.log("login mutation:", {
-    isSuccess: mutation.isSuccess,
-    isLoading: mutation.isLoading,
-    isError: mutation.isError,
-    errorCode: mutation.error?.message,
-    data: mutation.data,
-    error: ErrorMessages[mutation.error?.message],
-  })
 
   // const error = isSubmitted ? validationError : ""
   const error = mutation.isError && ErrorMessages[mutation.error?.message]
@@ -169,7 +189,26 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         <Text style={$signUpButton}>Forgot password?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
+      <AppleButton
+        buttonStyle={AppleButton.Style.BLACK}
+        buttonType={AppleButton.Type.SIGN_IN}
+        style={{
+          width: 160,
+          height: 45,
+        }}
+        onPress={appleAuth.signInAsync}
+      />
+
+      <Button text="Google Sign-In" onPress={googleAuth.signInAsync} />
+
+      {/* <AppleAuthentication.AppleAuthenticationButton
+        buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+        buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+        cornerRadius={4}
+        onPress={signInAsync}
+      /> */}
+
+      {/* <TouchableOpacity
         style={$appleButton}
         onPress={() => {
           // Handle Apple sign-in
@@ -177,9 +216,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       >
         <FontAwesome name="apple" size={24} color="white" />
         <Text style={$appleButtonText}>Sign in with Apple</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={$googleButton}
         onPress={() => {
           // Handle Google sign-in
@@ -187,7 +226,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       >
         <FontAwesome name="google" size={24} color="black" />
         <Text style={$googleButtonText}>Sign in with Google</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <Text style={$signUpPrompt}>Don't have an account?</Text>
       <TouchableOpacity

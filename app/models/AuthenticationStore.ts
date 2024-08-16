@@ -1,37 +1,35 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { Session, SessionModel, User, UserModel } from "app/models/models"
+import { types } from "mobx-state-tree"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({
-    authToken: types.maybe(types.string),
-    authEmail: "",
+    authUser: types.maybe(UserModel),
+    authSession: types.maybe(SessionModel),
   })
   .views((store) => ({
     get isAuthenticated() {
-      return !!store.authToken
+      return !!store.authSession
+    },
+    get user() {
+      return store.authUser
+    },
+    get session() {
+      return store.authSession
     },
     get validationError() {
-      if (store.authEmail.length === 0) return "can't be blank"
-      if (store.authEmail.length < 6) return "must be at least 6 characters"
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(store.authEmail))
-        return "must be a valid email address"
       return ""
     },
   }))
   .actions((store) => ({
-    setAuthToken(value?: string) {
-      store.authToken = value
+    setAuthUser(value: User) {
+      store.authUser = value
     },
-    setAuthEmail(value: string) {
-      store.authEmail = value.replace(/ /g, "")
+    setAuthSession(value: Session) {
+      store.authSession = value
     },
     logout() {
-      store.authToken = undefined
-      store.authEmail = ""
+      store.authUser = undefined
+      store.authSession = undefined
     },
   }))
-
-export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> {}
-export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> {}
-
-// @demo remove-file

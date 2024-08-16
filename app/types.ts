@@ -74,11 +74,12 @@ export interface UserSubscription extends BaseEntity {
 export interface Auth extends BaseEntity {
   password?: string
   googleId?: string
+  appleId?: string
   emailVerificationCode?: string
   emailVerificationExpiry?: Date
-  isEmailVerified: boolean
+  isEmailVerified?: boolean
   userId: string
-  user: User
+  user?: User
   passwordResetToken?: string
   passwordResetExpiry?: Date
 }
@@ -87,7 +88,7 @@ export interface Session extends BaseEntity {
   token: string
   expiresAt: Date
   userId: string
-  user: User
+  user?: User
 }
 
 export interface User extends BaseEntity {
@@ -98,13 +99,13 @@ export interface User extends BaseEntity {
   profilePicture?: MediaFile
   location?: string
   auth?: Auth
-  session: Session[]
+  session?: Session[]
   subscription?: UserSubscription
-  vehicleOwnerships: VehicleOwnership[]
-  documents: Document[]
-  events: VehicleEvent[]
-  notificationSubs: NotificationSubscription[]
-  notifications: Notification[]
+  vehicleOwnerships?: VehicleOwnership[]
+  documents?: Document[]
+  events?: VehicleEvent[]
+  notificationSubs?: NotificationSubscription[]
+  notifications?: Notification[]
 }
 
 export interface Vehicle extends BaseEntity {
@@ -127,8 +128,8 @@ export interface VehicleOwnership extends BaseEntity {
   isCurrentOwner: boolean
   isTemporaryOwner: boolean
   canEditDocuments: boolean
-  user: User
-  vehicle: Vehicle
+  user?: User
+  vehicle?: Vehicle
   events: VehicleEvent[]
 }
 
@@ -171,7 +172,7 @@ export interface Document extends BaseEntity {
   title?: string
   description?: string
   amount?: number
-  createdBy: User
+  createdBy?: User
   createdById: string
   files: MediaFile[]
   vehicle?: Vehicle

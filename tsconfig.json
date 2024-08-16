@@ -19,7 +19,9 @@
     "baseUrl": ".",
     "paths": {
       "app/*": ["./app/*"],
-      "assets/*": ["./assets/*"]
+      "assets/*": ["./assets/*"],
+      "expo-modules-core/*": ["./node_modules/expo-modules-core/*"],
+      "expo-apple-authentication/*": ["./node_modules/expo-apple-authentication/*"]
     }
   },
   "extends": "expo/tsconfig.base",
