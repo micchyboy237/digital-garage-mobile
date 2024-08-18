@@ -26,7 +26,7 @@ export const UserCarsScreen = () => {
   // const {
   //   data: dbData,
   //   error: dbError,
-  //   isLoading: dbLoading,
+  //   isPending: dbPending,
   // } = trpc.user.findManyUser.useQuery({
   //   select: {
   //     id: true,
@@ -40,7 +40,7 @@ export const UserCarsScreen = () => {
   const {
     data: userData,
     error: userError,
-    isLoading: userLoading,
+    isPending: userPending,
   } = trpc.user.findUniqueUser.useQuery({
     where: {
       id: "user-1",
@@ -55,7 +55,7 @@ export const UserCarsScreen = () => {
   console.log("User query:", {
     userData,
     userError,
-    userLoading,
+    userPending,
   })
 
   useEffect(() => {

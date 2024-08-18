@@ -227,6 +227,10 @@
       ]
     }
   ],
+  "subscriptionOffersKeyPair" : {
+    "id" : "8866DDCF",
+    "privateKey" : "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgkxJ8ulmZnCuU3fO69qNlAM9AXH4WNB16X5vlipHRL7qgCgYIKoZIzj0DAQehRANCAASAROmkwHrihDSL73IdwqPyo7jzuzUjCnUjbAXrlhfCazoof4xB9fSoRemrRn+aXqp6ISGXEYAUCawqSkq25xpX"
+  },
   "version" : {
     "major" : 3,
     "minor" : 0

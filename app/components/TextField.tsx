@@ -238,6 +238,7 @@ const $labelStyle: TextStyle = {
 }
 
 const $inputWrapperStyle: ViewStyle = {
+  minHeight: 48,
   flexDirection: "row",
   alignItems: "flex-start",
   borderWidth: 1,

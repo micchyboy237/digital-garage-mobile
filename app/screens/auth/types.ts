@@ -15,3 +15,24 @@ export interface UseAuthReturn {
   }>
   signOutAsync: () => Promise<void>
 }
+
+export interface UseAuthEmailPwReturn {
+  loading: boolean
+  user: User | null
+  session: Session | null
+  signInAsync: (
+    email: string,
+    password: string,
+  ) => Promise<{
+    user: User | null
+    session: Session | null
+  }>
+  signOutAsync: () => Promise<void>
+  registerAsync: (
+    email: string,
+    password: string,
+  ) => Promise<{
+    user: User | null
+    session: Session | null
+  }>
+}

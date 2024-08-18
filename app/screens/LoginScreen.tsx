@@ -1,13 +1,23 @@
-import { AppleButton } from "@invertase/react-native-apple-authentication"
 import { useNavigation } from "@react-navigation/native"
 import { ErrorMessages } from "app/errors"
+import { SignInButton } from "app/screens/auth/SignInButton"
 import { useAppleAuth } from "app/screens/auth/useAppleAuth"
+import { useAuthActions } from "app/screens/auth/useAuthActions"
+import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
 import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import { trpc } from "app/services/api"
 import { observer } from "mobx-react-lite"
 import React, { ComponentType, FC, useEffect, useMemo, useRef, useState } from "react"
 import { Image, TextInput, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
-import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "../components"
+import {
+  Button,
+  Icon,
+  Screen,
+  Text,
+  TextField,
+  TextFieldAccessoryProps,
+  Toggle,
+} from "../components"
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
@@ -19,8 +29,20 @@ const logo = require("../../assets/images/logo.png")
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const navigation = useNavigation()
   const authPasswordInput = useRef<TextInput>(null)
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false)
 
   const { authenticationStore } = useStores()
+
+  const emailpwAuth = useEmailPasswordAuth({
+    onSignIn: (state) => {
+      console.log("Email/Password sign in successful:", state)
+      authenticationStore.setAuthUser(state.user)
+      authenticationStore.setAuthSession(state.session)
+    },
+    onSignOut: (user) => {
+      console.log("Email/Password sign out successful:", user)
+    },
+  })
 
   const appleAuth = useAppleAuth({
     onSignIn: (state) => {
@@ -61,6 +83,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     },
   })
 
+  const { resendVerificationEmail } = useAuthActions()
+
   useEffect(() => {
     // Here is where you could fetch credentials from keychain or storage
     // and pre-fill the form fields.
@@ -81,10 +105,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   }, [mutation.isSuccess])
 
   // const error = isSubmitted ? validationError : ""
+  const errorCode = mutation.isError && ErrorMessages[mutation.error?.message]
   const error = mutation.isError && ErrorMessages[mutation.error?.message]
 
   async function handleLogin() {
-    mutation.mutate({ email: authEmail, password: authPassword })
+    emailpwAuth.signInAsync(authEmail, authPassword)
+    // mutation.mutate({ email: authEmail, password: authPassword })
     // setIsSubmitted(true)
     // setAttemptsCount(attemptsCount + 1)
 
@@ -161,72 +187,76 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         RightAccessory={PasswordRightAccessory}
       />
 
-      {error && (
-        <Text
-          style={{
-            color: colors.error,
-            marginBottom: spacing.sm,
-            textAlign: "center",
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: spacing.lg,
+        }}
+      >
+        <Toggle
+          containerStyle={$checkboxContainer}
+          value={isTermsAccepted}
+          onValueChange={setIsTermsAccepted}
+          variant="checkbox"
+          label={<Text style={$checkboxText}>Remember me</Text>}
+        />
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("ForgotPassword")
           }}
         >
-          {error}
-        </Text>
+          <Text style={$forgotPasswordText}>Forgot password?</Text>
+        </TouchableOpacity>
+      </View>
+
+      {error && (
+        <>
+          <Text
+            style={{
+              color: colors.error,
+              marginBottom: spacing.sm,
+              textAlign: "center",
+            }}
+          >
+            {error}
+          </Text>
+
+          {errorCode === ErrorMessages.INVALID_CREDENTIALS && (
+            <TouchableOpacity
+              style={{
+                alignSelf: "center",
+                marginBottom: spacing.sm,
+              }}
+              onPress={() => {
+                resendVerificationEmail(authEmail)
+              }}
+            >
+              <Text style={$signUpButton}>Resend verification email</Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
 
       <Button testID="login-button" style={$logIn} preset="reversed" onPress={handleLogin}>
         Log In
       </Button>
 
-      <TouchableOpacity
-        style={{
-          alignSelf: "center",
-          marginBottom: spacing.sm,
-        }}
-        onPress={() => {
-          navigation.navigate("ForgotPassword")
-        }}
-      >
-        <Text style={$signUpButton}>Forgot password?</Text>
-      </TouchableOpacity>
-
-      <AppleButton
-        buttonStyle={AppleButton.Style.BLACK}
-        buttonType={AppleButton.Type.SIGN_IN}
-        style={{
-          width: 160,
-          height: 45,
-        }}
-        onPress={appleAuth.signInAsync}
-      />
-
-      <Button text="Google Sign-In" onPress={googleAuth.signInAsync} />
-
-      {/* <AppleAuthentication.AppleAuthenticationButton
-        buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-        buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-        cornerRadius={4}
-        onPress={signInAsync}
-      /> */}
-
-      {/* <TouchableOpacity
-        style={$appleButton}
-        onPress={() => {
-          // Handle Apple sign-in
-        }}
-      >
-        <FontAwesome name="apple" size={24} color="white" />
-        <Text style={$appleButtonText}>Sign in with Apple</Text>
-      </TouchableOpacity> */}
-
-      {/* <TouchableOpacity
-        style={$googleButton}
-        onPress={() => {
-          // Handle Google sign-in
-        }}
-      >
-        <FontAwesome name="google" size={24} color="black" />
-        <Text style={$googleButtonText}>Sign in with Google</Text>
-      </TouchableOpacity> */}
+      <View style={$socialButtonContainer}>
+        <SignInButton
+          style={$socialButton}
+          textStyle={$socialButtonText}
+          type="apple"
+          onPress={appleAuth.signInAsync}
+        />
+        <SignInButton
+          style={$socialButton}
+          textStyle={$socialButtonText}
+          type="google"
+          onPress={googleAuth.signInAsync}
+        />
+      </View>
 
       <Text style={$signUpPrompt}>Don't have an account?</Text>
       <TouchableOpacity
@@ -266,36 +296,34 @@ const $logIn: ViewStyle = {
   backgroundColor: "#BE0E8DDE",
 }
 
-const $appleButton: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "black",
-  padding: spacing.md,
-  borderRadius: 4,
-  marginTop: spacing.md,
+const $checkboxContainer: ViewStyle = {
+  flex: 1,
 }
 
-const $appleButtonText: TextStyle = {
-  color: "white",
-  marginLeft: spacing.sm,
-}
-
-const $googleButton: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "white",
-  padding: spacing.md,
-  borderRadius: 4,
-  marginTop: spacing.md,
-  borderWidth: 1,
-  borderColor: colors.palette.neutral800,
-}
-
-const $googleButtonText: TextStyle = {
+const $checkboxText: TextStyle = {
+  fontSize: 16,
   color: colors.palette.neutral800,
-  marginLeft: spacing.sm,
+}
+
+const $forgotPasswordText: TextStyle = {
+  fontSize: 16,
+  color: "#BE0E8DDE",
+  fontWeight: "bold",
+}
+
+const $socialButtonContainer: ViewStyle = {
+  // flexDirection: "row",
+  // justifyContent: "space-between",
+  // gap: spacing.sm,
+}
+
+const $socialButton: ViewStyle = {
+  // flex: 1,
+  justifyContent: "center",
+}
+
+const $socialButtonText: TextStyle = {
+  fontSize: 16,
 }
 
 const $signUpPrompt: TextStyle = {
@@ -308,5 +336,4 @@ const $signUpButton: TextStyle = {
   textAlign: "center",
   color: "#BE0E8DDE",
   fontWeight: "bold",
-  marginTop: spacing.xs,
 }

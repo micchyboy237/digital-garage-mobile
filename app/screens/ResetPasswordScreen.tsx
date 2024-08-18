@@ -1,4 +1,5 @@
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation, useRoute } from "@react-navigation/native"
+import { useAuthActions } from "app/screens/auth/useAuthActions"
 import React, { FC, useState } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text, TextField } from "../components"
@@ -11,12 +12,22 @@ export const ResetPasswordScreen: FC<ResetPasswordScreenProps> = function ResetP
   _props,
 ) {
   const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
 
   const navigation = useNavigation()
+  const route = useRoute()
 
-  function resetPassword() {
-    navigation.navigate("ResetPasswordSuccess")
+  const code = route.params?.code
+  console.log("CODE:", code)
+
+  const { resetPassword } = useAuthActions()
+
+  async function submitRequest(): Promise<void> {
+    try {
+      await resetPassword(code, newPassword)
+      navigation.navigate("ResetPasswordSuccess")
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   return (
@@ -39,23 +50,11 @@ export const ResetPasswordScreen: FC<ResetPasswordScreenProps> = function ResetP
         placeholder="Enter your new password"
       />
 
-      <TextField
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        containerStyle={$textField}
-        autoCapitalize="none"
-        autoComplete="password"
-        autoCorrect={false}
-        secureTextEntry={true}
-        label="Confirm Password"
-        placeholder="Confirm your new password"
-      />
-
       <Button
         testID="reset-password-button"
         style={$resetButton}
         preset="reversed"
-        onPress={resetPassword}
+        onPress={submitRequest}
       >
         Reset Password
       </Button>

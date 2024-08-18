@@ -77,7 +77,7 @@ const Stack = createNativeStackNavigator<AppStackParamList>()
 const AppStack = observer(function AppStack() {
   // @demo remove-block-start
   const {
-    authenticationStore: { authUser, authSession, isAuthenticated },
+    authenticationStore: { isAuthenticated },
   } = useStores()
 
   // Use the custom useAuth hook
@@ -85,16 +85,6 @@ const AppStack = observer(function AppStack() {
     onAuthStateChanged: (state) => {
       console.log("Firebase auth state changed:", state)
     },
-  })
-
-  console.log("APP NAVIGATOR:authObj:", {
-    initializing: authObj.initializing,
-    isLoggedIn: authObj.isLoggedIn,
-  })
-  console.log("APP NAVIGATOR:authenticationStore:", {
-    isAuthenticated,
-    authUser,
-    authSession,
   })
 
   if (authObj.initializing) {
@@ -128,7 +118,7 @@ const AppStack = observer(function AppStack() {
       ) : (
         <>
           <Stack.Screen name="Login" component={Screens.LoginScreen} />
-          <Stack.Screen name="SignUp" component={Screens.SignUpScreen} />
+          {/* <Stack.Screen name="SignUp" component={Screens.SignUpScreen} /> */}
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="ForgotPasswordSuccess" component={ForgotPasswordSuccessScreen} />

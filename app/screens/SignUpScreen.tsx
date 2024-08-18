@@ -1,4 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons"
+import { useAuthActions } from "app/screens/auth/useAuthActions"
+import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
 import React, { FC, useState } from "react"
 import { Image, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
 import { Button, Screen, Text, TextField, Toggle } from "../components"
@@ -10,17 +12,25 @@ interface SignUpScreenProps extends AppStackScreenProps<"SignUp"> {}
 const logo = require("../../assets/images/logo.png")
 
 export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("micchyboy.developer@gmail.com")
+  const [password, setPassword] = useState("asdasd!123")
   const [isTermsAccepted, setIsTermsAccepted] = useState(false)
 
-  function signUp() {
+  const emailpwAuth = useEmailPasswordAuth()
+  const { sendVerificationEmail } = useAuthActions()
+
+  async function signUp() {
     if (!isTermsAccepted) {
       alert("You must agree to the Terms of Service and Privacy Policy")
       return
     }
 
-    _props.navigation.navigate("Onboarding")
+    const result = await emailpwAuth.registerAsync(email, password)
+    console.log("signUp result", result)
+    await sendVerificationEmail()
+    console.log("Verification email sent to", email)
+
+    // _props.navigation.navigate("Onboarding")
   }
 
   return (

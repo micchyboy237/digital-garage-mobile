@@ -43,7 +43,8 @@
         "applinks:classicgarage.uk",
         "applinks:www.classicgarage.uk",
         "applinks:dev.classicgarage.uk",
-        "applinks:staging.classicgarage.uk"
+        "applinks:staging.classicgarage.uk",
+        "applinks:classic-garage-164c2.firebaseapp.com"
       ],
       "entitlements": {
         "aps-environment": "production",

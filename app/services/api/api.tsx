@@ -5,11 +5,15 @@
  * See the [Backend API Integration](https://docs.infinite.red/ignite-cli/boilerplate/app/services/#backend-api-integration)
  * documentation for more details.
  */
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { httpBatchLink } from "@trpc/client"
+import { createTRPCQueryUtils, createTRPCReact } from "@trpc/react-query"
 import {
   ApiResponse, // @demo remove-current-line
   ApisauceInstance,
   create,
 } from "apisauce"
+import React from "react"
 import Config from "../../config"
 import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
 import type {
@@ -18,6 +22,10 @@ import type {
 } from "./api.types"
 import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem" // @demo remove-current-line
 
+// import type { AppRouter } from "@acme/api";
+import { rootStore, RootStore } from "app/models"
+import SuperJSON from "superjson"
+import type { AppRouter } from "../../../../digital-garage/packages/api"
 /**
  * Configuring the apisauce instance.
  */
@@ -88,15 +96,6 @@ export class Api {
 // Singleton instance of the API for convenience
 export const api = new Api()
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { httpBatchLink } from "@trpc/client"
-import { createTRPCReact } from "@trpc/react-query"
-import React from "react"
-
-// import type { AppRouter } from "@acme/api";
-import { RootStore, useStores } from "app/models"
-import type { AppRouter } from "../../../../digital-garage/packages/api"
-
 /**
  * A set of typesafe hooks for consuming your API.
  */
@@ -108,6 +107,7 @@ export const createTrpcClient = (rootStore: RootStore) =>
   trpc.createClient({
     links: [
       httpBatchLink({
+        transformer: SuperJSON,
         url: Config.API_TRPC_URL,
         headers: async () => {
           console.log("rootStore:", rootStore)
@@ -124,13 +124,15 @@ export const createTrpcClient = (rootStore: RootStore) =>
     ],
   })
 
+const trpcClient = createTrpcClient(rootStore)
+export const clientUtils = createTRPCQueryUtils({ queryClient, client: trpcClient })
+
 /**
  * A wrapper for your app that provides the TRPC context.
  * Use only in _app.tsx
  */
 export function TRPCProvider(props: { children: React.ReactNode }) {
-  const rootStore = useStores() // Get root store from context
-  const trpcClient = React.useMemo(() => createTrpcClient(rootStore), [rootStore])
+  // const rootStore = useStores() // Get root store from context
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>

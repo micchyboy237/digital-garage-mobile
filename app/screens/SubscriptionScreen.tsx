@@ -1,4 +1,5 @@
-import { useStores } from "app/models"
+import { useUserId } from "app/models/hooks/useUserId"
+import { useRevenueCat } from "app/screens/subscription/useRevenueCat"
 import React, { FC, useState } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "../components"
@@ -27,22 +28,24 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = function Subscrip
 }) {
   const [step, setStep] = useState(1)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
-  const {
-    authenticationStore: { setAuthToken },
-  } = useStores()
+
+  const userId = useUserId()
+  const revenueCat = useRevenueCat(userId)
+
+  console.log("revenueCat.packages", revenueCat.packages)
 
   function handleNext() {
     if (step === 1) {
       if (selectedOption === "free" || selectedOption === "trial") {
         // We'll mock this with a fake token.
-        setAuthToken(String(Date.now()))
+        // setAuthToken(String(Date.now()))
       } else {
         setStep(2)
       }
     } else if (step === 2 && selectedOption) {
       // Handle subscription logic here
       // We'll mock this with a fake token.
-      setAuthToken(String(Date.now()))
+      // setAuthToken(String(Date.now()))
     }
   }
 

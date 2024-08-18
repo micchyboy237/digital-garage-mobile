@@ -26,7 +26,10 @@ export function UserFeaturesScreen() {
     error: routesError,
     isLoading: routesLoading,
     refetch: manualRefresh,
-  } = trpc.meta.getRoutes.useQuery()
+  } = trpc.meta.getRoutes.useQuery({})
+
+  console.log("routesData:", routesData)
+  console.log("routesError:", routesError)
 
   useEffect(() => {
     if (routesData) {

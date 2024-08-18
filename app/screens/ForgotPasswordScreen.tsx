@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native"
+import { useAuthActions } from "app/screens/auth/useAuthActions"
 import React, { FC, useState } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text, TextField } from "../components"
@@ -13,8 +14,15 @@ export const ForgotPasswordScreen: FC<ForgotPasswordScreenProps> = function Forg
   const [email, setEmail] = useState("")
   const navigation = useNavigation()
 
-  function submitRequest() {
-    navigation.navigate("ForgotPasswordSuccess")
+  const { forgotPassword } = useAuthActions()
+
+  async function submitRequest(): Promise<void> {
+    try {
+      await forgotPassword(email)
+      navigation.navigate("ForgotPasswordSuccess")
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   return (

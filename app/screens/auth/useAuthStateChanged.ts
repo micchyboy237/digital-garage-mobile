@@ -16,7 +16,6 @@ export const useAuthStateChanged = (args?: UseAuthStateChangedArgs): UseAuthStat
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
 
   const handleAuthStateChanged = async (authUser: FirebaseAuthTypes.User | null) => {
-    console.log("\nAUTH:onAuthStateChanged\n", JSON.stringify(authUser, null, 2))
     setInitializing(false)
     setIsLoggedIn(!!authUser)
     onAuthStateChanged?.(authUser)
