@@ -15,7 +15,7 @@ import {
 } from "apisauce"
 import React from "react"
 import Config from "../../config"
-import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
+import type { EpisodeSnapshotIn } from "../../models/episode/Episode" // @demo remove-current-line
 import type {
   ApiConfig,
   ApiFeedResponse, // @demo remove-current-line

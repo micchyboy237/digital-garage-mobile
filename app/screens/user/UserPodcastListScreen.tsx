@@ -33,7 +33,7 @@ import {
 } from "../../components"
 import { isRTL } from "../../i18n"
 import { useStores } from "../../models"
-import { Episode } from "../../models/Episode"
+import { Episode } from "../../models/episode/Episode"
 import { UserTabScreenProps } from "../../navigators/UserNavigator"
 import { colors, spacing } from "../../theme"
 import { delay } from "../../utils/delay"

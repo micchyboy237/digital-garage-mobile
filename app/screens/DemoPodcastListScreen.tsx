@@ -1,3 +1,4 @@
+import { type ContentStyle } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
 import React, { ComponentType, FC, useEffect, useMemo } from "react"
 import {
@@ -12,7 +13,6 @@ import {
   View,
   ViewStyle,
 } from "react-native"
-import { type ContentStyle } from "@shopify/flash-list"
 import Animated, {
   Extrapolate,
   interpolate,
@@ -33,7 +33,7 @@ import {
 } from "../components"
 import { isRTL, translate } from "../i18n"
 import { useStores } from "../models"
-import { Episode } from "../models/Episode"
+import { Episode } from "../models/episode/Episode"
 import { DemoTabScreenProps } from "../navigators/DemoNavigator"
 import { colors, spacing } from "../theme"
 import { delay } from "../utils/delay"

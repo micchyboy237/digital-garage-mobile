@@ -141,8 +141,6 @@ export const UserSubscriptionModel = BaseEntityModel.named("UserSubscription").p
   trialEndDate: types.maybe(types.Date),
   startDate: types.maybe(types.Date),
   endDate: types.maybe(types.Date),
-  stripeSubscriptionId: types.maybe(types.string),
-  iapSubscriptionId: types.maybe(types.string),
   payments: types.array(PaymentModel),
 })
 

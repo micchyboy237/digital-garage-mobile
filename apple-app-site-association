@@ -1,0 +1,27 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "948B5R36GQ.com.builtdifferent.jaba"
+        ],
+        "components": [
+          {
+            "/": "*",
+            "comment": "Matches all routes"
+          }
+        ]
+      }
+    ]
+  },
+  "activitycontinuation": {
+    "apps": [
+      "948B5R36GQ.com.builtdifferent.jaba"
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "948B5R36GQ.com.builtdifferent.jaba"
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+enum AuthProvider {
+  EMAIL_PASSWORD
+  GOOGLE
+  APPLE
+}
+
+enum AccountStatus {
+  ONBOARDING
+  SELECT_SUBSCRIPTION
+  ACTIVE
+}
+
+enum SubscriptionPlan {
+  MONTHLY
+  YEARLY
+  WEEKLY
+  CUSTOM // For any other types of plans or products
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PAID
+  REFUNDED
+  PENDING
+  FAILED
+}
+
+model User {
+  id                String          @id @default(uuid())
+  email             String          @unique
+  password          String?
+  firebaseUid       String          @unique
+  provider          AuthProvider
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  profile           Profile?
+  subscription      Subscription?
+  accountStatus     AccountStatus   @default(ONBOARDING)
+}
+
+model Profile {
+  id                String          @id @default(uuid())
+  firstName         String?
+  lastName          String?
+  profilePicture    String?
+  location          String?
+  userId            String          @unique
+  user              User?            @relation(fields: [userId], references: [id])
+}
+
+model Subscription {
+  id                String              @id @default(uuid())
+  plan              SubscriptionPlan?
+  status            SubscriptionStatus  @default(ACTIVE)
+  startDate         DateTime?
+  endDate           DateTime?
+  userId            String              @unique
+  user              User?               @relation(fields: [userId], references: [id])
+  payments          Payment[]           // Relation to Payment model
+}
+
+model Payment {
+  id                String          @id @default(uuid())
+  amount            Float
+  currency          String
+  status            PaymentStatus
+  transactionDate   DateTime
+  subscriptionId    String
+  subscription      Subscription?     @relation(fields: [subscriptionId], references: [id])
+}
