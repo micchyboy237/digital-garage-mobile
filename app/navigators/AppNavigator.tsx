@@ -118,7 +118,7 @@ const AppStack = observer(function AppStack() {
       ) : (
         <>
           <Stack.Screen name="Login" component={Screens.LoginScreen} />
-          {/* <Stack.Screen name="SignUp" component={Screens.SignUpScreen} /> */}
+          <Stack.Screen name="SignUp" component={Screens.SignUpScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="ForgotPasswordSuccess" component={ForgotPasswordSuccessScreen} />

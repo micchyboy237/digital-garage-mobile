@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 8,
+    borderRadius: 4,
     marginBottom: 10,
   },
   appleButton: {

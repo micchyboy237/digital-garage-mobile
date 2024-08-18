@@ -1,8 +1,6 @@
 import { useNavigation } from "@react-navigation/native"
-import { ErrorMessages } from "app/errors"
 import { SignInButton } from "app/screens/auth/SignInButton"
 import { useAppleAuth } from "app/screens/auth/useAppleAuth"
-import { useAuthActions } from "app/screens/auth/useAuthActions"
 import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
 import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import { trpc } from "app/services/api"
@@ -83,8 +81,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     },
   })
 
-  const { resendVerificationEmail } = useAuthActions()
-
   useEffect(() => {
     // Here is where you could fetch credentials from keychain or storage
     // and pre-fill the form fields.
@@ -105,8 +101,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   }, [mutation.isSuccess])
 
   // const error = isSubmitted ? validationError : ""
-  const errorCode = mutation.isError && ErrorMessages[mutation.error?.message]
-  const error = mutation.isError && ErrorMessages[mutation.error?.message]
 
   async function handleLogin() {
     emailpwAuth.signInAsync(authEmail, authPassword)
@@ -141,6 +135,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       },
     [isAuthPasswordHidden],
   )
+
+  console.log("emailpwAuth.error", typeof emailpwAuth.error, JSON.stringify(emailpwAuth.error))
 
   return (
     <Screen preset="scroll" contentContainerStyle={$screenContentContainer}>
@@ -211,7 +207,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         </TouchableOpacity>
       </View>
 
-      {error && (
+      {emailpwAuth.error && (
         <>
           <Text
             style={{
@@ -220,22 +216,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               textAlign: "center",
             }}
           >
-            {error}
+            {emailpwAuth.error.message}
           </Text>
-
-          {errorCode === ErrorMessages.INVALID_CREDENTIALS && (
-            <TouchableOpacity
-              style={{
-                alignSelf: "center",
-                marginBottom: spacing.sm,
-              }}
-              onPress={() => {
-                resendVerificationEmail(authEmail)
-              }}
-            >
-              <Text style={$signUpButton}>Resend verification email</Text>
-            </TouchableOpacity>
-          )}
         </>
       )}
 

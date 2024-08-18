@@ -1,4 +1,5 @@
-import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth"
+import auth from "@react-native-firebase/auth"
+import { AuthError } from "app/screens/auth/errors/authErrors"
 import { UseAuthArgs, UseAuthEmailPwReturn } from "app/screens/auth/types"
 import { MediaFileType, Session, User, UserRole } from "app/types"
 import { useState } from "react"
@@ -15,9 +16,11 @@ const generateId = (): string => {
 
 export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn => {
   const { onSignIn, onSignOut } = args || {}
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState<boolean>(false)
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
+  const [error, setError] = useState<AuthError | null>(null)
+  const [data, setData] = useState<{ user: User | null; session: Session | null } | null>(null)
 
   const signInAsync = async (
     email: string,
@@ -25,6 +28,7 @@ export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn =
   ): Promise<{ user: User | null; session: Session | null }> => {
     let authReturn = {} as { user: User | null; session: Session | null }
     setLoading(true)
+    setError(null)
 
     try {
       const userCredential = await auth().signInWithEmailAndPassword(email, password)
@@ -60,46 +64,79 @@ export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn =
 
       setSession(derivedSession)
       setUser(derivedUser)
+      setData(authReturn)
 
       onSignIn?.(authReturn)
-    } catch (error) {
-      console.error("\nAUTH:signInAsync:error\n", error)
+    } catch (error: any) {
+      const authError = new AuthError(error.code)
+      setError(authError)
+    } finally {
+      setLoading(false)
     }
 
-    setLoading(false)
     return authReturn
   }
 
   const registerAsync = async (
     email: string,
     password: string,
-  ): Promise<FirebaseAuthTypes.UserCredential | null> => {
-    let userCredential: FirebaseAuthTypes.UserCredential | null = null
+  ): Promise<{ user: User | null; session: Session | null }> => {
+    let authReturn = {} as { user: User | null; session: Session | null }
     setLoading(true)
+    setError(null)
+
     try {
-      userCredential = await auth().createUserWithEmailAndPassword(email, password)
+      const userCredential = await auth().createUserWithEmailAndPassword(email, password)
       console.log("User account created & signed in!")
-    } catch (error) {
-      console.error("Error: ", error)
-      if (error.code === "auth/email-already-in-use") {
-        console.log("That email address is already in use!")
+
+      const idTokenResult = await userCredential.user.getIdTokenResult()
+
+      const derivedUser = {
+        role: UserRole.user,
+        id: userCredential.user.uid,
+        email: userCredential.user.email,
+        firstName: userCredential.user.displayName?.split(" ")[0] || undefined,
+        lastName: userCredential.user.displayName?.split(" ")[1] || undefined,
+        profilePicture: userCredential.user.photoURL
+          ? {
+              id: generateId(),
+              type: MediaFileType.photo,
+              mimeType: "image/jpeg",
+              url: userCredential.user.photoURL,
+            }
+          : undefined,
+      } as User
+
+      const derivedSession: Session = {
+        id: generateId(),
+        token: idTokenResult.token,
+        expiresAt: new Date(idTokenResult.expirationTime),
+        userId: userCredential.user.uid,
       }
 
-      if (error.code === "auth/invalid-email") {
-        console.log("That email address is invalid!")
+      authReturn = {
+        user: derivedUser,
+        session: derivedSession,
       }
 
-      console.error(error)
+      setSession(derivedSession)
+      setUser(derivedUser)
+      setData(authReturn)
+    } catch (error: any) {
+      const authError = new AuthError(error.code)
+      setError(authError)
+    } finally {
+      setLoading(false)
     }
-    console.log("\nAUTH:registerAsync:userCredential\n", JSON.stringify(userCredential, null, 2))
-    setLoading(false)
-    return userCredential
+
+    return authReturn
   }
 
   const signOutAsync = async (): Promise<void> => {
     await auth().signOut()
     setUser(null)
     setSession(null)
+    setData(null)
     onSignOut?.(user)
   }
 
@@ -107,6 +144,8 @@ export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn =
     loading,
     user,
     session,
+    error,
+    data,
     signInAsync,
     signOutAsync,
     registerAsync,
