@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native"
+import { Session } from "app/models/session/Session"
 import { SignInButton } from "app/screens/auth/SignInButton"
 import { useAppleAuth } from "app/screens/auth/useAppleAuth"
 import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
@@ -31,38 +32,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const { authenticationStore } = useStores()
 
-  const emailpwAuth = useEmailPasswordAuth({
-    onSignIn: (state) => {
-      console.log("Email/Password sign in successful:", state)
-      authenticationStore.setAuthUser(state.user)
-      authenticationStore.setAuthSession(state.session)
-    },
-    onSignOut: (user) => {
-      console.log("Email/Password sign out successful:", user)
-    },
-  })
-
-  const appleAuth = useAppleAuth({
-    onSignIn: (state) => {
-      console.log("Apple sign in successful:", state)
-      authenticationStore.setAuthUser(state.user)
-      authenticationStore.setAuthSession(state.session)
-    },
-    onSignOut: (user) => {
-      console.log("Apple sign out successful:", user)
-    },
-  })
-
-  const googleAuth = useGoogleAuth({
-    onSignIn: (state) => {
-      console.log("Google sign in successful:", state)
-      authenticationStore.setAuthUser(state.user)
-      authenticationStore.setAuthSession(state.session)
-    },
-    onSignOut: (user) => {
-      console.log("Google sign out successful:", user)
-    },
-  })
+  const emailpwAuth = useEmailPasswordAuth()
+  const appleAuth = useAppleAuth()
+  const googleAuth = useGoogleAuth()
+  const signUpMutation = trpc.user.updateOneUser.useMutation()
+  const sessionMutation = trpc.session.updateOneSession.useMutation()
 
   // useEffect(() => {
   //   signOutAsync()
@@ -73,13 +47,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const [isAuthPasswordHidden, setIsAuthPasswordHidden] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
-
-  const mutation = trpc.oldAuth.login.useMutation({
-    onSuccess: (data) => {
-      console.log("login success:", data)
-      // setAuthToken(data.accessToken)
-    },
-  })
 
   useEffect(() => {
     // Here is where you could fetch credentials from keychain or storage
@@ -94,30 +61,42 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     }
   }, [])
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      const response = mutation.data
-    }
-  }, [mutation.isSuccess])
-
   // const error = isSubmitted ? validationError : ""
 
   async function handleLogin() {
-    emailpwAuth.signInAsync(authEmail, authPassword)
-    // mutation.mutate({ email: authEmail, password: authPassword })
-    // setIsSubmitted(true)
-    // setAttemptsCount(attemptsCount + 1)
+    console.log("handleLogin", authEmail, authPassword)
+    const result = await emailpwAuth.signInAsync(authEmail, authPassword)
+    console.log("signInAsync result:", result)
+    const signUpMutationResult = await signUpMutation.mutateAsync({
+      data: result.user,
+      include: { sessions: true },
+      where: { firebaseUid: result.user?.firebaseUid },
+    })
+    console.log("signUpMutationResult:", JSON.stringify(signUpMutationResult, null, 2))
+    const existingSession = signUpMutationResult.sessions.find(
+      (session: Session) => session.userId === result.session?.userId,
+    )
+    console.log("existingSession:", JSON.stringify(existingSession, null, 2))
+    const sessionMutationResult = await sessionMutation.mutateAsync({
+      data: {
+        ...existingSession,
+        ...result.session,
+      },
+      include: { user: true },
+      where: { id: existingSession.id },
+    })
+    console.log("sessionMutationResult:", JSON.stringify(sessionMutationResult, null, 2))
 
-    // if (validationError) return
+    if (signUpMutationResult) {
+      const { sessions, ...userNoSessions } = signUpMutationResult
+      console.log("userNoSessions:", JSON.stringify(userNoSessions, null, 2))
+      authenticationStore.setAuthUser(userNoSessions)
+    }
+    if (sessionMutationResult) {
+      authenticationStore.setAuthSession(sessionMutationResult)
+    }
 
-    // // Make a request to your server to get an authentication token.
-    // // If successful, reset the fields and set the token.
-    // setIsSubmitted(false)
-    // setAuthPassword("")
-    // // setAuthEmail("")
-
-    // // We'll mock this with a fake token.
-    // setAuthToken(String(Date.now()))
+    _props.navigation.navigate("LoggedIn")
   }
 
   const PasswordRightAccessory: ComponentType<TextFieldAccessoryProps> = useMemo(
@@ -135,8 +114,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       },
     [isAuthPasswordHidden],
   )
-
-  console.log("emailpwAuth.error", typeof emailpwAuth.error, JSON.stringify(emailpwAuth.error))
 
   return (
     <Screen preset="scroll" contentContainerStyle={$screenContentContainer}>

@@ -13,9 +13,7 @@ interface OnboardingScreenProps extends AppStackScreenProps<"Onboarding"> {}
 
 const allCities = UK_CITIES.map(({ city }) => city).sort()
 
-export const OnboardingScreen: FC<OnboardingScreenProps> = function OnboardingScreen({
-  navigation,
-}) {
+export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [city, setCity] = useState("")
@@ -36,7 +34,11 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = function OnboardingSc
   }
 
   return (
-    <Screen preset="scroll" safeAreaEdges={["top", "bottom"]} contentContainerStyle={$screenContentContainer}>
+    <Screen
+      preset="scroll"
+      safeAreaEdges={["top", "bottom"]}
+      contentContainerStyle={$screenContentContainer}
+    >
       <View>
         <Text preset="subheading" style={$enterDetails}>
           Onboarding

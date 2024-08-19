@@ -2,7 +2,6 @@ import { useStores } from "app/models"
 import { AuthEmailPwButton } from "app/screens/auth/sign-up/SignUpButtons"
 import { SignInButton } from "app/screens/auth/SignInButton"
 import { useAppleAuth } from "app/screens/auth/useAppleAuth"
-import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
 import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import React, { FC, useState } from "react"
 import { Image, TextStyle, View, ViewStyle } from "react-native"
@@ -20,22 +19,6 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
   const [isTermsAccepted, setIsTermsAccepted] = useState(true)
 
   const { authenticationStore } = useStores()
-
-  const emailpwAuth = useEmailPasswordAuth({
-    onSignIn: (state) => {
-      console.log("Email/Password sign in successful:", state)
-      authenticationStore.setAuthUser(state.user)
-      authenticationStore.setAuthSession(state.session)
-    },
-    onRegister: (state) => {
-      console.log("Email/Password register successful:", JSON.stringify(state, null, 2))
-      authenticationStore.setAuthUser(state.user)
-      authenticationStore.setAuthSession(state.session)
-    },
-    onSignOut: (user) => {
-      console.log("Email/Password sign out successful:", user)
-    },
-  })
 
   const appleAuth = useAppleAuth({
     onSignIn: (state) => {

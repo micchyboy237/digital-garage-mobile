@@ -1,23 +1,11 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  NavigationContainer,
-  NavigatorScreenParams,
-} from "@react-navigation/native"
+import { NavigatorScreenParams, useNavigation } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
-import { UserNavigator, UserTabParamList } from "app/navigators/UserNavigator"
-import { useAuthStateChanged } from "app/screens/auth/useAuthStateChanged"
-import { OnboardingScreen } from "app/screens/OnboardingScreen"
-import { SubscriptionScreen } from "app/screens/SubscriptionScreen"
-import { colors } from "app/theme"
-import { observer } from "mobx-react-lite"
-import React from "react"
-import { useColorScheme } from "react-native"
+import { useGetInitialRoute } from "app/models/hooks/useGetInitialRoute"
+import { UserTabParamList } from "app/navigators/UserNavigator"
+import { useEffect } from "react"
 import Config from "../config"
-import { useStores } from "../models"
-import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
-export type AppStackParamList = {
+export type LoggedInStackParamList = {
   User: NavigatorScreenParams<UserTabParamList>
   Onboarding: undefined
   Subscription: undefined
@@ -25,55 +13,26 @@ export type AppStackParamList = {
 
 const exitRoutes = Config.exitRoutes
 
-export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStackScreenProps<
-  AppStackParamList,
+export type AppStackScreenProps<T extends keyof LoggedInStackParamList> = NativeStackScreenProps<
+  LoggedInStackParamList,
   T
 >
 
-const Stack = createNativeStackNavigator<AppStackParamList>()
+const Stack = createNativeStackNavigator<LoggedInStackParamList>()
 
-const AppStack = observer(function AppStack() {
-  const {
-    authenticationStore: { isAuthenticated },
-  } = useStores()
+export const LoggedInNavigator = () => {
+  const initialRoute = useGetInitialRoute()
+  const navigation = useNavigation()
 
-  const authObj = useAuthStateChanged({
-    onAuthStateChanged: (state) => {
-      console.log("Firebase auth state changed:", state)
-    },
-  })
+  console.log("LoggedInNavigator:", initialRoute)
+  useEffect(() => {
+    if (initialRoute) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: initialRoute }],
+      })
+    }
+  }, [initialRoute])
 
-  if (authObj.initializing) {
-    return null
-  }
-
-  return (
-    <Stack.Navigator
-      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
-      initialRouteName={isAuthenticated ? "User" : "Login"}
-    >
-      <Stack.Screen name="User" component={UserNavigator} />
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Subscription" component={SubscriptionScreen} />
-    </Stack.Navigator>
-  )
-})
-
-export interface NavigationProps
-  extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
-
-export const LoggedInNavigator = observer(function LoggedInNavigator(props: NavigationProps) {
-  const colorScheme = useColorScheme()
-
-  useBackButtonHandler((routeName) => exitRoutes.includes(routeName))
-
-  return (
-    <NavigationContainer
-      ref={navigationRef}
-      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-      {...props}
-    >
-      <AppStack />
-    </NavigationContainer>
-  )
-})
+  return null
+}

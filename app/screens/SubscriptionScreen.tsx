@@ -23,9 +23,7 @@ const subscriptionOptions = {
   ],
 }
 
-export const SubscriptionScreen: FC<SubscriptionScreenProps> = function SubscriptionScreen({
-  navigation,
-}) {
+export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) => {
   const [step, setStep] = useState(1)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
 

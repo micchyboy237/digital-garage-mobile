@@ -64,7 +64,7 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
         session: derivedSession,
       })
     } catch (error: any) {
-      const authError = new AuthError(error.code)
+      const authError = new AuthError(error)
       setError(authError)
     } finally {
       setLoading(false)
@@ -125,7 +125,7 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
         session: derivedSession,
       })
     } catch (error: any) {
-      const authError = new AuthError(error.code)
+      const authError = new AuthError(error)
       setError(authError)
     } finally {
       setLoading(false)

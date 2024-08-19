@@ -11,13 +11,16 @@ import {
   NavigatorScreenParams, // @demo remove-current-line
 } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
+import { LoggedInNavigator, LoggedInStackParamList } from "app/navigators/LoggedInNavigator"
 import { UserNavigator } from "app/navigators/UserNavigator"
 import * as Screens from "app/screens"
 import { useAuthStateChanged } from "app/screens/auth/useAuthStateChanged"
 import { ForgotPasswordScreen } from "app/screens/ForgotPasswordScreen"
 import { ForgotPasswordSuccessScreen } from "app/screens/ForgotPasswordSuccessScreen"
+import { OnboardingScreen } from "app/screens/OnboardingScreen"
 import { ResetPasswordScreen } from "app/screens/ResetPasswordScreen"
 import { ResetPasswordSuccessScreen } from "app/screens/ResetPasswordSuccessScreen"
+import { SubscriptionScreen } from "app/screens/SubscriptionScreen"
 import { CarDetailsScreen } from "app/screens/user/UserCarsScreen/CarDetails"
 import { colors } from "app/theme"
 import { observer } from "mobx-react-lite"
@@ -45,6 +48,7 @@ export type AppStackParamList = {
   Welcome: undefined
   Login: undefined // @demo remove-current-line
   Demo: NavigatorScreenParams<DemoTabParamList> // @demo remove-current-line
+  LoggedIn: NavigatorScreenParams<LoggedInStackParamList>
   // 🔥 Your screens go here
   SignUp: undefined
   ForgotPassword: undefined
@@ -97,16 +101,23 @@ const AppStack = observer(function AppStack() {
     <Stack.Navigator
       screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
       // initialRouteName={isAuthenticated ? "Welcome" : "Login"} // @demo remove-current-line
-      initialRouteName={isAuthenticated ? "User" : "Login"}
+      initialRouteName={isAuthenticated ? "LoggedIn" : "Login"}
       // initialRouteName={isAuthenticated ? "Onboarding" : "Login"}
       // initialRouteName="Subscription"
     >
       {/* @demo remove-block-start */}
       {isAuthenticated ? (
         <>
-          {/* <Stack.Screen name="Onboarding" component={OnboardingScreen} /> */}
-          {/* <Stack.Screen name="Subscription" component={SubscriptionScreen} /> */}
+          <Stack.Screen
+            name="LoggedIn"
+            component={LoggedInNavigator}
+            options={{
+              animation: "none",
+            }}
+          />
           <Stack.Screen name="User" component={UserNavigator} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          <Stack.Screen name="Subscription" component={SubscriptionScreen} />
           <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
           <Stack.Screen name="Dashboard" component={Screens.DashboardScreen} />
           <Stack.Screen name="VehicleDetails" component={Screens.VehicleDetailsScreen} />
@@ -123,8 +134,6 @@ const AppStack = observer(function AppStack() {
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="ForgotPasswordSuccess" component={ForgotPasswordSuccessScreen} />
           <Stack.Screen name="ResetPasswordSuccess" component={ResetPasswordSuccessScreen} />
-          {/* <Stack.Screen name="Onboarding" component={OnboardingScreen} /> */}
-          {/* <Stack.Screen name="Subscription" component={SubscriptionScreen} /> */}
         </>
       )}
       {/* @demo remove-block-end */}
