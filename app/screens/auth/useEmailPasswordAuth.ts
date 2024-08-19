@@ -1,7 +1,9 @@
 import auth from "@react-native-firebase/auth"
+import { Session } from "app/models/session/Session"
+import { User } from "app/models/user/User"
 import { AuthError } from "app/screens/auth/errors/authErrors"
-import { UseAuthArgs, UseAuthEmailPwReturn } from "app/screens/auth/types"
-import { MediaFileType, Session, User, UserRole } from "app/types"
+import { UseAuthEmailArgs, UseAuthEmailPwReturn } from "app/screens/auth/types"
+import { jwtDecode } from "jwt-decode"
 import { useState } from "react"
 
 const generateId = (): string => {
@@ -14,8 +16,8 @@ const generateId = (): string => {
   return result
 }
 
-export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn => {
-  const { onSignIn, onSignOut } = args || {}
+export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwReturn => {
+  const { onSignIn, onSignOut, onRegister } = args || {}
   const [loading, setLoading] = useState<boolean>(false)
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -35,27 +37,19 @@ export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn =
       const idTokenResult = await userCredential.user.getIdTokenResult()
 
       const derivedUser = {
-        role: UserRole.user,
         id: userCredential.user.uid,
         email: userCredential.user.email,
-        firstName: userCredential.user.displayName?.split(" ")[0] || undefined,
-        lastName: userCredential.user.displayName?.split(" ")[1] || undefined,
-        profilePicture: userCredential.user.photoURL
-          ? {
-              id: generateId(),
-              type: MediaFileType.photo,
-              mimeType: "image/jpeg",
-              url: userCredential.user.photoURL,
-            }
-          : undefined,
+        firebaseUid: userCredential.user.uid,
+        provider: "EMAIL_PASSWORD",
+        accountStatus: "ONBOARDING",
       } as User
 
-      const derivedSession: Session = {
+      const derivedSession = {
         id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
-        userId: userCredential.user.uid,
-      }
+        userId: derivedUser.id,
+      } as Session
 
       authReturn = {
         user: derivedUser,
@@ -66,7 +60,10 @@ export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn =
       setUser(derivedUser)
       setData(authReturn)
 
-      onSignIn?.(authReturn)
+      onSignIn?.({
+        user: derivedUser,
+        session: derivedSession,
+      })
     } catch (error: any) {
       const authError = new AuthError(error.code)
       setError(authError)
@@ -86,33 +83,32 @@ export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn =
     setError(null)
 
     try {
+      console.log("AUTH:registerAsync:email\n", email)
       const userCredential = await auth().createUserWithEmailAndPassword(email, password)
-      console.log("User account created & signed in!")
-
       const idTokenResult = await userCredential.user.getIdTokenResult()
 
-      const derivedUser = {
-        role: UserRole.user,
-        id: userCredential.user.uid,
-        email: userCredential.user.email,
-        firstName: userCredential.user.displayName?.split(" ")[0] || undefined,
-        lastName: userCredential.user.displayName?.split(" ")[1] || undefined,
-        profilePicture: userCredential.user.photoURL
-          ? {
-              id: generateId(),
-              type: MediaFileType.photo,
-              mimeType: "image/jpeg",
-              url: userCredential.user.photoURL,
-            }
-          : undefined,
-      } as User
+      console.log("idTokenResult:", JSON.stringify(idTokenResult, null, 2))
+      console.log("userCredential:\n", JSON.stringify(userCredential, null, 2))
 
-      const derivedSession: Session = {
+      const jwtDecodedResult = jwtDecode(idTokenResult.token)
+      console.log("\nAUTH:emailpwAuthResponse:jwtDecodedResult\n", jwtDecodedResult)
+
+      const derivedSession = {
         id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
         userId: userCredential.user.uid,
-      }
+      } as Session
+
+      const derivedUser = {
+        id: userCredential.user.uid,
+        email: userCredential.user.email,
+        firebaseUid: userCredential.user.uid,
+        provider: "APPLE",
+        profile: undefined,
+        subscription: undefined,
+        accountStatus: "ONBOARDING",
+      } as User
 
       authReturn = {
         user: derivedUser,
@@ -122,6 +118,14 @@ export const useEmailPasswordAuth = (args?: UseAuthArgs): UseAuthEmailPwReturn =
       setSession(derivedSession)
       setUser(derivedUser)
       setData(authReturn)
+
+      console.log("derivedUser:", JSON.stringify(derivedUser, null, 2))
+      console.log("derivedSession:", JSON.stringify(derivedSession, null, 2))
+
+      onRegister?.({
+        user: derivedUser,
+        session: derivedSession,
+      })
     } catch (error: any) {
       const authError = new AuthError(error.code)
       setError(authError)

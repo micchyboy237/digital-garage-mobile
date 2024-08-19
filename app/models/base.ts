@@ -2,8 +2,8 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 
 export const BaseEntityModel = types.model({
   id: types.identifier,
-  createdAt: types.maybe(types.Date),
-  updatedAt: types.maybe(types.Date),
+  createdAt: types.Date,
+  updatedAt: types.Date,
 })
 
 export interface BaseEntity extends Instance<typeof BaseEntityModel> {}

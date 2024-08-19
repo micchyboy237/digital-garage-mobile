@@ -1,8 +1,8 @@
 import appleAuth from "@invertase/react-native-apple-authentication"
 import auth from "@react-native-firebase/auth"
-import { Session, User } from "app/models/models"
+import { Session } from "app/models/models"
+import { User } from "app/models/user/User"
 import { UseAuthArgs, UseAuthReturn } from "app/screens/auth/types"
-import { MediaFileType, UserRole } from "app/types"
 import { jwtDecode } from "jwt-decode"
 import { useState } from "react"
 
@@ -64,32 +64,23 @@ export const useAppleAuth = (args?: UseAuthArgs): UseAuthReturn => {
       const idTokenResult = await userCredential.user.getIdTokenResult()
 
       const derivedUser = {
-        role: UserRole.user,
         id: userCredential.user.uid,
+        role: "USER",
         email: userCredential.user.email,
-        firstName: appleAuthResponse.fullName?.givenName || undefined,
-        lastName: appleAuthResponse.fullName?.familyName || undefined,
-        profilePicture: userCredential.user.photoURL
-          ? {
-              id: generateId(),
-              type: MediaFileType.photo,
-              mimeType: "image/jpeg",
-              url: userCredential.user.photoURL,
-            }
-          : undefined,
-        // auth: {
-        //   userId: userCredential.user.uid,
-        //   appleId: sub,
-        //   isEmailVerified: userCredential.additionalUserInfo?.profile?.email_verified,
-        // },
+        password: undefined,
+        firebaseUid: userCredential.user.uid,
+        provider: "APPLE",
+        profile: undefined,
+        subscription: undefined,
+        accountStatus: "ONBOARDING",
       } as User
 
-      const derivedSession: Session = {
+      const derivedSession = {
         id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
         userId: userCredential.user.uid,
-      }
+      } as Session
 
       appleAuthReturn = {
         user: derivedUser,
@@ -101,12 +92,14 @@ export const useAppleAuth = (args?: UseAuthArgs): UseAuthReturn => {
       console.log("\nAUTH:signInAsync:derivedSession\n", JSON.stringify(derivedSession, null, 2))
       console.log("\nAUTH:signInAsync:derivedUser\n", JSON.stringify(derivedUser, null, 2))
 
-      onSignIn?.(appleAuthReturn)
+      onSignIn?.({
+        user: derivedUser,
+        session: derivedSession,
+      })
     } catch (error) {
       console.error("\nAUTH:signInAsync:error\n", error)
     }
 
-    onSignIn?.(appleAuthReturn)
     return appleAuthReturn
   }
 

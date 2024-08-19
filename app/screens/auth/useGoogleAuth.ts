@@ -1,7 +1,8 @@
 import auth from "@react-native-firebase/auth"
 import { GoogleSignin } from "@react-native-google-signin/google-signin"
+import { Session } from "app/models/models"
+import { User } from "app/models/user/User"
 import { UseAuthArgs, UseAuthReturn } from "app/screens/auth/types"
-import { MediaFileType, Session, User, UserRole } from "app/types"
 import { useState } from "react"
 
 const generateId = (): string => {
@@ -39,27 +40,23 @@ export const useGoogleAuth = (args?: UseAuthArgs): UseAuthReturn => {
       const idTokenResult = await userCredential.user.getIdTokenResult()
 
       const derivedUser = {
-        role: UserRole.user,
         id: userCredential.user.uid,
+        role: "USER",
         email: userCredential.user.email,
-        firstName: userCredential.user.displayName?.split(" ")[0] || undefined,
-        lastName: userCredential.user.displayName?.split(" ")[1] || undefined,
-        profilePicture: userCredential.user.photoURL
-          ? {
-              id: generateId(),
-              type: MediaFileType.photo,
-              mimeType: "image/jpeg",
-              url: userCredential.user.photoURL,
-            }
-          : undefined,
+        password: undefined,
+        firebaseUid: userCredential.user.uid,
+        provider: "APPLE",
+        profile: undefined,
+        subscription: undefined,
+        accountStatus: "ONBOARDING",
       } as User
 
-      const derivedSession: Session = {
+      const derivedSession = {
         id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
         userId: userCredential.user.uid,
-      }
+      } as Session
 
       googleAuthReturn = {
         user: derivedUser,
@@ -69,7 +66,10 @@ export const useGoogleAuth = (args?: UseAuthArgs): UseAuthReturn => {
       setSession(derivedSession)
       setUser(derivedUser)
 
-      onSignIn?.(googleAuthReturn)
+      onSignIn?.({
+        user: derivedUser,
+        session: derivedSession,
+      })
     } catch (error) {
       console.error("\nAUTH:signInAsync:error\n", error)
     }

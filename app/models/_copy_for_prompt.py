@@ -7,8 +7,25 @@ DEFAULT_SYSTEM_MESSAGE = """
 Dont use memory
 """.strip()
 
-DEFAULT_MESSAGE = """
-Analyze schema.prisma and sample user and profile files then create the remaining corresponding stores, models and test files. Try to follow the existing patterns, conventions and file structures. Check if anything's wrong and apply the necessary changes.
+IS_REMAINING = True
+
+remaining_text = "remaining corresponding"
+single_text = "app/models/session"
+target_text = remaining_text if IS_REMAINING else single_text
+
+exclude_files = [
+    "node_modules",
+]
+
+include_files = [
+    'schema.prisma',
+    'app/models/user',
+    'app/models/profile'
+]
+
+
+DEFAULT_MESSAGE = f"""
+Analyze schema.prisma and sample user and profile files then create the {target_text} stores, models and test files. Try to follow the existing patterns, conventions and file structures. Check if anything's wrong and apply the necessary changes.
 Write a single python script that will generate these files and folders in this format:
 ```python
 # Create directories for models
@@ -33,17 +50,6 @@ with open("app/models/<model_name>/<ModelName>.test.ts", "w") as test_file:
     \"\"\")
 ```
 """.strip()
-
-# Default exclude files or directories with wildcard support
-exclude_files = [
-    "node_modules",
-]
-
-include_files = [
-    'schema.prisma',
-    'app/models/user',
-    'app/models/profile'
-]
 
 
 def find_files(base_dir, include, exclude):

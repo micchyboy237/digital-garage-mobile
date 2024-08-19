@@ -33,15 +33,22 @@ enum PaymentStatus {
 model User {
   id                String          @id @default(uuid())
   email             String          @unique
-  password          String?
   firebaseUid       String          @unique
   provider          AuthProvider
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
   profile           Profile?
   subscription      Subscription?
   accountStatus     AccountStatus   @default(ONBOARDING)
+  sessions          Session[]
 }
+
+model Session {
+  id         String   @id @default(uuid())
+  token      String   @unique
+  expiresAt  DateTime
+  userId     String
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 
 model Profile {
   id                String          @id @default(uuid())
@@ -50,7 +57,7 @@ model Profile {
   profilePicture    String?
   location          String?
   userId            String          @unique
-  user              User?            @relation(fields: [userId], references: [id])
+  user              User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
@@ -60,7 +67,7 @@ model Subscription {
   startDate         DateTime?
   endDate           DateTime?
   userId            String              @unique
-  user              User?               @relation(fields: [userId], references: [id])
+  user              User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
   payments          Payment[]           // Relation to Payment model
 }
 
@@ -71,5 +78,5 @@ model Payment {
   status            PaymentStatus
   transactionDate   DateTime
   subscriptionId    String
-  subscription      Subscription?     @relation(fields: [subscriptionId], references: [id])
+  subscription      Subscription?     @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
 }

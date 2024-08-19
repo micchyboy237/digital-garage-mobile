@@ -1,8 +1,10 @@
-import { FontAwesome } from "@expo/vector-icons"
-import { useAuthActions } from "app/screens/auth/useAuthActions"
+import { useStores } from "app/models"
+import { SignInButton } from "app/screens/auth/SignInButton"
+import { useAppleAuth } from "app/screens/auth/useAppleAuth"
 import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
+import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import React, { FC, useState } from "react"
-import { Image, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Image, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text, TextField, Toggle } from "../components"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
@@ -14,10 +16,47 @@ const logo = require("../../assets/images/logo.png")
 export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props) {
   const [email, setEmail] = useState("micchyboy.developer@gmail.com")
   const [password, setPassword] = useState("asdasd!123")
-  const [isTermsAccepted, setIsTermsAccepted] = useState(false)
+  const [isTermsAccepted, setIsTermsAccepted] = useState(true)
 
-  const emailpwAuth = useEmailPasswordAuth()
-  const { sendVerificationEmail } = useAuthActions()
+  const { authenticationStore } = useStores()
+
+  const emailpwAuth = useEmailPasswordAuth({
+    onSignIn: (state) => {
+      console.log("Email/Password sign in successful:", state)
+      authenticationStore.setAuthUser(state.user)
+      authenticationStore.setAuthSession(state.session)
+    },
+    onRegister: (state) => {
+      console.log("Email/Password register successful:", JSON.stringify(state, null, 2))
+      authenticationStore.setAuthUser(state.user)
+      authenticationStore.setAuthSession(state.session)
+    },
+    onSignOut: (user) => {
+      console.log("Email/Password sign out successful:", user)
+    },
+  })
+
+  const appleAuth = useAppleAuth({
+    onSignIn: (state) => {
+      console.log("Apple sign in successful:", state)
+      authenticationStore.setAuthUser(state.user)
+      authenticationStore.setAuthSession(state.session)
+    },
+    onSignOut: (user) => {
+      console.log("Apple sign out successful:", user)
+    },
+  })
+
+  const googleAuth = useGoogleAuth({
+    onSignIn: (state) => {
+      console.log("Google sign in successful:", state)
+      authenticationStore.setAuthUser(state.user)
+      authenticationStore.setAuthSession(state.session)
+    },
+    onSignOut: (user) => {
+      console.log("Google sign out successful:", user)
+    },
+  })
 
   async function signUp() {
     if (!isTermsAccepted) {
@@ -25,10 +64,19 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
       return
     }
 
+    console.log("registerAsync:", email, password)
     const result = await emailpwAuth.registerAsync(email, password)
     console.log("signUp result", result)
-    await sendVerificationEmail()
-    console.log("Verification email sent to", email)
+    // const signUpMutationResult = await signUpMutation.mutate({
+    //   data: result.user,
+    // })
+    // console.log("signUpMutationResult", signUpMutationResult)
+    // const sessionMutationResult = await sessionMutation.mutate({
+    //   data: result.session,
+    // })
+    // console.log("sessionMutationResult", sessionMutationResult)
+    // await sendVerificationEmail()
+    // console.log("Verification email sent to", email)
 
     // _props.navigation.navigate("Onboarding")
   }
@@ -100,29 +148,24 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
         labelStyle={$checkboxText}
       />
 
-      <Button testID="sign-up-button" style={$signUpButton} preset="reversed" onPress={signUp}>
+      <Button testID="sign-up-button" style={$emailButton} preset="reversed" onPress={signUp}>
         Sign Up
       </Button>
 
-      <TouchableOpacity
-        style={$appleButton}
-        onPress={() => {
-          // Handle Apple sign-in
-        }}
-      >
-        <FontAwesome name="apple" size={24} color="white" />
-        <Text style={$appleButtonText}>Sign up with Apple</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={$googleButton}
-        onPress={() => {
-          // Handle Google sign-in
-        }}
-      >
-        <FontAwesome name="google" size={24} color="black" />
-        <Text style={$googleButtonText}>Sign up with Google</Text>
-      </TouchableOpacity>
+      <View style={$socialButtonContainer}>
+        <SignInButton
+          style={$socialButton}
+          textStyle={$socialButtonText}
+          type="apple"
+          onPress={appleAuth.signInAsync}
+        />
+        <SignInButton
+          style={$socialButton}
+          textStyle={$socialButtonText}
+          type="google"
+          onPress={googleAuth.signInAsync}
+        />
+      </View>
     </Screen>
   )
 }
@@ -151,39 +194,19 @@ const $checkboxText: TextStyle = {
   color: colors.palette.neutral800,
 }
 
-const $signUpButton: ViewStyle = {
+const $emailButton: ViewStyle = {
   marginTop: spacing.xs,
+  marginBottom: spacing.sm,
   backgroundColor: "#BE0E8DDE",
 }
 
-const $appleButton: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
+const $socialButtonContainer: ViewStyle = {}
+
+const $socialButton: ViewStyle = {
+  // flex: 1,
   justifyContent: "center",
-  backgroundColor: "black",
-  padding: spacing.md,
-  borderRadius: 4,
-  marginTop: spacing.md,
 }
 
-const $appleButtonText: TextStyle = {
-  color: "white",
-  marginLeft: spacing.sm,
-}
-
-const $googleButton: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "white",
-  padding: spacing.md,
-  borderRadius: 4,
-  marginTop: spacing.md,
-  borderWidth: 1,
-  borderColor: colors.palette.neutral800,
-}
-
-const $googleButtonText: TextStyle = {
-  color: colors.palette.neutral800,
-  marginLeft: spacing.sm,
+const $socialButtonText: TextStyle = {
+  fontSize: 16,
 }

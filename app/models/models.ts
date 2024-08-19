@@ -5,8 +5,8 @@ import {
   MediaFileTypeEnum,
   PaymentIntervalEnum,
   SubscriptionStatusEnum,
-  UserRoleEnum,
 } from "app/models/enums"
+import { UserModel } from "app/models/user/User"
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 
 export const MediaFileModel = BaseEntityModel.named("MediaFile").props({
@@ -167,7 +167,6 @@ export const SessionModel = BaseEntityModel.named("Session").props({
   token: types.string,
   expiresAt: types.Date,
   userId: types.string,
-  user: types.maybe(types.reference(types.late(() => UserModel))),
 })
 
 export interface Session extends Instance<typeof SessionModel> {}
@@ -195,15 +194,15 @@ export const NotificationModel = BaseEntityModel.named("Notification").props({
 export interface Notification extends Instance<typeof NotificationModel> {}
 export interface NotificationSnapshot extends SnapshotOut<typeof NotificationModel> {}
 
-export const UserModel = BaseEntityModel.named("User").props({
-  role: UserRoleEnum,
-  id: types.identifier,
-  email: types.string,
-  firstName: types.maybe(types.string),
-  lastName: types.maybe(types.string),
-  profilePicture: types.maybe(MediaFileModel),
-  // auth: types.maybe(types.reference(types.late(() => AuthModel)),
-})
+// export const UserModel = BaseEntityModel.named("User").props({
+//   role: UserRoleEnum,
+//   id: types.identifier,
+//   email: types.string,
+//   firstName: types.maybe(types.string),
+//   lastName: types.maybe(types.string),
+//   profilePicture: types.maybe(MediaFileModel),
+//   // auth: types.maybe(types.reference(types.late(() => AuthModel)),
+// })
 
-export interface User extends Instance<typeof UserModel> {}
-export interface UserSnapshot extends SnapshotOut<typeof UserModel> {}
+// export interface User extends Instance<typeof UserModel> {}
+// export interface UserSnapshot extends SnapshotOut<typeof UserModel> {}

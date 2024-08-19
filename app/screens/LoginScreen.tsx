@@ -221,7 +221,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         </>
       )}
 
-      <Button testID="login-button" style={$logIn} preset="reversed" onPress={handleLogin}>
+      <Button testID="login-button" style={$emailButton} preset="reversed" onPress={handleLogin}>
         Log In
       </Button>
 
@@ -272,12 +272,6 @@ const $textField: ViewStyle = {
   marginBottom: spacing.lg,
 }
 
-const $logIn: ViewStyle = {
-  marginTop: spacing.xs,
-  marginBottom: spacing.sm,
-  backgroundColor: "#BE0E8DDE",
-}
-
 const $checkboxContainer: ViewStyle = {
   flex: 1,
 }
@@ -293,11 +287,12 @@ const $forgotPasswordText: TextStyle = {
   fontWeight: "bold",
 }
 
-const $socialButtonContainer: ViewStyle = {
-  // flexDirection: "row",
-  // justifyContent: "space-between",
-  // gap: spacing.sm,
+const $emailButton: ViewStyle = {
+  marginTop: spacing.xs,
+  marginBottom: spacing.sm,
+  backgroundColor: "#BE0E8DDE",
 }
+const $socialButtonContainer: ViewStyle = {}
 
 const $socialButton: ViewStyle = {
   // flex: 1,
