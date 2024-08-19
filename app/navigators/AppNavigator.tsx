@@ -11,7 +11,8 @@ import {
   NavigatorScreenParams, // @demo remove-current-line
 } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
-import { LoggedInNavigator, LoggedInStackParamList } from "app/navigators/LoggedInNavigator"
+import { useGetInitialRoute } from "app/models/hooks/useGetInitialRoute"
+import { LoggedInStackParamList } from "app/navigators/LoggedInNavigator"
 import { UserNavigator } from "app/navigators/UserNavigator"
 import * as Screens from "app/screens"
 import { useAuthStateChanged } from "app/screens/auth/useAuthStateChanged"
@@ -81,7 +82,7 @@ const Stack = createNativeStackNavigator<AppStackParamList>()
 const AppStack = observer(function AppStack() {
   // @demo remove-block-start
   const {
-    authenticationStore: { isAuthenticated },
+    authenticationStore: { isAuthenticated, authUser },
   } = useStores()
 
   // Use the custom useAuth hook
@@ -96,25 +97,27 @@ const AppStack = observer(function AppStack() {
     return null
   }
 
+  const initialRoute = useGetInitialRoute()
+
   // @demo remove-block-end
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
       // initialRouteName={isAuthenticated ? "Welcome" : "Login"} // @demo remove-current-line
-      initialRouteName={isAuthenticated ? "LoggedIn" : "Login"}
+      initialRouteName={initialRoute}
       // initialRouteName={isAuthenticated ? "Onboarding" : "Login"}
       // initialRouteName="Subscription"
     >
       {/* @demo remove-block-start */}
       {isAuthenticated ? (
         <>
-          <Stack.Screen
+          {/* <Stack.Screen
             name="LoggedIn"
             component={LoggedInNavigator}
             options={{
               animation: "none",
             }}
-          />
+          /> */}
           <Stack.Screen name="User" component={UserNavigator} />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen name="Subscription" component={SubscriptionScreen} />

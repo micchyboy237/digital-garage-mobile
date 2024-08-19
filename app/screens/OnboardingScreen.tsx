@@ -1,6 +1,9 @@
 // digital-garage/packages/api/src/screens/OnboardingScreen.tsx
 
+import { useStores } from "app/models"
+import { useUser } from "app/models/hooks/useUser"
 import { UK_CITIES } from "app/screens/digital-garage/data/uk-cities"
+import { trpc } from "app/services/api"
 import React, { FC, useState } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text, TextField } from "../components"
@@ -14,13 +17,43 @@ interface OnboardingScreenProps extends AppStackScreenProps<"Onboarding"> {}
 const allCities = UK_CITIES.map(({ city }) => city).sort()
 
 export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [city, setCity] = useState("")
+  const [firstName, setFirstName] = useState("Jethro")
+  const [lastName, setLastName] = useState("Estrada")
+  const [city, setCity] = useState("London")
   const [recentStates, setRecentStates] = useState<string[]>(allCities)
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
 
-  function submitOnboarding() {
+  const { authenticationStore } = useStores()
+  const user = useUser()
+  const profileMutation = trpc.profile.createOneProfile.useMutation()
+  const userMutation = trpc.user.updateOneUser.useMutation()
+
+  async function submitOnboarding() {
+    const result = await profileMutation.mutateAsync({
+      include: { user: true },
+      data: {
+        firstName,
+        lastName,
+        location: city,
+        profilePicture,
+        userId: user.id,
+      },
+    })
+    console.log("profileMutation result:", JSON.stringify(result, null, 2))
+
+    const userMutationResult = await userMutation.mutateAsync({
+      data: {
+        ...result.user,
+        accountStatus: "SELECT_SUBSCRIPTION",
+      },
+      where: { firebaseUid: result.user?.firebaseUid },
+    })
+    console.log("userMutationResult:", JSON.stringify(userMutationResult, null, 2))
+
+    if (userMutationResult) {
+      authenticationStore.setAuthUser(userMutationResult)
+    }
+
     // Handle onboarding logic here
     navigation.navigate("Subscription") // Replace "NextScreen" with the actual next screen in your app
   }
