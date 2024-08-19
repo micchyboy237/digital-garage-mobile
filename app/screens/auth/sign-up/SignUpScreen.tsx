@@ -1,17 +1,18 @@
 import { useStores } from "app/models"
+import { AuthEmailPwButton } from "app/screens/auth/sign-up/SignUpButtons"
 import { SignInButton } from "app/screens/auth/SignInButton"
 import { useAppleAuth } from "app/screens/auth/useAppleAuth"
 import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
 import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import React, { FC, useState } from "react"
 import { Image, TextStyle, View, ViewStyle } from "react-native"
-import { Button, Screen, Text, TextField, Toggle } from "../components"
-import { AppStackScreenProps } from "../navigators"
-import { colors, spacing } from "../theme"
+import { Screen, Text, TextField, Toggle } from "../../../components"
+import { AppStackScreenProps } from "../../../navigators"
+import { colors, spacing } from "../../../theme"
 
 interface SignUpScreenProps extends AppStackScreenProps<"SignUp"> {}
 
-const logo = require("../../assets/images/logo.png")
+const logo = require("../../../../assets/images/logo.png")
 
 export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props) {
   const [email, setEmail] = useState("micchyboy.developer@gmail.com")
@@ -57,29 +58,6 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
       console.log("Google sign out successful:", user)
     },
   })
-
-  async function signUp() {
-    if (!isTermsAccepted) {
-      alert("You must agree to the Terms of Service and Privacy Policy")
-      return
-    }
-
-    console.log("registerAsync:", email, password)
-    const result = await emailpwAuth.registerAsync(email, password)
-    console.log("signUp result", result)
-    // const signUpMutationResult = await signUpMutation.mutate({
-    //   data: result.user,
-    // })
-    // console.log("signUpMutationResult", signUpMutationResult)
-    // const sessionMutationResult = await sessionMutation.mutate({
-    //   data: result.session,
-    // })
-    // console.log("sessionMutationResult", sessionMutationResult)
-    // await sendVerificationEmail()
-    // console.log("Verification email sent to", email)
-
-    // _props.navigation.navigate("Onboarding")
-  }
 
   return (
     <Screen preset="scroll" contentContainerStyle={$screenContentContainer}>
@@ -148,9 +126,10 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
         labelStyle={$checkboxText}
       />
 
-      <Button testID="sign-up-button" style={$emailButton} preset="reversed" onPress={signUp}>
+      {/* <Button testID="sign-up-button" style={$emailButton} preset="reversed" onPress={signUp}>
         Sign Up
-      </Button>
+      </Button> */}
+      <AuthEmailPwButton email={email} password={password} isTermsAccepted={isTermsAccepted} />
 
       <View style={$socialButtonContainer}>
         <SignInButton

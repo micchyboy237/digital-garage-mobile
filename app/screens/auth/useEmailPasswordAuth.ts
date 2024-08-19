@@ -45,7 +45,6 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
       } as User
 
       const derivedSession = {
-        id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
         userId: derivedUser.id,
@@ -94,7 +93,6 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
       console.log("\nAUTH:emailpwAuthResponse:jwtDecodedResult\n", jwtDecodedResult)
 
       const derivedSession = {
-        id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
         userId: userCredential.user.uid,

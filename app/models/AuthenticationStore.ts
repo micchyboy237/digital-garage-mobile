@@ -16,11 +16,11 @@ export const AuthenticationStoreModel = types
     get isAuthenticated() {
       return !!store.authSession
     },
-    get user() {
-      return store.authUser
-    },
-    get session() {
-      return store.authSession
+    get storesData() {
+      return {
+        users: store.userStore.users,
+        sessions: store.sessionStore.sessions,
+      }
     },
     get validationError() {
       return ""
