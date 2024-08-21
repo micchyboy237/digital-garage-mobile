@@ -1,40 +1,51 @@
-# Domain Setup
+To verify your domain by adding DNS records in your domain registrar, follow these step-by-step instructions:
 
-## DNS Links
-Unfortunately, the domain [classicgarage.com](https://classicgarage.com) is already taken (registered in **1999**). Here are some alternative domain names that are available for registration:
+### Step 1: Log In to Your Domain Registrar
+1. Go to the website of your domain registrar (e.g., GoDaddy, Namecheap, Google Domains).
+2. Log in with your account credentials.
 
-### Namecheap
-- [classicgarage.app](https://www.namecheap.com/domains/registration/results/?domain=classicgarage.app)
-- [classicgarage.uk](https://www.namecheap.com/domains/registration/results/?domain=classicgarage.uk)
+### Step 2: Access DNS Management
+1. Once logged in, locate the section where you can manage DNS settings. This is typically labeled as "DNS Management," "DNS Settings," "Manage DNS," or something similar.
+2. Click on the DNS management option to access the DNS records associated with your domain.
 
-### Hostinger
-- [classicgarage.app](https://www.hostinger.com/domains?domain=classicgarage.app)
-- [classicgarage.uk](https://www.hostinger.com/domains?domain=classicgarage.uk)
+### Step 3: Add the TXT Records
+1. In the DNS management section, look for an option to add a new record. This is often represented by a button labeled "Add Record," "Add DNS Record," or simply a plus sign (+).
+2. For each TXT record, fill in the fields as follows:
 
-### NameSilo
-- [classicgarage.app](https://www.namesilo.com/domain/search-domains?query=classicgarage.app&tlds=link+info+photo+com+me+org+icu+help+ph+pink+xyz+net+life+app)
-- [classicgarage.uk](https://www.namesilo.com/domain/search-domains?query=classicgarage.uk&tlds=link+info+photo+com+me+org+icu+help+ph+pink+xyz+net+life+app)
+   - **First TXT Record:**
+     - **Host:** `classicgarage.co.uk`
+     - **Type:** `TXT`
+     - **Value:** `v=spf1 include:_spf.firebasemail.com ~all`
+   
+   - **Second TXT Record:**
+     - **Host:** `classicgarage.co.uk`
+     - **Type:** `TXT`
+     - **Value:** `firebase=classic-garage-164c2`
 
-## Domain and Hosting Recommendations
-This considers these criteria: **pricing**, **features**, **customer support**, and **scalability**. Here are the pros and cons of each service:
+3. After entering the details, save the TXT records.
 
-1. **Namecheap**:
-   - **Pros**: Affordable pricing, free WHOIS privacy, user-friendly interface, good customer support, and scalable hosting options.
-   - **Cons**: Mediocre uptime, limited global data centers, and low storage on basic plans.
-   - Sources:
-     - [TopTeny Magazine on Namecheap](https://www.topteny.com/an-honest-namecheap-review-pros-and-cons-from-a-long-time-user)
-     - [Diggity Marketing on Namecheap](https://diggitymarketing.com/namecheap-review)
+### Step 4: Add the CNAME Records
+1. After adding the TXT records, proceed to add the CNAME records by following the same steps to add a new DNS record.
+2. For each CNAME record, fill in the fields as follows:
 
-2. **Hostinger**:
-   - **Pros**: Affordable hosting plans, intuitive custom-built hPanel, free SSL certificates, and scalable hosting options.
-   - **Cons**: Inconsistent customer support, occasional downtime on shared hosting, and no dedicated server options.
-   - Sources:
-     - [QuickSprout on Hostinger](https://www.quicksprout.com/hostinger-review)
-     - [CrazyEgg on Hostinger](https://www.crazyegg.com/blog/hostinger-review)
+   - **First CNAME Record:**
+     - **Host:** `firebase1._domainkey.classicgarage.co.uk`
+     - **Type:** `CNAME`
+     - **Value:** `mail-classicgarage-co-uk.dkim1._domainkey.firebasemail.com.`
+   
+   - **Second CNAME Record:**
+     - **Host:** `firebase2._domainkey.classicgarage.co.uk`
+     - **Type:** `CNAME`
+     - **Value:** `mail-classicgarage-co-uk.dkim2._domainkey.firebasemail.com.`
 
-3. **NameSilo**:
-   - **Pros**: Transparent pricing, free WHOIS privacy, comprehensive domain management features, and a wide selection of TLDs.
-   - **Cons**: Limited customer support options, basic web interface, and only shared hosting available.
-   - Sources:
-     - [Ciroapp on NameSilo](https://ciroapp.com/namesilo-review)
-     - [Larry Ludwig on NameSilo](https://larryludwig.com/namesilo-review) 
+3. Save each CNAME record after entering the details.
+
+### Step 5: Wait for DNS Propagation
+1. DNS changes might take some time to propagate across the internet. This can take anywhere from a few minutes to 48 hours.
+2. You can use a DNS checker tool (like [DNSChecker.org](https://dnschecker.org)) to verify that your DNS records have been updated and propagated.
+
+### Step 6: Verify Domain in Firebase
+1. Once the DNS records have propagated, return to your Firebase console where you initiated the domain verification process.
+2. Click the "Verify" button to complete the verification process.
+
+By following these steps, you should successfully verify your domain with Firebase by adding the required DNS records.

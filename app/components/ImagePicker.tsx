@@ -19,6 +19,8 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onImageSelected }) => 
       allowsMultipleSelection: false,
       allowsEditing: true,
       quality: 1,
+      // preferredAssetRepresentationMode:
+      //   ExpoImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
     })
 
     if (!result.canceled) {

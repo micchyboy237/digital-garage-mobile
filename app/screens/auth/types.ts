@@ -27,6 +27,7 @@ export interface UseAuthReturn {
     session: Session | null
   }>
   signOutAsync: () => Promise<void>
+  resetError: () => void
 }
 
 export interface UseAuthEmailPwReturn {
@@ -53,4 +54,5 @@ export interface UseAuthEmailPwReturn {
     user: User | null
     session: Session | null
   }>
+  resetError: () => void
 }

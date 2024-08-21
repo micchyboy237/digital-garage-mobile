@@ -51,7 +51,7 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
         />
 
         <Text preset="subheading" style={$enterDetails}>
-          Sign up for a free 7-day trial to start your Digital Garage journey.
+          Sign up for a free 14-day trial to start your Digital Garage journey.
         </Text>
       </View>
 

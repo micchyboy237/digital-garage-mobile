@@ -17,7 +17,7 @@ const PRODUCTS = [
     referenceName: "Premium 14-day trial (1-3 vehicles) £0.00 | 3-mos £3.99 | £4.99",
     duration: "1 month",
     description:
-      "User will receive an offer to upgrade at 7-days - 3 months at reduced rate £3.99. User will receive a reminder on day 14, account will revert to FREE. User can switch to free account (default). User will receive an offer - 3 months at reduced rate £3.99. Reverts to normal rate £4.99 at month 4.",
+      "User will receive an offer to upgrade at 14-days - 3 months at reduced rate £3.99. User will receive a reminder on day 14, account will revert to FREE. User can switch to free account (default). User will receive an offer - 3 months at reduced rate £3.99. Reverts to normal rate £4.99 at month 4.",
   },
   {
     testerId: "cg.tester2@gmail.com",
@@ -89,8 +89,8 @@ export const useInfo = () => {
     console.log("Getting info")
 
     try {
-      // const offerings = await Purchases.getOfferings()
-      // console.log("Offerings: ", JSON.stringify(offerings, null, 2))
+      const offerings = await Purchases.getOfferings()
+      console.log("Offerings: ", JSON.stringify(offerings, null, 2))
       const products = await Purchases.getProducts(PRODUCTS.map((p) => p.productId))
       console.log("Products: ", JSON.stringify(products, null, 2))
       const customerInfo = await Purchases.getCustomerInfo()

@@ -10,10 +10,15 @@ export const UserModel = types
     id: types.identifier,
     email: types.string,
     firebaseUid: types.string,
-    provider: types.enumeration(["EMAIL_PASSWORD", "GOOGLE", "APPLE"]),
+    isEmailVerified: types.boolean,
     profile: types.maybe(types.reference(ProfileModel)), // Reference to ProfileModel
     subscription: types.maybe(types.reference(SubscriptionModel)), // Reference to SubscriptionModel
-    accountStatus: types.enumeration(["ONBOARDING", "SELECT_SUBSCRIPTION", "ACTIVE"]),
+    accountStatus: types.enumeration([
+      "PENDING_EMAIL_VERIFICATION",
+      "ONBOARDING",
+      "SELECT_SUBSCRIPTION",
+      "ACTIVE",
+    ]),
     sessions: types.maybe(types.array(types.reference(SessionModel))),
   })
   .actions(withSetPropAction)

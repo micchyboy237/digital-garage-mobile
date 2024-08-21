@@ -1,6 +1,6 @@
 import appleAuth from "@invertase/react-native-apple-authentication"
 import auth from "@react-native-firebase/auth"
-import { Session } from "app/models/models"
+import { Session } from "app/models/session/Session"
 import { User } from "app/models/user/User"
 import { UseAuthArgs, UseAuthReturn } from "app/screens/auth/types"
 import { jwtDecode } from "jwt-decode"
@@ -65,11 +65,8 @@ export const useAppleAuth = (args?: UseAuthArgs): UseAuthReturn => {
 
       const derivedUser = {
         id: userCredential.user.uid,
-        role: "USER",
         email: userCredential.user.email,
-        password: undefined,
         firebaseUid: userCredential.user.uid,
-        provider: "APPLE",
         profile: undefined,
         subscription: undefined,
         accountStatus: "ONBOARDING",
@@ -79,6 +76,7 @@ export const useAppleAuth = (args?: UseAuthArgs): UseAuthReturn => {
         id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
+        provider: "APPLE",
         userId: userCredential.user.uid,
       } as Session
 

@@ -1,6 +1,6 @@
 import auth from "@react-native-firebase/auth"
 import { GoogleSignin } from "@react-native-google-signin/google-signin"
-import { Session } from "app/models/models"
+import { Session } from "app/models/session/Session"
 import { User } from "app/models/user/User"
 import { UseAuthArgs, UseAuthReturn } from "app/screens/auth/types"
 import { useState } from "react"
@@ -41,11 +41,8 @@ export const useGoogleAuth = (args?: UseAuthArgs): UseAuthReturn => {
 
       const derivedUser = {
         id: userCredential.user.uid,
-        role: "USER",
         email: userCredential.user.email,
-        password: undefined,
         firebaseUid: userCredential.user.uid,
-        provider: "APPLE",
         profile: undefined,
         subscription: undefined,
         accountStatus: "ONBOARDING",
@@ -55,6 +52,7 @@ export const useGoogleAuth = (args?: UseAuthArgs): UseAuthReturn => {
         id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
+        provider: "GOOGLE",
         userId: userCredential.user.uid,
       } as Session
 

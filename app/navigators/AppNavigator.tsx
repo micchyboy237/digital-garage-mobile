@@ -8,14 +8,14 @@ import {
   DarkTheme,
   DefaultTheme,
   NavigationContainer,
-  NavigatorScreenParams, // @demo remove-current-line
+  NavigatorScreenParams,
 } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 import { useGetInitialRoute } from "app/models/hooks/useGetInitialRoute"
-import { LoggedInStackParamList } from "app/navigators/LoggedInNavigator"
+import { LoggedInNavigator, LoggedInStackParamList } from "app/navigators/LoggedInNavigator"
 import { UserNavigator } from "app/navigators/UserNavigator"
 import * as Screens from "app/screens"
-import { useAuthStateChanged } from "app/screens/auth/useAuthStateChanged"
+import { SignUpSuccessScreen } from "app/screens/auth/sign-up/SignUpSuccessScreen"
 import { ForgotPasswordScreen } from "app/screens/ForgotPasswordScreen"
 import { ForgotPasswordSuccessScreen } from "app/screens/ForgotPasswordSuccessScreen"
 import { OnboardingScreen } from "app/screens/OnboardingScreen"
@@ -28,7 +28,6 @@ import { observer } from "mobx-react-lite"
 import React from "react"
 import { useColorScheme } from "react-native"
 import Config from "../config"
-import { useStores } from "../models" // @demo remove-current-line
 import { DemoTabParamList } from "./DemoNavigator" // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
@@ -54,6 +53,7 @@ export type AppStackParamList = {
   SignUp: undefined
   ForgotPassword: undefined
   ResetPassword: undefined
+  SignUpSuccess: undefined
   ForgotPasswordSuccess: undefined
   ResetPasswordSuccess: undefined
   Onboarding: undefined
@@ -80,23 +80,6 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 const Stack = createNativeStackNavigator<AppStackParamList>()
 
 const AppStack = observer(function AppStack() {
-  // @demo remove-block-start
-  const {
-    authenticationStore: { isAuthenticated, authUser },
-  } = useStores()
-
-  // Use the custom useAuth hook
-  const authObj = useAuthStateChanged({
-    onAuthStateChanged: (state) => {
-      console.log("Firebase auth state changed:", state)
-    },
-  })
-
-  if (authObj.initializing) {
-    // Optionally show a loading screen while initializing
-    return null
-  }
-
   const initialRoute = useGetInitialRoute()
 
   // @demo remove-block-end
@@ -108,40 +91,24 @@ const AppStack = observer(function AppStack() {
       // initialRouteName={isAuthenticated ? "Onboarding" : "Login"}
       // initialRouteName="Subscription"
     >
-      {/* @demo remove-block-start */}
-      {isAuthenticated ? (
-        <>
-          {/* <Stack.Screen
-            name="LoggedIn"
-            component={LoggedInNavigator}
-            options={{
-              animation: "none",
-            }}
-          /> */}
-          <Stack.Screen name="User" component={UserNavigator} />
-          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          <Stack.Screen name="Subscription" component={SubscriptionScreen} />
-          <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
-          <Stack.Screen name="Dashboard" component={Screens.DashboardScreen} />
-          <Stack.Screen name="VehicleDetails" component={Screens.VehicleDetailsScreen} />
-          {/* @demo remove-block-end */}
-          <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
-          {/* @demo remove-block-start */}
-          {/* <Stack.Screen name="Demo" component={DemoNavigator} /> */}
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="Login" component={Screens.LoginScreen} />
-          <Stack.Screen name="SignUp" component={Screens.SignUpScreen} />
-          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-          <Stack.Screen name="ForgotPasswordSuccess" component={ForgotPasswordSuccessScreen} />
-          <Stack.Screen name="ResetPasswordSuccess" component={ResetPasswordSuccessScreen} />
-        </>
-      )}
+      <Stack.Screen name="Login" component={Screens.LoginScreen} />
+      <Stack.Screen name="LoggedIn" component={LoggedInNavigator} />
+      <Stack.Screen name="SignUp" component={Screens.SignUpScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      <Stack.Screen name="SignUpSuccess" component={SignUpSuccessScreen} />
+      <Stack.Screen name="ForgotPasswordSuccess" component={ForgotPasswordSuccessScreen} />
+      <Stack.Screen name="ResetPasswordSuccess" component={ResetPasswordSuccessScreen} />
+      <Stack.Screen name="User" component={UserNavigator} />
+      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+      <Stack.Screen name="Subscription" component={SubscriptionScreen} />
+      <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
+      <Stack.Screen name="Dashboard" component={Screens.DashboardScreen} />
+      <Stack.Screen name="VehicleDetails" component={Screens.VehicleDetailsScreen} />
       {/* @demo remove-block-end */}
-      {/** 🔥 Your screens go here */}
-      {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
+      <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+      {/* @demo remove-block-start */}
+      {/* <Stack.Screen name="Demo" component={DemoNavigator} /> */}
     </Stack.Navigator>
   )
 })

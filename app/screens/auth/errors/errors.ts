@@ -8,6 +8,7 @@ export const LoginErrorCodes = {
   OPERATION_NOT_ALLOWED: "auth/operation-not-allowed",
   INVALID_VERIFICATION_CODE: "auth/invalid-verification-code",
   INVALID_VERIFICATION_ID: "auth/invalid-verification-id",
+  EMAIL_NOT_VERIFIED: "custom/email-not-verified",
 } as const
 
 export const LoginErrorMessages = {
@@ -22,6 +23,7 @@ export const LoginErrorMessages = {
   [LoginErrorCodes.OPERATION_NOT_ALLOWED]: "This operation is not allowed. Please try again later.",
   [LoginErrorCodes.INVALID_VERIFICATION_CODE]: "The verification code you entered is invalid.",
   [LoginErrorCodes.INVALID_VERIFICATION_ID]: "The verification ID you entered is invalid.",
+  [LoginErrorCodes.EMAIL_NOT_VERIFIED]: "Your email is not verified.",
 } as const
 
 export const SignupErrorCodes = {

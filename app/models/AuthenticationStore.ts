@@ -12,7 +12,7 @@ export const AuthenticationStoreModel = types
   })
   .views((store) => ({
     get isAuthenticated() {
-      return !!store.authSession
+      return !!store.authSession && !!store.authUser?.isEmailVerified
     },
     // get storesData() {
     //   return {

@@ -2,19 +2,10 @@ import auth from "@react-native-firebase/auth"
 import { Session } from "app/models/session/Session"
 import { User } from "app/models/user/User"
 import { AuthError } from "app/screens/auth/errors/authErrors"
+import { LoginErrorCodes } from "app/screens/auth/errors/errors"
 import { UseAuthEmailArgs, UseAuthEmailPwReturn } from "app/screens/auth/types"
 import { jwtDecode } from "jwt-decode"
 import { useState } from "react"
-
-const generateId = (): string => {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-  let result = ""
-  for (let i = 0; i < 12; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length)
-    result += characters[randomIndex]
-  }
-  return result
-}
 
 export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwReturn => {
   const { onSignIn, onSignOut, onRegister } = args || {}
@@ -34,19 +25,27 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
 
     try {
       const userCredential = await auth().signInWithEmailAndPassword(email, password)
+
+      if (!userCredential.user.emailVerified) {
+        throw new AuthError({ code: LoginErrorCodes.EMAIL_NOT_VERIFIED })
+      }
+
       const idTokenResult = await userCredential.user.getIdTokenResult()
 
       const derivedUser = {
         id: userCredential.user.uid,
         email: userCredential.user.email,
         firebaseUid: userCredential.user.uid,
-        provider: "EMAIL_PASSWORD",
-        accountStatus: "ONBOARDING",
+        isEmailVerified: userCredential.user.emailVerified,
+        accountStatus: userCredential.user.emailVerified
+          ? "ONBOARDING"
+          : "PENDING_EMAIL_VERIFICATION",
       } as User
 
       const derivedSession = {
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
+        provider: "EMAIL_PASSWORD",
         userId: derivedUser.id,
       } as Session
 
@@ -64,6 +63,7 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
         session: derivedSession,
       })
     } catch (error: any) {
+      console.log("signInAsync:error\n", error)
       const authError = new AuthError(error)
       setError(authError)
     } finally {
@@ -95,6 +95,7 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
       const derivedSession = {
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
+        provider: "EMAIL_PASSWORD",
         userId: userCredential.user.uid,
       } as Session
 
@@ -102,7 +103,6 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
         id: userCredential.user.uid,
         email: userCredential.user.email,
         firebaseUid: userCredential.user.uid,
-        provider: "APPLE",
         profile: undefined,
         subscription: undefined,
         accountStatus: "ONBOARDING",
@@ -142,6 +142,10 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
     onSignOut?.(user)
   }
 
+  const resetError = () => {
+    setError(null)
+  }
+
   return {
     loading,
     user,
@@ -151,5 +155,6 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
     signInAsync,
     signOutAsync,
     registerAsync,
+    resetError,
   }
 }

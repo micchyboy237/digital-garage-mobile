@@ -25,8 +25,8 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
 
   const { authenticationStore } = useStores()
   const user = useUser()
-  const profileMutation = trpc.profile.createOneProfile.useMutation()
-  const userMutation = trpc.user.updateOneUser.useMutation()
+  const profileMutation = trpc.admin.profile.createOneProfile.useMutation()
+  const userMutation = trpc.admin.user.updateOneUser.useMutation()
 
   async function submitOnboarding() {
     const result = await profileMutation.mutateAsync({

@@ -1,7 +1,9 @@
 import { useNavigation } from "@react-navigation/native"
 import { Session } from "app/models/session/Session"
+import { LoginErrorCodes } from "app/screens/auth/errors/errors"
 import { SignInButton } from "app/screens/auth/SignInButton"
 import { useAppleAuth } from "app/screens/auth/useAppleAuth"
+import { useAuthActions } from "app/screens/auth/useAuthActions"
 import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
 import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import { trpc } from "app/services/api"
@@ -35,8 +37,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const emailpwAuth = useEmailPasswordAuth()
   const appleAuth = useAppleAuth()
   const googleAuth = useGoogleAuth()
-  const signUpMutation = trpc.user.updateOneUser.useMutation()
-  const sessionMutation = trpc.session.updateOneSession.useMutation()
+  const signUpMutation = trpc.admin.user.updateOneUser.useMutation()
+  const sessionCreateMutation = trpc.admin.session.createOneSession.useMutation()
+  const sessionUpdateMutation = trpc.admin.session.updateOneSession.useMutation()
+
+  const { sendVerificationEmail } = useAuthActions()
 
   // useEffect(() => {
   //   signOutAsync()
@@ -77,13 +82,14 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       (session: Session) => session.userId === result.session?.userId,
     )
     console.log("existingSession:", JSON.stringify(existingSession, null, 2))
+    const sessionMutation = existingSession ? sessionUpdateMutation : sessionCreateMutation
     const sessionMutationResult = await sessionMutation.mutateAsync({
       data: {
         ...existingSession,
         ...result.session,
       },
       include: { user: true },
-      where: { id: existingSession.id },
+      where: { id: existingSession?.id },
     })
     console.log("sessionMutationResult:", JSON.stringify(sessionMutationResult, null, 2))
 
@@ -185,17 +191,34 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       </View>
 
       {emailpwAuth.error && (
-        <>
+        <View
+          style={{
+            marginBottom: spacing.sm,
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: spacing.xxs,
+          }}
+        >
           <Text
             style={{
               color: colors.error,
-              marginBottom: spacing.sm,
-              textAlign: "center",
             }}
           >
             {emailpwAuth.error.message}
           </Text>
-        </>
+          {emailpwAuth.error.code === LoginErrorCodes.EMAIL_NOT_VERIFIED && (
+            <Text
+              style={{ color: colors.error, textDecorationLine: "underline" }}
+              onPress={async () => {
+                await sendVerificationEmail()
+                console.log("Sent verification email!!")
+                emailpwAuth.resetError()
+              }}
+            >
+              Resend link
+            </Text>
+          )}
+        </View>
       )}
 
       <Button testID="login-button" style={$emailButton} preset="reversed" onPress={handleLogin}>
@@ -272,6 +295,7 @@ const $emailButton: ViewStyle = {
 const $socialButtonContainer: ViewStyle = {}
 
 const $socialButton: ViewStyle = {
+  minHeight: 48,
   // flex: 1,
   justifyContent: "center",
 }

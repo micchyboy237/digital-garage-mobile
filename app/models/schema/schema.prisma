@@ -5,6 +5,7 @@ enum AuthProvider {
 }
 
 enum AccountStatus {
+  PENDING_EMAIL_VERIFICATION
   ONBOARDING
   SELECT_SUBSCRIPTION
   ACTIVE
@@ -34,7 +35,7 @@ model User {
   id                String          @id @default(uuid())
   email             String          @unique
   firebaseUid       String          @unique
-  provider          AuthProvider
+  isEmailVerified   Boolean         @default(false)  
   profile           Profile?
   subscription      Subscription?
   accountStatus     AccountStatus   @default(ONBOARDING)
@@ -45,6 +46,7 @@ model Session {
   id         String   @id @default(uuid())
   token      String   @unique
   expiresAt  DateTime
+  provider   AuthProvider
   userId     String
   user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
