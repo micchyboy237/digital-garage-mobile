@@ -42,8 +42,6 @@ export const useInitializeRevenueCat = (): UseInitializeRevenueCatReturn => {
     await syncPurchases()
     const offerings = await Purchases.getOfferings()
     console.log("OFFERINGS:", JSON.stringify(offerings, null, 2))
-    const products = await Purchases.getProducts(["rc_cg_premium_trial_14d_3.99_4.99"])
-    console.log("PRODUCTS:", JSON.stringify(products, null, 2))
     console.log(
       "OFFERINGS LENGTH:",
       offerings.all["Classic Garage Premium"].availablePackages.length,

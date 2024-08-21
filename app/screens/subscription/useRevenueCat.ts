@@ -4,7 +4,6 @@ import Purchases, {
   CustomerInfo,
   PurchasesOffering,
   PurchasesPackage,
-  PurchasesStoreProductDiscount,
 } from "react-native-purchases"
 
 type UseRevenueCatReturn = {
@@ -58,8 +57,8 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       console.log("MyOfferings:\n", JSON.stringify(offerings, null, 2))
       const allOfferingsKeys = Object.keys(offerings.all)
       console.log("Offerings Keys:", allOfferingsKeys)
-      let availablePackages = offerings.all[allOfferingsKeys[0]].availablePackages
-      availablePackages = await updateWithPromos(availablePackages)
+      const availablePackages = offerings.all[allOfferingsKeys[0]].availablePackages
+      // availablePackages = await updateWithPromos(availablePackages)
       setPackages(availablePackages)
       if (offerings.current) {
         setCurrentOffering(offerings.current)
@@ -69,26 +68,26 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     }
   }
 
-  const updateWithPromos = async (packages: PurchasesPackage[]): Promise<PurchasesPackage[]> => {
-    // Call Promise.all() to fetch promo products from each package
-    return Promise.all(
-      packages.map(async (pkg) => {
-        const storeProduct = pkg.product
-        const discount = storeProduct.discounts?.[0] as PurchasesStoreProductDiscount
-        try {
-          const promo = await Purchases.getPromotionalOffer(storeProduct, discount)
-          console.log("PROMO:\n", JSON.stringify(promo, null, 2))
-          return {
-            ...pkg,
-            promo,
-          }
-        } catch (error) {
-          console.error("Error fetching promo:", error)
-          return pkg
-        }
-      }),
-    )
-  }
+  // const updateWithPromos = async (packages: PurchasesPackage[]): Promise<PurchasesPackage[]> => {
+  //   // Call Promise.all() to fetch promo products from each package
+  //   return Promise.all(
+  //     packages.map(async (pkg) => {
+  //       const storeProduct = pkg.product
+  //       const discount = storeProduct.discounts?.[0] as PurchasesStoreProductDiscount
+  //       try {
+  //         const promo = await Purchases.getPromotionalOffer(storeProduct, discount)
+  //         console.log("PROMO:\n", JSON.stringify(promo, null, 2))
+  //         return {
+  //           ...pkg,
+  //           promo,
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching promo:", error)
+  //         return pkg
+  //       }
+  //     }),
+  //   )
+  // }
 
   const logIn = async (userEmail: string): Promise<void> => {
     try {

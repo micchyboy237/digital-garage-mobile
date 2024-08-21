@@ -13,6 +13,7 @@
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		6955B2D57C55F7AB0ABD6967 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 79A2BA7202D597A169145E52 /* PrivacyInfo.xcprivacy */; };
 		6A0507AB2C760D65004FEBEB /* UK_PH_TestStoreKit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 6A0507AA2C760D65004FEBEB /* UK_PH_TestStoreKit.storekit */; };
+		6A7992C72C76274700B5520E /* UK_PH_TestStoreKit2.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 6A7992C62C76274700B5520E /* UK_PH_TestStoreKit2.storekit */; };
 		6B30EFAD1C6647E5B57BCB44 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0918FE977E91479DB72EB943 /* GoogleService-Info.plist */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
@@ -31,6 +32,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ClassicGarage/main.m; sourceTree = "<group>"; };
 		5D6A2BA51A9A7D96C23BD2C8 /* Pods-ClassicGarage.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ClassicGarage.release.xcconfig"; path = "Target Support Files/Pods-ClassicGarage/Pods-ClassicGarage.release.xcconfig"; sourceTree = "<group>"; };
 		6A0507AA2C760D65004FEBEB /* UK_PH_TestStoreKit.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = UK_PH_TestStoreKit.storekit; sourceTree = "<group>"; };
+		6A7992C62C76274700B5520E /* UK_PH_TestStoreKit2.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = UK_PH_TestStoreKit2.storekit; sourceTree = "<group>"; };
 		79A2BA7202D597A169145E52 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ClassicGarage/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ClassicGarage/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				6A7992C62C76274700B5520E /* UK_PH_TestStoreKit2.storekit */,
 				6A0507AA2C760D65004FEBEB /* UK_PH_TestStoreKit.storekit */,
 				13B07FAE1A68108700A75B9A /* ClassicGarage */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -213,6 +216,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				6A0507AB2C760D65004FEBEB /* UK_PH_TestStoreKit.storekit in Resources */,
+				6A7992C72C76274700B5520E /* UK_PH_TestStoreKit2.storekit in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				6B30EFAD1C6647E5B57BCB44 /* GoogleService-Info.plist in Resources */,
 				6955B2D57C55F7AB0ABD6967 /* PrivacyInfo.xcprivacy in Resources */,
