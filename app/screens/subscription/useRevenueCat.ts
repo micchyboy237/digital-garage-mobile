@@ -2,6 +2,7 @@ import { useUserEmail } from "app/models/hooks/useUserEmail"
 import { useEffect, useState } from "react"
 import Purchases, {
   CustomerInfo,
+  MakePurchaseResult,
   PurchasesOffering,
   PurchasesPackage,
 } from "react-native-purchases"
@@ -11,7 +12,7 @@ type UseRevenueCatReturn = {
   customerInfo: CustomerInfo | null
   currentOffering: PurchasesOffering | null
   fetchPackages: () => Promise<void>
-  makePurchase: (pkg: PurchasesPackage) => Promise<void>
+  makePurchase: (pkg: PurchasesPackage) => Promise<MakePurchaseResult | void>
   restorePurchases: () => Promise<void>
 }
 
@@ -112,14 +113,15 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
   //   return customerInfo
   // }
 
-  const makePurchase = async (pkg: PurchasesPackage): Promise<void> => {
+  const makePurchase = async (pkg: PurchasesPackage): Promise<MakePurchaseResult | void> => {
     try {
-      const { customerInfo } = await Purchases.purchasePackage(pkg)
-      setCustomerInfo(customerInfo)
-      if (entitlementId && customerInfo.entitlements.active[entitlementId]) {
+      const purchaseResult = await Purchases.purchasePackage(pkg)
+      setCustomerInfo(purchaseResult.customerInfo)
+      if (entitlementId && purchaseResult.customerInfo.entitlements.active[entitlementId]) {
         console.info("User has access to premium features")
         // Grant access to premium features
       }
+      return purchaseResult
     } catch (error) {
       console.error("Purchase failed:", error)
     }

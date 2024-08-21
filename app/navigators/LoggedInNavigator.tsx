@@ -5,10 +5,11 @@ import { UserNavigator, UserTabParamList } from "app/navigators/UserNavigator"
 import { DashboardScreen, VehicleDetailsScreen, WelcomeScreen } from "app/screens"
 import { useLoggedInBootstrap } from "app/screens/digital-garage/hooks/useLoggedInBootstrap"
 import { OnboardingScreen } from "app/screens/OnboardingScreen"
+import { SubscriptionSuccessScreen } from "app/screens/subscription/SubscriptionSuccessScreen"
 import { SubscriptionScreen } from "app/screens/SubscriptionScreen"
 import { CarDetailsScreen } from "app/screens/user/CarDetailsScreen"
 import { colors } from "app/theme"
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 import Config from "../config"
 
 export type LoggedInStackParamList = {
@@ -48,9 +49,10 @@ export const LoggedInNavigator = () => {
       // initialRouteName={isAuthenticated ? "Onboarding" : "Login"}
       // initialRouteName="Subscription"
     >
-      <Stack.Screen name="User" component={UserNavigator} />
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Subscription" component={SubscriptionScreen} />
+      <Stack.Screen name="SubscriptionSuccess" component={SubscriptionSuccessScreen} />
+      <Stack.Screen name="User" component={UserNavigator} />
       <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="VehicleDetails" component={VehicleDetailsScreen} />

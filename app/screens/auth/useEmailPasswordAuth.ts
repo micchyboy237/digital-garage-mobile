@@ -37,9 +37,6 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
         email: userCredential.user.email,
         firebaseUid: userCredential.user.uid,
         isEmailVerified: userCredential.user.emailVerified,
-        accountStatus: userCredential.user.emailVerified
-          ? "ONBOARDING"
-          : "PENDING_EMAIL_VERIFICATION",
       } as User
 
       const derivedSession = {

@@ -35,17 +35,18 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
     const profileMutation = authenticationStore.authProfile
       ? updateProfileMutation
       : createProfileMutation
-    const result = await profileMutation.mutateAsync({
-      include: { user: true },
+    const result = await createProfileMutation.mutateAsync({
+      // include: { user: true },
       data: {
         firstName,
         lastName,
         location: city,
         profilePicture,
-      },
-      where: {
         userId: user?.id,
       },
+      // where: {
+      //   userId: user?.id,
+      // },
     })
     console.log("profileMutation result:", JSON.stringify(result, null, 2))
     const userMutationResult = await updateUserMutation.mutateAsync({

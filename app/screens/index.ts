@@ -12,3 +12,14 @@ export * from "./ErrorScreen/ErrorBoundary"
 export * from "./digital-garage/screens/dashboard"
 export * from "./digital-garage/screens/vehicle-details"
 export * from "./user"
+
+// ForgotPasswordScreen
+// ResetPasswordScreen
+// SignUpSuccessScreen
+// ForgotPasswordSuccessScreen
+// ResetPasswordSuccessScreen
+export * from "./auth/sign-up/SignUpSuccessScreen"
+export * from "./ForgotPasswordScreen"
+export * from "./ForgotPasswordSuccessScreen"
+export * from "./ResetPasswordScreen"
+export * from "./ResetPasswordSuccessScreen"

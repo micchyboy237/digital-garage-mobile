@@ -52,12 +52,6 @@ export type AppStackParamList = {
   SignUpSuccess: undefined
   ForgotPasswordSuccess: undefined
   ResetPasswordSuccess: undefined
-  Onboarding: undefined
-  Subscription: undefined
-  User: undefined
-  Dashboard: undefined
-  VehicleDetails: undefined
-  CarDetails: undefined
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 

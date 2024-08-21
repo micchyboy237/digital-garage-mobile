@@ -17,11 +17,14 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
   const handleSelectOption = (optionId: string) => setSelectedOption(optionId)
 
   const handleConfirmSelection = async () => {
-    const selectedPackage = packages.find((pkg) => pkg.product.identifier === selectedOption)
-    if (selectedPackage) {
-      await makePurchase(selectedPackage)
+    if (selectedOption !== "free") {
+      const selectedPackage = packages.find((pkg) => pkg.product.identifier === selectedOption)
+      if (selectedPackage) {
+        const purchaseResult = await makePurchase(selectedPackage)
+        // TODO: Save purchase result to DB
+      }
     }
-    navigation.goBack()
+    navigation.navigate("SubscriptionSuccess")
   }
 
   return (
@@ -30,9 +33,6 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
       safeAreaEdges={["top", "bottom"]}
       contentContainerStyle={styles.screenContentContainer}
     >
-      <Text preset="subheading" style={styles.header}>
-        Choose Your Subscription Plan
-      </Text>
       <ScrollView contentContainerStyle={styles.optionsContainer}>
         <View style={styles.row}>
           {subscriptionOptions.map((option, index) => (

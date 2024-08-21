@@ -3,9 +3,10 @@ import { AuthEmailPwButton } from "app/screens/auth/sign-up/SignUpButtons"
 import { SignInButton } from "app/screens/auth/SignInButton"
 import { useAppleAuth } from "app/screens/auth/useAppleAuth"
 import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
+import { BackButton } from "app/screens/user/components/BackButton"
 import React, { FC, useState } from "react"
 import { Image, TextStyle, View, ViewStyle } from "react-native"
-import { Screen, Text, TextField, Toggle } from "../../../components"
+import { Header, Screen, Text, TextField, Toggle } from "../../../components"
 import { AppStackScreenProps } from "../../../navigators"
 import { colors, spacing } from "../../../theme"
 
@@ -43,90 +44,103 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
   })
 
   return (
-    <Screen preset="scroll" contentContainerStyle={$screenContentContainer}>
-      <View>
-        <Image
-          source={logo}
-          style={{ width: 80, height: 80, alignSelf: "center", marginBottom: 20 }}
+    <Screen
+      preset="scroll"
+      safeAreaEdges={["top", "bottom"]}
+      contentContainerStyle={$screenContentContainer}
+    >
+      {_props.navigation.canGoBack() && (
+        <Header
+          safeAreaEdges={[]}
+          LeftActionComponent={<BackButton onPress={_props.navigation.goBack} />}
         />
+      )}
 
-        <Text preset="subheading" style={$enterDetails}>
-          Sign up for a free 14-day trial to start your Digital Garage journey.
-        </Text>
+      <View style={$body}>
+        <View>
+          <Image
+            source={logo}
+            style={{ width: 80, height: 80, alignSelf: "center", marginBottom: 20 }}
+          />
+
+          <Text preset="subheading" style={$enterDetails}>
+            Sign up for a free 14-day trial to start your Digital Garage journey.
+          </Text>
+        </View>
+
+        <View>
+          <TextField
+            value={email}
+            onChangeText={setEmail}
+            containerStyle={$textField}
+            autoCapitalize="none"
+            autoComplete="email"
+            autoCorrect={false}
+            keyboardType="email-address"
+            label="Email"
+            placeholder="Enter your email"
+          />
+          <TextField
+            value={password}
+            onChangeText={setPassword}
+            containerStyle={$textField}
+            autoCapitalize="none"
+            autoComplete="password"
+            autoCorrect={false}
+            secureTextEntry={true}
+            label="Password"
+            placeholder="Enter your password"
+          />
+        </View>
+        <View>
+          <Toggle
+            containerStyle={$checkboxContainer}
+            value={isTermsAccepted}
+            onValueChange={setIsTermsAccepted}
+            variant="checkbox"
+            label={
+              <Text>
+                By registering for Digital Garage, I agree to the{" "}
+                <Text
+                  onPress={() => alert("Terms of Service")}
+                  style={{
+                    color: "#BE0E8DDE",
+                  }}
+                >
+                  Terms of Service
+                </Text>{" "}
+                and{" "}
+                <Text
+                  onPress={() => alert("Privacy Policy")}
+                  style={{
+                    color: "#BE0E8DDE",
+                  }}
+                >
+                  Privacy Policy
+                </Text>
+              </Text>
+            }
+            labelStyle={$checkboxText}
+          />
+          <AuthEmailPwButton email={email} password={password} isTermsAccepted={isTermsAccepted} />
+        </View>
       </View>
 
-      <TextField
-        value={email}
-        onChangeText={setEmail}
-        containerStyle={$textField}
-        autoCapitalize="none"
-        autoComplete="email"
-        autoCorrect={false}
-        keyboardType="email-address"
-        label="Email"
-        placeholder="Enter your email"
-      />
-
-      <TextField
-        value={password}
-        onChangeText={setPassword}
-        containerStyle={$textField}
-        autoCapitalize="none"
-        autoComplete="password"
-        autoCorrect={false}
-        secureTextEntry={true}
-        label="Password"
-        placeholder="Enter your password"
-      />
-
-      <Toggle
-        containerStyle={$checkboxContainer}
-        value={isTermsAccepted}
-        onValueChange={setIsTermsAccepted}
-        variant="checkbox"
-        label={
-          <Text>
-            By registering for Digital Garage, I agree to the{" "}
-            <Text
-              onPress={() => alert("Terms of Service")}
-              style={{
-                color: "#BE0E8DDE",
-              }}
-            >
-              Terms of Service
-            </Text>{" "}
-            and{" "}
-            <Text
-              onPress={() => alert("Privacy Policy")}
-              style={{
-                color: "#BE0E8DDE",
-              }}
-            >
-              Privacy Policy
-            </Text>
-          </Text>
-        }
-        labelStyle={$checkboxText}
-      />
-
-      {/* <Button testID="sign-up-button" style={$emailButton} preset="reversed" onPress={signUp}>
-        Sign Up
-      </Button> */}
-      <AuthEmailPwButton email={email} password={password} isTermsAccepted={isTermsAccepted} />
-
-      <View style={$socialButtonContainer}>
-        <SignInButton
-          style={$socialButton}
-          textStyle={$socialButtonText}
-          type="apple"
-          onPress={appleAuth.signInAsync}
-        />
-        <SignInButton
-          style={$socialButton}
-          textStyle={$socialButtonText}
-          type="google"
-          onPress={googleAuth.signInAsync}
-        />
+      <View style={$footer}>
+        <View style={$socialButtonContainer}>
+          <SignInButton
+            style={$socialButton}
+            textStyle={$socialButtonText}
+            type="apple"
+            onPress={appleAuth.signInAsync}
+          />
+          <SignInButton
+            style={$socialButton}
+            textStyle={$socialButtonText}
+            type="google"
+            onPress={googleAuth.signInAsync}
+          />
+        </View>
       </View>
     </Screen>
   )
@@ -134,8 +148,17 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
 
 const $screenContentContainer: ViewStyle = {
   flex: 1,
-  justifyContent: "center",
+  justifyContent: "space-around",
   paddingHorizontal: spacing.lg,
+}
+
+const $body: ViewStyle = {
+  flex: 3,
+  justifyContent: "center",
+}
+
+const $footer: ViewStyle = {
+  flex: 1,
 }
 
 const $enterDetails: TextStyle = {
