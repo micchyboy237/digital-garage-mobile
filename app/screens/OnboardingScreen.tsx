@@ -1,7 +1,7 @@
 // digital-garage/packages/api/src/screens/OnboardingScreen.tsx
 
 import { useStores } from "app/models"
-import { useUser } from "app/models/hooks/useUser"
+import { useUserId } from "app/models/hooks/useUserId"
 import { UK_CITIES } from "app/screens/digital-garage/data/uk-cities"
 import { trpc } from "app/services/api"
 import React, { FC, useState } from "react"
@@ -24,40 +24,35 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
 
   const { authenticationStore } = useStores()
-  const user = useUser()
-  console.log("user:", user)
+  const userId = useUserId()
   const createProfileMutation = trpc.admin.profile.createOneProfile.useMutation()
   const updateProfileMutation = trpc.admin.profile.updateOneProfile.useMutation()
+  const profileMutation = authenticationStore.authProfile
+    ? updateProfileMutation
+    : createProfileMutation
   const updateUserMutation = trpc.admin.user.updateOneUser.useMutation()
 
   async function submitOnboarding() {
-    console.log("isUpdateProfile:", !!authenticationStore.authProfile)
-    const profileMutation = authenticationStore.authProfile
-      ? updateProfileMutation
-      : createProfileMutation
-    const result = await createProfileMutation.mutateAsync({
-      // include: { user: true },
+    await profileMutation.mutateAsync({
       data: {
         firstName,
         lastName,
         location: city,
         profilePicture,
-        userId: user?.id,
+        userId,
       },
-      // where: {
-      //   userId: user?.id,
-      // },
+      where: {
+        userId,
+      },
     })
-    console.log("profileMutation result:", JSON.stringify(result, null, 2))
     const userMutationResult = await updateUserMutation.mutateAsync({
       data: {
         accountStatus: "SELECT_SUBSCRIPTION",
       },
       where: {
-        id: user?.id,
+        id: userId,
       },
     })
-    console.log("userMutation result:", JSON.stringify(userMutationResult, null, 2))
 
     if (userMutationResult) {
       authenticationStore.setAuthUser(userMutationResult)

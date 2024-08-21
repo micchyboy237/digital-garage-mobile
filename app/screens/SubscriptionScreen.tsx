@@ -1,6 +1,11 @@
+import { useStores } from "app/models"
+import { useUserId } from "app/models/hooks/useUserId"
+import { Payment } from "app/models/payment/Payment"
+import { Subscription } from "app/models/subscription/Subscription"
 import { SubscriptionOptionPlan } from "app/screens/subscription/types"
 import { useRevenueCat } from "app/screens/subscription/useRevenueCat"
 import { useSubscriptionOptions } from "app/screens/subscription/useSubscriptionOptions"
+import { trpc } from "app/services/api"
 import React, { FC, useState } from "react"
 import { Pressable, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "../components"
@@ -14,6 +19,16 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
   const subscriptionOptions = useSubscriptionOptions()
   const { packages, makePurchase } = useRevenueCat()
 
+  const { authenticationStore } = useStores()
+  const userId = useUserId()
+  const createSubscriptionMutation = trpc.admin.subscription.createOneSubscription.useMutation()
+  const updateSubscriptionMutation = trpc.admin.subscription.updateOneSubscription.useMutation()
+  const subscriptionMutation = authenticationStore.authSubscription
+    ? updateSubscriptionMutation
+    : createSubscriptionMutation
+  const createPaymentMutation = trpc.admin.payment.createOnePayment.useMutation()
+  const updateUserMutation = trpc.admin.user.updateOneUser.useMutation()
+
   const handleSelectOption = (optionId: string) => setSelectedOption(optionId)
 
   const handleConfirmSelection = async () => {
@@ -21,7 +36,66 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
       const selectedPackage = packages.find((pkg) => pkg.product.identifier === selectedOption)
       if (selectedPackage) {
         const purchaseResult = await makePurchase(selectedPackage)
+        if (!purchaseResult) {
+          return
+        }
+        const {
+          isActive,
+          subscriptionPeriodUnit,
+          expiresAt,
+          originalPurchaseDate,
+          productIdentifier,
+          payment: purchasePayment,
+        } = purchaseResult
         // TODO: Save purchase result to DB
+        const subscription = {
+          plan: subscriptionPeriodUnit,
+          status: isActive ? "ACTIVE" : "INACTIVE",
+          startDate: new Date(originalPurchaseDate),
+          expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+          productId: productIdentifier,
+          userId,
+        } as Subscription
+        // const subscriptionObj = SubscriptionModel.create(subscription)
+        console.log("Subscription object:", subscription)
+        // console.log("Subscription object create:", subscriptionObj)
+        const subscriptionResult = await subscriptionMutation.mutateAsync({
+          data: subscription,
+          where: {
+            userId,
+          },
+        })
+        console.log("Subscription mutation result:", subscriptionResult)
+        authenticationStore.setAuthSubscription(subscriptionResult)
+
+        if (purchasePayment) {
+          const payment = {
+            price: purchasePayment.price,
+            currencyCode: purchasePayment.currencyCode,
+            status: purchasePayment.status,
+            transactionId: purchasePayment?.transactionId,
+            transactionDate: new Date(purchasePayment.transactionDate),
+            subscriptionId: subscriptionResult.id,
+          } as Payment
+
+          const paymentResult = await createPaymentMutation.mutateAsync({
+            data: payment,
+          })
+          console.log("Payment mutation result:", paymentResult)
+          authenticationStore.addAuthPayment(paymentResult)
+        }
+
+        const userMutationResult = await updateUserMutation.mutateAsync({
+          data: {
+            accountStatus: "ACTIVE",
+          },
+          where: {
+            id: userId,
+          },
+        })
+        if (userMutationResult) {
+          authenticationStore.setAuthUser(userMutationResult)
+        }
       }
     }
     navigation.navigate("SubscriptionSuccess")

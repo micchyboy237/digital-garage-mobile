@@ -9,8 +9,8 @@ Dont use memory
 
 IS_REMAINING = True
 
-remaining_text = "remaining corresponding"
-single_text = "app/models/session"
+remaining_text = "create the missing models or update the changes in the existing models"
+single_text = "create app/models/session"
 target_text = remaining_text if IS_REMAINING else single_text
 
 exclude_files = [
@@ -20,12 +20,15 @@ exclude_files = [
 include_files = [
     'schema.prisma',
     'app/models/user',
-    'app/models/profile'
+    'app/models/profile',
+    'app/models/subscription',
+    'app/models/payment',
+    'app/models/session',
 ]
 
 
 DEFAULT_MESSAGE = f"""
-Analyze schema.prisma and sample user and profile files then create the {target_text} stores, models and test files. Try to follow the existing patterns, conventions and file structures. Check if anything's wrong and apply the necessary changes.
+Analyze schema.prisma and sample user and profile files then {target_text} stores, models and test files. Try to follow the existing patterns, conventions and file structures. Check if anything's wrong and apply the necessary changes.
 Write a single python script that will generate these files and folders in this format:
 ```python
 # Create directories for models

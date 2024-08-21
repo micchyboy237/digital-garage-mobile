@@ -5,17 +5,16 @@ enum AuthProvider {
 }
 
 enum AccountStatus {
-  PENDING_EMAIL_VERIFICATION
   ONBOARDING
   SELECT_SUBSCRIPTION
   ACTIVE
 }
 
 enum SubscriptionPlan {
-  MONTHLY
-  YEARLY
-  WEEKLY
-  CUSTOM // For any other types of plans or products
+  DAY
+  WEEK
+  MONTH
+  YEAR
 }
 
 enum SubscriptionStatus {
@@ -27,7 +26,6 @@ enum SubscriptionStatus {
 enum PaymentStatus {
   PAID
   REFUNDED
-  PENDING
   FAILED
 }
 
@@ -64,10 +62,12 @@ model Profile {
 
 model Subscription {
   id                String              @id @default(uuid())
+  productId         String
   plan              SubscriptionPlan?
   status            SubscriptionStatus  @default(ACTIVE)
   startDate         DateTime?
   endDate           DateTime?
+  expiresAt         DateTime?
   userId            String              @unique
   user              User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
   payments          Payment[]           // Relation to Payment model
@@ -75,9 +75,10 @@ model Subscription {
 
 model Payment {
   id                String          @id @default(uuid())
-  amount            Float
-  currency          String
+  price             Float
+  currencyCode      String
   status            PaymentStatus
+  transactionId     String
   transactionDate   DateTime
   subscriptionId    String
   subscription      Subscription?     @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)

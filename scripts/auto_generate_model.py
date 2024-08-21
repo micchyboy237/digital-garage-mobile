@@ -1,104 +1,184 @@
 import os
 
-# Directory paths
-model_name = "session"
-base_path = f"app/models/{model_name}"
-
-# Create directories for the model
-os.makedirs(base_path, exist_ok=True)
-
-# Session Model content
-session_model_content = """
+# Define the models, stores, and test content
+models = {
+    "Account": {
+        "model": """
 import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 import { withSetPropAction } from "../helpers/withSetPropAction"
 import { UserModel } from "../user/User"
 
-export const SessionModel = types
-  .model("Session")
+export const AccountModel = types
+  .model("Account")
   .props({
     id: types.identifier,
-    token: types.string,
-    expiresAt: types.Date,
-    user: types.reference(UserModel),
+    provider: types.enumeration("AuthProvider", ["EMAIL_PASSWORD", "GOOGLE", "APPLE"]),
+    firebaseUid: types.string,
+    isEmailVerified: types.boolean,
+    accountStatus: types.enumeration([
+      "ONBOARDING",
+      "SELECT_SUBSCRIPTION",
+      "ACTIVE",
+    ]),
+    email: types.string,
+    user: types.maybe(types.reference(UserModel)),
   })
   .actions(withSetPropAction)
 
-export interface Session extends Instance<typeof SessionModel> {}
-export interface SessionSnapshotOut extends SnapshotOut<typeof SessionModel> {}
-export interface SessionSnapshotIn extends SnapshotIn<typeof SessionModel> {}
-"""
-
-# Session Store content
-session_store_content = """
+export interface Account extends Instance<typeof AccountModel> {}
+export interface AccountSnapshotOut extends SnapshotOut<typeof AccountModel> {}
+export interface AccountSnapshotIn extends SnapshotIn<typeof AccountModel> {}
+        """,
+        "store": """
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { withSetPropAction } from "../helpers/withSetPropAction"
-import { Session, SessionModel } from "./Session"
+import { AccountModel } from "./Account"
 
-export const SessionStoreModel = types
-  .model("SessionStore")
+export const AccountStoreModel = types
+  .model("AccountStore")
   .props({
-    sessions: types.array(SessionModel),
+    accounts: types.array(AccountModel),
   })
   .actions(withSetPropAction)
   .actions((store) => ({
-    addSession(session: Session) {
-      store.sessions.push(session)
+    addAccount(account) {
+      store.accounts.push(account)
     },
-    removeSession(session: Session) {
-      store.sessions.remove(session)
+    removeAccount(account) {
+      store.accounts.remove(account)
     },
   }))
 
-export interface SessionStore extends Instance<typeof SessionStoreModel> {}
-export interface SessionStoreSnapshot extends SnapshotOut<typeof SessionStoreModel> {}
-"""
+export interface AccountStore extends Instance<typeof AccountStoreModel> {}
+export interface AccountStoreSnapshot extends SnapshotOut<typeof AccountStoreModel> {}
+        """,
+        "test": """
+import { AccountModel } from "./Account"
+import { AccountStoreModel } from "./AccountStore"
+import { user1 } from "app/models/user/User.test"
 
-# Session Test content
-session_test_content = """
-import { SessionModel } from "app/models/session/Session"
-import { SessionStoreModel } from "app/models/session/SessionStore"
-import { UserModel } from "app/models/user/User"
+const accountStore = AccountStoreModel.create({ accounts: [] })
 
-const user1 = UserModel.create({
-  id: "user1",
-  email: "user1@example.com",
-  firebaseUid: "user1FirebaseUid",
+export const account1 = AccountModel.create({
+  id: "account1",
   provider: "EMAIL_PASSWORD",
-  profile: "profile1",
-  subscription: "subscription1",
-  accountStatus: "ACTIVE",
-})
-
-export const session1 = SessionModel.create({
-  id: "session1",
-  token: "token1",
-  expiresAt: new Date("2024-12-31T23:59:59Z"),
+  firebaseUid: "user1FirebaseUid",
+  isEmailVerified: false,
+  accountStatus: "ONBOARDING",
+  email: "user1@example.com",
   user: user1.id,
 })
 
-const sessionStore = SessionStoreModel.create({ sessions: [] })
-sessionStore.addSession(session1)
+accountStore.addAccount(account1)
 
-describe("Session 1", () => {
-  it("session model has correct data", () => {
-    expect(session1.id).toBe("session1")
-    expect(session1.token).toBe("token1")
-    expect(session1.expiresAt.toISOString()).toBe("2024-12-31T23:59:59.000Z")
-    expect(session1.user.id).toBe("user1")
-  })
+test("account model has correct data", () => {
+  expect(account1.id).toBe("account1")
+  expect(account1.provider).toBe("EMAIL_PASSWORD")
+  expect(account1.firebaseUid).toBe("user1FirebaseUid")
+  expect(account1.isEmailVerified).toBe(false)
+  expect(account1.accountStatus).toBe("ONBOARDING")
+  expect(account1.email).toBe("user1@example.com")
+  expect(account1.user.id).toBe("user1")
 })
-"""
+        """
+    },
+    "Payment": {
+        "model": """
+import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
+import { withSetPropAction } from "../helpers/withSetPropAction"
+import { SubscriptionModel } from "../subscription/Subscription"
 
-# Create model files
-with open(f"{base_path}/Session.ts", "w") as model_file:
-    model_file.write(session_model_content)
+export const PaymentModel = types
+  .model("Payment")
+  .props({
+    id: types.identifier,
+    price: types.number,
+    currencyCode: types.string,
+    status: types.enumeration("PaymentStatus", ["PAID", "REFUNDED", "PENDING", "FAILED"]),
+    transactionId: types.string,
+    transactionDate: types.Date,
+    subscription: types.reference(SubscriptionModel),
+  })
+  .actions(withSetPropAction)
 
-# Create store files
-with open(f"{base_path}/SessionStore.ts", "w") as store_file:
-    store_file.write(session_store_content)
+export interface Payment extends Instance<typeof PaymentModel> {}
+export interface PaymentSnapshotOut extends SnapshotOut<typeof PaymentModel> {}
+export interface PaymentSnapshotIn extends SnapshotIn<typeof PaymentModel> {}
+        """,
+        "store": """
+import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { withSetPropAction } from "../helpers/withSetPropAction"
+import { PaymentModel } from "./Payment"
 
-# Create test files
-with open(f"{base_path}/Session.test.ts", "w") as test_file:
-    test_file.write(session_test_content)
+export const PaymentStoreModel = types
+  .model("PaymentStore")
+  .props({
+    payments: types.array(PaymentModel),
+  })
+  .actions(withSetPropAction)
+  .actions((store) => ({
+    addPayment(payment) {
+      store.payments.push(payment)
+    },
+    removePayment(payment) {
+      store.payments.remove(payment)
+    },
+  }))
 
-print("Session model, store, and test files have been created successfully.")
+export interface PaymentStore extends Instance<typeof PaymentStoreModel> {}
+export interface PaymentStoreSnapshot extends SnapshotOut<typeof PaymentStoreModel> {}
+        """,
+        "test": """
+import { PaymentModel } from "./Payment"
+import { PaymentStoreModel } from "./PaymentStore"
+import { subscription1 } from "app/models/subscription/Subscription.test"
+
+const paymentStore = PaymentStoreModel.create({ payments: [] })
+
+export const firstTransactionDate = new Date("2021-02-14T00:00:00Z")
+
+export const payment1 = PaymentModel.create({
+  id: "payment1",
+  price: 100,
+  currencyCode: "GBP",
+  status: "PAID",
+  transactionDate: firstTransactionDate,
+  subscription: subscription1.id,
+})
+
+export const payment2 = PaymentModel.create({
+  id: "payment2",
+  price: 200,
+  currencyCode: "USD",
+  status: "PAID",
+  transactionDate: new Date(firstTransactionDate.setMonth(firstTransactionDate.getMonth() + 1)),
+  subscription: subscription1.id,
+})
+
+paymentStore.addPayment(payment1)
+paymentStore.addPayment(payment2)
+
+test("payment model has correct data", () => {
+  expect(payment1.id).toBe("payment1")
+  expect(payment1.price).toBe(100)
+  expect(payment1.currencyCode).toBe("GBP")
+  expect(payment1.status).toBe("PAID")
+  expect(payment1.subscription.id).toBe("sub1")
+})
+        """
+    }
+}
+
+# Create directories and files for each model
+for model_name, contents in models.items():
+    model_dir = f"app/models/{model_name.lower()}"
+    os.makedirs(model_dir, exist_ok=True)
+
+    with open(f"{model_dir}/{model_name}.ts", "w") as model_file:
+        model_file.write(contents["model"])
+
+    with open(f"{model_dir}/{model_name}Store.ts", "w") as store_file:
+        store_file.write(contents["store"])
+
+    with open(f"{model_dir}/{model_name}.test.ts", "w") as test_file:
+        test_file.write(contents["test"])

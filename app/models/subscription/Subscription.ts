@@ -6,14 +6,14 @@ export const SubscriptionModel = types
   .model("Subscription")
   .props({
     id: types.identifier,
-    plan: types.maybe(
-      types.enumeration("SubscriptionPlan", ["MONTHLY", "YEARLY", "WEEKLY", "CUSTOM"]),
-    ),
+    productId: types.string,
+    plan: types.maybe(types.enumeration("SubscriptionPlan", ["DAY", "WEEK", "MONTH", "YEAR"])),
     status: types.enumeration("SubscriptionStatus", ["ACTIVE", "CANCELED", "EXPIRED"]),
-    startDate: types.maybe(types.Date),
-    endDate: types.maybe(types.Date),
-    userId: types.string, // Corresponds to `userId` in the schema
-    payments: types.optional(types.array(types.reference(PaymentModel)), []), // Directly reference PaymentModel
+    startDate: types.Date,
+    endDate: types.maybe(types.maybeNull(types.Date)),
+    expiresAt: types.maybe(types.Date),
+    userId: types.maybe(types.string),
+    payments: types.optional(types.array(types.reference(PaymentModel)), []),
   })
   .actions(withSetPropAction)
 

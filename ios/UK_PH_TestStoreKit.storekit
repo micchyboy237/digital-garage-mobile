@@ -10,7 +10,7 @@
     "_applicationInternalID" : "6636554744",
     "_developerTeamID" : "ZYB3VW3AV4",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 745940629.58355403,
+    "_lastSynchronizedDate" : 745942585.84672904,
     "_locale" : "en_GB",
     "_storefront" : "GBR",
     "_storeKitErrors" : [
@@ -123,7 +123,18 @@
               "eligibility" : [
                 "new"
               ],
-              "internalID" : "FF83A1DC",
+              "internalID" : "D155775C",
+              "isStackable" : true,
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "referenceName" : "2-month free",
+              "subscriptionPeriod" : "P2M"
+            },
+            {
+              "eligibility" : [
+                "new"
+              ],
+              "internalID" : "3ABE0FB6",
               "isStackable" : false,
               "numberOfPeriods" : 1,
               "paymentMode" : "free",
@@ -135,12 +146,7 @@
           "familyShareable" : false,
           "groupNumber" : 7,
           "internalID" : "6639611754",
-          "introductoryOffer" : {
-            "internalID" : "A9815DFF",
-            "numberOfPeriods" : 1,
-            "paymentMode" : "free",
-            "subscriptionPeriod" : "P2M"
-          },
+          "introductoryOffer" : null,
           "localizations" : [
 
           ],
@@ -217,7 +223,7 @@
           "adHocOffers" : [
             {
               "displayPrice" : "3.99",
-              "internalID" : "944B983F",
+              "internalID" : "DD98A2E7",
               "numberOfPeriods" : 3,
               "offerID" : "rc_cg_promo_premium_reduced_3months_3.99",
               "paymentMode" : "payAsYouGo",
@@ -230,7 +236,7 @@
               "eligibility" : [
                 "new"
               ],
-              "internalID" : "003FB3C6",
+              "internalID" : "F95AE393",
               "isStackable" : false,
               "numberOfPeriods" : 1,
               "paymentMode" : "free",
@@ -243,7 +249,7 @@
           "groupNumber" : 1,
           "internalID" : "6639611630",
           "introductoryOffer" : {
-            "internalID" : "D7A3133D",
+            "internalID" : "EB3AA5EF",
             "numberOfPeriods" : 1,
             "paymentMode" : "free",
             "subscriptionPeriod" : "P2W"

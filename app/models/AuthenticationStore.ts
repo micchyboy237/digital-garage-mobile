@@ -1,3 +1,4 @@
+import { Payment, PaymentModel } from "app/models/payment/Payment"
 import { Profile, ProfileModel } from "app/models/profile/Profile"
 import { Session, SessionModel } from "app/models/session/Session"
 import { Subscription, SubscriptionModel } from "app/models/subscription/Subscription"
@@ -11,6 +12,7 @@ export const AuthenticationStoreModel = types
     authSession: types.maybe(types.maybeNull(SessionModel)),
     authProfile: types.maybe(types.maybeNull(ProfileModel)),
     authSubscription: types.maybe(types.maybeNull(SubscriptionModel)),
+    authPayments: types.optional(types.array(PaymentModel), []),
     // userStore: types.optional(UserStoreModel, {}),
     // sessionStore: types.optional(SessionStoreModel, {}),
   })
@@ -43,10 +45,21 @@ export const AuthenticationStoreModel = types
     setAuthSubscription(subscription: Subscription) {
       store.authSubscription = subscription
     },
+    addAuthPayment(payment: Payment) {
+      // Check if the payment already exists in the store
+      const existingPayment = store.authPayments.find((p) => p.id === payment.id)
+      if (!existingPayment) {
+        store.authPayments.push(payment)
+      }
+    },
+    clearAuthPayments() {
+      store.authPayments.clear()
+    },
     logout() {
       store.authUser = null
       store.authSession = null
       store.authProfile = null
       store.authSubscription = null
+      store.authPayments.clear()
     },
   }))

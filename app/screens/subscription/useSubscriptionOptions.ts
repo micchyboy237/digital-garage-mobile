@@ -1,63 +1,24 @@
 import { PeriodUnit, SubscriptionOptionPlan } from "app/screens/subscription/types"
 import { useRevenueCat } from "app/screens/subscription/useRevenueCat"
+import {
+  currencySymbolMap,
+  deriveFeatures,
+  derivePeriodUnit,
+  subscriptionPeriodAbbreviationMap,
+} from "app/screens/subscription/utils"
 import { useEffect, useState } from "react"
-import { PurchasesStoreProduct } from "react-native-purchases"
-
-const currencySymbolMap: Record<string, string> = {
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  // Add other currency symbols as needed
-}
-
-const subscriptionPeriodAbbreviationMap: Record<PeriodUnit, string> = {
-  [PeriodUnit.Day]: "day",
-  [PeriodUnit.Week]: "wk",
-  [PeriodUnit.Month]: "mo",
-  [PeriodUnit.Year]: "yr",
-}
-
-const derivePeriodUnit = (subscriptionPeriod: string): PeriodUnit => {
-  if (subscriptionPeriod.includes("M")) return PeriodUnit.Month
-  if (subscriptionPeriod.includes("Y")) return PeriodUnit.Year
-  return PeriodUnit.Week
-}
-
-const deriveFeatures = (product: PurchasesStoreProduct): string[] => {
-  const features: string[] = []
-
-  features.push("Up to 3 vehicles")
-  features.push("All premium features")
-
-  let promoOffer = ""
-  if (product.introPrice) {
-    let offerContext = "Free"
-    if (product.introPrice.price > 0) {
-      offerContext = product.introPrice.priceString
-    }
-    promoOffer += `${offerContext} for ${
-      product.introPrice.periodNumberOfUnits * product.introPrice.cycles
-    } ${product.introPrice.periodUnit.toLowerCase()}`
-  }
-
-  if (product.discounts.length > 0) {
-    const discount = product.discounts[0] // Take the first discount if multiple exist
-    promoOffer += ` + ${discount.priceString} for ${
-      discount.periodNumberOfUnits * discount.cycles
-    } ${discount.periodUnit.toLowerCase()}`
-  }
-  if (promoOffer) {
-    features.push(promoOffer)
-  }
-
-  // features.push(`Subscription Period: ${derivePeriodUnit(product.subscriptionPeriod)}`)
-
-  return features
-}
 
 export const useSubscriptionOptions = (): SubscriptionOptionPlan[] => {
   const [subscriptionOptions, setSubscriptionOptions] = useState<SubscriptionOptionPlan[]>([])
   const revenueCat = useRevenueCat()
+
+  // Clear active subscription
+  // const { authenticationStore } = useStores()
+  // useEffect(() => {
+  //   authenticationStore.setAuthSubscription(null)
+  //   authenticationStore.clearAuthPayments()
+  //   revenueCat.refundPurchase()
+  // }, [])
 
   useEffect(() => {
     const options = [

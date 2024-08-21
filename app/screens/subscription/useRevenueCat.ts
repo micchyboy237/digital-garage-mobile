@@ -1,18 +1,38 @@
 import { useUserEmail } from "app/models/hooks/useUserEmail"
+import { PeriodUnit } from "app/screens/subscription/types"
+import { derivePeriodUnit } from "app/screens/subscription/utils"
 import { useEffect, useState } from "react"
 import Purchases, {
   CustomerInfo,
   MakePurchaseResult,
   PurchasesOffering,
   PurchasesPackage,
+  REFUND_REQUEST_STATUS,
 } from "react-native-purchases"
+
+// Omit both transactionIdentifier and productIdentifier
+
+type MakePurchaseReturn = Omit<MakePurchaseResult, "transaction"> & {
+  subscriptionPeriodUnit: PeriodUnit | null
+  isActive: boolean
+  expiresAt: string | null
+  originalPurchaseDate: string
+  payment?: {
+    price: number | null
+    currencyCode: string
+    status: "PAID"
+    transactionId: string
+    transactionDate: string
+  }
+}
 
 type UseRevenueCatReturn = {
   packages: PurchasesPackage[]
   customerInfo: CustomerInfo | null
   currentOffering: PurchasesOffering | null
   fetchPackages: () => Promise<void>
-  makePurchase: (pkg: PurchasesPackage) => Promise<MakePurchaseResult | void>
+  refundPurchase: () => Promise<REFUND_REQUEST_STATUS>
+  makePurchase: (pkg: PurchasesPackage) => Promise<MakePurchaseReturn | void>
   restorePurchases: () => Promise<void>
 }
 
@@ -37,14 +57,14 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
   useEffect(() => {
     if (!hasKeys()) {
       throw new Error("Please provide RevenueCat API keyss")
-    } else if (!userEmail) {
-      throw new Error("Please provide RevenueCat user email")
     } else if (!entitlementId) {
       throw new Error("Please provide RevenueCat entitlement ID")
     }
 
-    setupPurchases(userEmail)
-    fetchPackages()
+    if (userEmail) {
+      setupPurchases(userEmail)
+      fetchPackages()
+    }
   }, [userEmail])
 
   const setupPurchases = async (userEmail: string): Promise<void> => {
@@ -113,17 +133,53 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
   //   return customerInfo
   // }
 
-  const makePurchase = async (pkg: PurchasesPackage): Promise<MakePurchaseResult | void> => {
+  const makePurchase = async (pkg: PurchasesPackage): Promise<MakePurchaseReturn | void> => {
     try {
-      const purchaseResult = await Purchases.purchasePackage(pkg)
-      setCustomerInfo(purchaseResult.customerInfo)
-      if (entitlementId && purchaseResult.customerInfo.entitlements.active[entitlementId]) {
+      const purchasePackageResult = await Purchases.purchasePackage(pkg)
+      console.log("Purchase successful:\n", JSON.stringify(purchasePackageResult, null, 2))
+      setCustomerInfo(purchasePackageResult.customerInfo)
+      if (entitlementId) {
+        const entitlement = purchasePackageResult.customerInfo.entitlements.active[entitlementId]
+        const products = await Purchases.getProducts([entitlement.productIdentifier])
+        const product = products[0]
+        const subscriptionPeriodUnit = product.subscriptionPeriod
+          ? derivePeriodUnit(product.subscriptionPeriod)
+          : null
         console.info("User has access to premium features")
+        const { transaction, ...purchaseResult } = purchasePackageResult
         // Grant access to premium features
+        return {
+          ...purchaseResult,
+          isActive: entitlement.isActive,
+          expiresAt: entitlement.expirationDate,
+          originalPurchaseDate: entitlement.originalPurchaseDate,
+          subscriptionPeriodUnit,
+          payment:
+            typeof product.price !== "number"
+              ? undefined
+              : {
+                  price: entitlement.isActive ? product.price : null,
+                  currencyCode: product.currencyCode,
+                  status: "PAID",
+                  transactionId: transaction.transactionIdentifier,
+                  transactionDate: transaction.purchaseDate,
+                },
+        }
       }
-      return purchaseResult
     } catch (error) {
       console.error("Purchase failed:", error)
+    }
+  }
+
+  const refundPurchase = async (): Promise<REFUND_REQUEST_STATUS> => {
+    try {
+      console.info("Refunding purchase")
+      const refundStatus = await Purchases.beginRefundRequestForActiveEntitlement()
+      console.info("Refund status:", refundStatus)
+      return refundStatus
+    } catch (error) {
+      console.error("Error refunding purchase:", error)
+      return REFUND_REQUEST_STATUS.ERROR
     }
   }
 
@@ -143,6 +199,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     currentOffering,
     fetchPackages,
     makePurchase,
+    refundPurchase,
     restorePurchases,
   }
 }
