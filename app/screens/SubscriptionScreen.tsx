@@ -1,4 +1,5 @@
 import { SubscriptionOptionPlan } from "app/screens/subscription/types"
+import { useRevenueCat } from "app/screens/subscription/useRevenueCat"
 import { useSubscriptionOptions } from "app/screens/subscription/useSubscriptionOptions"
 import React, { FC, useState } from "react"
 import { Pressable, ScrollView, TextStyle, View, ViewStyle } from "react-native"
@@ -11,8 +12,17 @@ interface SubscriptionScreenProps extends AppStackScreenProps<"Subscription"> {}
 export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) => {
   const [selectedOption, setSelectedOption] = useState<string>("free")
   const subscriptionOptions = useSubscriptionOptions()
+  const { packages, makePurchase } = useRevenueCat()
 
   const handleSelectOption = (optionId: string) => setSelectedOption(optionId)
+
+  const handleConfirmSelection = async () => {
+    const selectedPackage = packages.find((pkg) => pkg.product.identifier === selectedOption)
+    if (selectedPackage) {
+      await makePurchase(selectedPackage)
+    }
+    navigation.goBack()
+  }
 
   return (
     <Screen
@@ -40,7 +50,7 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
         testID="confirm-button"
         style={styles.confirmButton}
         preset="reversed"
-        onPress={() => navigation.goBack()}
+        onPress={handleConfirmSelection}
       >
         Confirm Selection
       </Button>
