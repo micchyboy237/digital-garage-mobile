@@ -71,6 +71,7 @@ buck-out/
 bin/Exponent.app
 ios/Pods
 ios/build
+ios/*.cer
 
 ## Secrets
 npm-debug.*

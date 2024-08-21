@@ -1,5 +1,5 @@
 {
-  "identifier" : "4C015B6B",
+  "identifier" : "F9C09A54",
   "nonRenewingSubscriptions" : [
 
   ],
@@ -10,9 +10,9 @@
     "_applicationInternalID" : "6636554744",
     "_developerTeamID" : "ZYB3VW3AV4",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 745495026.14940798,
-    "_locale" : "en_US",
-    "_storefront" : "USA",
+    "_lastSynchronizedDate" : 745934259.36873806,
+    "_locale" : "en_GB",
+    "_storefront" : "GBR",
     "_storeKitErrors" : [
       {
         "current" : null,
@@ -30,7 +30,10 @@
         "name" : "Verification"
       },
       {
-        "current" : null,
+        "current" : {
+          "index" : 2,
+          "type" : "generic"
+        },
         "enabled" : false,
         "name" : "App Store Sync"
       },
@@ -116,13 +119,28 @@
 
           ],
           "codeOffers" : [
-
+            {
+              "eligibility" : [
+                "new"
+              ],
+              "internalID" : "57178645",
+              "isStackable" : false,
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "referenceName" : "Free 2-month Offer Code",
+              "subscriptionPeriod" : "P2M"
+            }
           ],
           "displayPrice" : "49.99",
           "familyShareable" : false,
           "groupNumber" : 7,
           "internalID" : "6639611754",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "7D6CA519",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2M"
+          },
           "localizations" : [
 
           ],
@@ -199,7 +217,7 @@
           "adHocOffers" : [
             {
               "displayPrice" : "3.99",
-              "internalID" : "14D1EEB0",
+              "internalID" : "33DBD403",
               "numberOfPeriods" : 3,
               "offerID" : "rc_cg_promo_premium_reduced_3months_3.99",
               "paymentMode" : "payAsYouGo",
@@ -208,13 +226,28 @@
             }
           ],
           "codeOffers" : [
-
+            {
+              "eligibility" : [
+                "new"
+              ],
+              "internalID" : "5FD63E3D",
+              "isStackable" : false,
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "referenceName" : "Free 14-day Offer Code",
+              "subscriptionPeriod" : "P2W"
+            }
           ],
           "displayPrice" : "4.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "6639611630",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "internalID" : "9C7BBBFA",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
           "localizations" : [
 
           ],
@@ -227,10 +260,6 @@
       ]
     }
   ],
-  "subscriptionOffersKeyPair" : {
-    "id" : "8866DDCF",
-    "privateKey" : "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgkxJ8ulmZnCuU3fO69qNlAM9AXH4WNB16X5vlipHRL7qgCgYIKoZIzj0DAQehRANCAASAROmkwHrihDSL73IdwqPyo7jzuzUjCnUjbAXrlhfCazoof4xB9fSoRemrRn+aXqp6ISGXEYAUCawqSkq25xpX"
-  },
   "version" : {
     "major" : 3,
     "minor" : 0

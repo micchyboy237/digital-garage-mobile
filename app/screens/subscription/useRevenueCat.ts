@@ -55,10 +55,11 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
   const fetchPackages = async (): Promise<void> => {
     try {
       const offerings = await Purchases.getOfferings()
+      console.log("MyOfferings:\n", JSON.stringify(offerings, null, 2))
       const allOfferingsKeys = Object.keys(offerings.all)
       console.log("Offerings Keys:", allOfferingsKeys)
-      const availablePackages = offerings.all[allOfferingsKeys[0]].availablePackages
-      // const availablePackagesWithPromos = await updateWithPromos(availablePackages)
+      let availablePackages = offerings.all[allOfferingsKeys[0]].availablePackages
+      availablePackages = await updateWithPromos(availablePackages)
       setPackages(availablePackages)
       if (offerings.current) {
         setCurrentOffering(offerings.current)

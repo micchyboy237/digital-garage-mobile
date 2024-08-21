@@ -37,6 +37,20 @@ export const useInitializeRevenueCat = (): UseInitializeRevenueCatReturn => {
   }, [userEmail])
 
   const initializeRevenueCat = async (userEmail: string): Promise<void> => {
+    await clearCache()
+    await configureAppUserId(userEmail)
+    await syncPurchases()
+    const offerings = await Purchases.getOfferings()
+    console.log("OFFERINGS:", JSON.stringify(offerings, null, 2))
+    const products = await Purchases.getProducts(["rc_cg_premium_trial_14d_3.99_4.99"])
+    console.log("PRODUCTS:", JSON.stringify(products, null, 2))
+    console.log(
+      "OFFERINGS LENGTH:",
+      offerings.all["Classic Garage Premium"].availablePackages.length,
+    )
+  }
+
+  const configureAppUserId = async (userEmail: string): Promise<void> => {
     try {
       const verificationMode = Purchases.ENTITLEMENT_VERIFICATION_MODE.INFORMATIONAL
 
@@ -50,6 +64,26 @@ export const useInitializeRevenueCat = (): UseInitializeRevenueCatReturn => {
       setError(null)
     } catch (error: any) {
       console.error("Error identifying user:", error)
+      setError(error)
+    }
+  }
+
+  const syncPurchases = async (): Promise<void> => {
+    try {
+      await Purchases.syncPurchases()
+      console.log("Purchases synced")
+    } catch (error: any) {
+      console.error("Error syncing purchases:", error)
+      setError(error)
+    }
+  }
+
+  const clearCache = async (): Promise<void> => {
+    try {
+      await Purchases.invalidateCustomerInfoCache()
+      console.log("Cache cleared")
+    } catch (error: any) {
+      console.error("Error clearing cache:", error)
       setError(error)
     }
   }
