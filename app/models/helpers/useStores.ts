@@ -50,9 +50,8 @@ export const useStores = () => useContext(RootStoreContext)
  * @returns {object} - the RootStore and rehydrated state
  */
 export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
-  console.log("getting rootStore")
   const rootStore = useStores()
-  console.log("rootStore:", rootStore)
+  if (rootStore) console.log("rootStore:", rootStore)
   const [rehydrated, setRehydrated] = useState(false)
 
   // Kick off initial async loading actions, like loading fonts and rehydrating RootStore

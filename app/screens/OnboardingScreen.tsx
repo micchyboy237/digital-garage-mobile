@@ -25,10 +25,16 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
 
   const { authenticationStore } = useStores()
   const user = useUser()
-  const profileMutation = trpc.admin.profile.createOneProfile.useMutation()
-  const userMutation = trpc.admin.user.updateOneUser.useMutation()
+  console.log("user:", user)
+  const createProfileMutation = trpc.admin.profile.createOneProfile.useMutation()
+  const updateProfileMutation = trpc.admin.profile.updateOneProfile.useMutation()
+  const updateUserMutation = trpc.admin.user.updateOneUser.useMutation()
 
   async function submitOnboarding() {
+    console.log("isUpdateProfile:", !!authenticationStore.authProfile)
+    const profileMutation = authenticationStore.authProfile
+      ? updateProfileMutation
+      : createProfileMutation
     const result = await profileMutation.mutateAsync({
       include: { user: true },
       data: {
@@ -36,19 +42,21 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
         lastName,
         location: city,
         profilePicture,
-        userId: user.id,
+      },
+      where: {
+        userId: user?.id,
       },
     })
     console.log("profileMutation result:", JSON.stringify(result, null, 2))
-
-    const userMutationResult = await userMutation.mutateAsync({
+    const userMutationResult = await updateUserMutation.mutateAsync({
       data: {
-        ...result.user,
         accountStatus: "SELECT_SUBSCRIPTION",
       },
-      where: { firebaseUid: result.user?.firebaseUid },
+      where: {
+        id: user?.id,
+      },
     })
-    console.log("userMutationResult:", JSON.stringify(userMutationResult, null, 2))
+    console.log("userMutation result:", JSON.stringify(userMutationResult, null, 2))
 
     if (userMutationResult) {
       authenticationStore.setAuthUser(userMutationResult)

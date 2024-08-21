@@ -13,16 +13,12 @@ import {
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 import { useGetInitialRoute } from "app/models/hooks/useGetInitialRoute"
 import { LoggedInNavigator, LoggedInStackParamList } from "app/navigators/LoggedInNavigator"
-import { UserNavigator } from "app/navigators/UserNavigator"
 import * as Screens from "app/screens"
 import { SignUpSuccessScreen } from "app/screens/auth/sign-up/SignUpSuccessScreen"
 import { ForgotPasswordScreen } from "app/screens/ForgotPasswordScreen"
 import { ForgotPasswordSuccessScreen } from "app/screens/ForgotPasswordSuccessScreen"
-import { OnboardingScreen } from "app/screens/OnboardingScreen"
 import { ResetPasswordScreen } from "app/screens/ResetPasswordScreen"
 import { ResetPasswordSuccessScreen } from "app/screens/ResetPasswordSuccessScreen"
-import { SubscriptionScreen } from "app/screens/SubscriptionScreen"
-import { CarDetailsScreen } from "app/screens/user/UserCarsScreen/CarDetails"
 import { colors } from "app/theme"
 import { observer } from "mobx-react-lite"
 import React from "react"
@@ -92,23 +88,13 @@ const AppStack = observer(function AppStack() {
       // initialRouteName="Subscription"
     >
       <Stack.Screen name="Login" component={Screens.LoginScreen} />
-      <Stack.Screen name="LoggedIn" component={LoggedInNavigator} />
       <Stack.Screen name="SignUp" component={Screens.SignUpScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
       <Stack.Screen name="SignUpSuccess" component={SignUpSuccessScreen} />
       <Stack.Screen name="ForgotPasswordSuccess" component={ForgotPasswordSuccessScreen} />
       <Stack.Screen name="ResetPasswordSuccess" component={ResetPasswordSuccessScreen} />
-      <Stack.Screen name="User" component={UserNavigator} />
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Subscription" component={SubscriptionScreen} />
-      <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
-      <Stack.Screen name="Dashboard" component={Screens.DashboardScreen} />
-      <Stack.Screen name="VehicleDetails" component={Screens.VehicleDetailsScreen} />
-      {/* @demo remove-block-end */}
-      <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
-      {/* @demo remove-block-start */}
-      {/* <Stack.Screen name="Demo" component={DemoNavigator} /> */}
+      <Stack.Screen name="LoggedIn" component={LoggedInNavigator} />
     </Stack.Navigator>
   )
 })

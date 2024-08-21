@@ -74,7 +74,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     console.log("signInAsync result:", result)
     const signUpMutationResult = await signUpMutation.mutateAsync({
       data: result.user,
-      include: { sessions: true },
+      include: { profile: true, sessions: true, subscription: true },
       where: { firebaseUid: result.user?.firebaseUid },
     })
     console.log("signUpMutationResult:", JSON.stringify(signUpMutationResult, null, 2))
@@ -94,9 +94,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     console.log("sessionMutationResult:", JSON.stringify(sessionMutationResult, null, 2))
 
     if (signUpMutationResult) {
-      const { sessions, ...userNoSessions } = signUpMutationResult
-      console.log("userNoSessions:", JSON.stringify(userNoSessions, null, 2))
-      authenticationStore.setAuthUser(userNoSessions)
+      const { profile, subscription, sessions, ...authUser } = signUpMutationResult
+      authenticationStore.setAuthUser({
+        ...authUser,
+        profile: profile?.id,
+        subscription: subscription?.id,
+        sessions: sessions.map((session: Session) => session?.id),
+      })
+      authenticationStore.setAuthProfile(profile)
+      authenticationStore.setAuthSubscription(subscription)
     }
     if (sessionMutationResult) {
       authenticationStore.setAuthSession(sessionMutationResult)

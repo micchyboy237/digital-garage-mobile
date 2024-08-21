@@ -1,12 +1,16 @@
+import { Profile, ProfileModel } from "app/models/profile/Profile"
 import { Session, SessionModel } from "app/models/session/Session"
+import { Subscription, SubscriptionModel } from "app/models/subscription/Subscription"
 import { User, UserModel } from "app/models/user/User"
 import { types } from "mobx-state-tree"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({
-    authUser: types.maybe(UserModel),
-    authSession: types.maybe(SessionModel),
+    authUser: types.maybe(types.maybeNull(UserModel)),
+    authSession: types.maybe(types.maybeNull(SessionModel)),
+    authProfile: types.maybe(types.maybeNull(ProfileModel)),
+    authSubscription: types.maybe(types.maybeNull(SubscriptionModel)),
     // userStore: types.optional(UserStoreModel, {}),
     // sessionStore: types.optional(SessionStoreModel, {}),
   })
@@ -33,8 +37,16 @@ export const AuthenticationStoreModel = types
       store.authSession = session
       // store.sessionStore.addSession(session) // Add the session to SessionStoreModel
     },
+    setAuthProfile(profile: Profile) {
+      store.authProfile = profile
+    },
+    setAuthSubscription(subscription: Subscription) {
+      store.authSubscription = subscription
+    },
     logout() {
-      store.authUser = undefined
-      store.authSession = undefined
+      store.authUser = null
+      store.authSession = null
+      store.authProfile = null
+      store.authSubscription = null
     },
   }))

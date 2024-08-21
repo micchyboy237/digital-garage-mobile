@@ -7,8 +7,8 @@ export const ProfileModel = types
     id: types.identifier,
     firstName: types.string,
     lastName: types.string,
-    profilePicture: types.maybe(types.string),
-    location: types.maybe(types.string),
+    profilePicture: types.maybeNull(types.string),
+    location: types.string,
     userId: types.string,
   })
   .actions(withSetPropAction)
