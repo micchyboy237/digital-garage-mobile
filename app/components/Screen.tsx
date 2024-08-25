@@ -1,6 +1,6 @@
 import { useScrollToTop } from "@react-navigation/native"
 import { StatusBar, StatusBarProps } from "expo-status-bar"
-import React, { Suspense, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import {
   KeyboardAvoidingView,
   KeyboardAvoidingViewProps,
@@ -12,7 +12,6 @@ import {
   View,
   ViewStyle,
 } from "react-native"
-import Loading from "../components/Loading" // Assuming you have a Loading component
 import { colors } from "../theme"
 import { ExtendedEdge, useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 
@@ -243,7 +242,7 @@ export function Screen(props: ScreenProps) {
 
   const $containerInsets = useSafeAreaInsetsStyle(safeAreaEdges)
 
-  const content = (
+  let content = (
     <View style={[$containerStyle, { backgroundColor }, $containerInsets]}>
       <StatusBar style={statusBarStyle} {...StatusBarProps} />
 
@@ -262,7 +261,11 @@ export function Screen(props: ScreenProps) {
     </View>
   )
 
-  return !disableSuspense ? <Suspense fallback={<Loading />}>{content}</Suspense> : content
+  if (!disableSuspense) {
+    content = <React.Suspense fallback={null}>{content}</React.Suspense>
+  }
+
+  return content
 }
 
 const $containerStyle: ViewStyle = {

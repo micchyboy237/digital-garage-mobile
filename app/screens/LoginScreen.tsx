@@ -57,7 +57,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   useEffect(() => {
     // Here is where you could fetch credentials from keychain or storage
     // and pre-fill the form fields.
-    setAuthEmail("micchyboy.developer@gmail.com")
+    setAuthEmail(authenticationStore.authUser?.email || "micchyboy.developer@gmail.com")
     setAuthPassword("asdasd!123")
 
     // Return a "cleanup" function that React will run when the component unmounts
@@ -65,7 +65,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthPassword("")
       // setAuthEmail("")
     }
-  }, [])
+  }, [authenticationStore.authUser?.email])
 
   // const error = isSubmitted ? validationError : ""
 
@@ -131,14 +131,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   return (
     <Screen preset="scroll" contentContainerStyle={$screenContentContainer}>
       <View>
-        <AspectRatioImage
-          source={logoWithText}
-          width={207}
-          style={{ alignSelf: "center", marginBottom: 20 }}
-        />
+        <AspectRatioImage source={logoWithText} width={207} style={$logo} />
 
         <Text preset="subheading" style={$enterDetails}>
-          Welcome to Digital Garage
+          Login to your account
         </Text>
       </View>
 
@@ -266,9 +262,15 @@ const $screenContentContainer: ViewStyle = {
   paddingHorizontal: spacing.lg,
 }
 
+const $logo: ViewStyle = {
+  alignSelf: "center",
+  marginBottom: spacing.sm,
+}
+
 const $enterDetails: TextStyle = {
   marginBottom: spacing.lg,
   textAlign: "center",
+  fontSize: 24,
 }
 
 const $hint: TextStyle = {

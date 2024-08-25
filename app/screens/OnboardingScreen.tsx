@@ -33,7 +33,7 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
   const updateUserMutation = trpc.admin.user.updateOneUser.useMutation()
 
   async function submitOnboarding() {
-    await profileMutation.mutateAsync({
+    const profileMutationResult = await profileMutation.mutateAsync({
       data: {
         firstName,
         lastName,
@@ -45,6 +45,8 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
         userId,
       },
     })
+    authenticationStore.setAuthProfile(profileMutationResult)
+
     const userMutationResult = await updateUserMutation.mutateAsync({
       data: {
         accountStatus: "SELECT_SUBSCRIPTION",

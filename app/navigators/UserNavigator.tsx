@@ -5,7 +5,7 @@ import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "../components"
-import { UserCommunityScreen, UserDebugScreen, UserFeaturesScreen } from "../screens"
+import { UserCommunityScreen, UserFeaturesScreen, UserSettingsScreen } from "../screens"
 import { UserPodcastListScreen } from "../screens/user/UserPodcastListScreen"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
@@ -13,7 +13,7 @@ import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 export type UserTabParamList = {
   UserCommunity: undefined
   Home: undefined
-  UserDebug: undefined
+  UserSettings: undefined
   UserPodcastList: undefined
   UserFeatures: undefined
 }
@@ -135,8 +135,8 @@ export function UserNavigator() {
       />
 
       <Tab.Screen
-        name="UserDebug"
-        component={UserDebugScreen}
+        name="UserSettings"
+        component={UserSettingsScreen}
         options={{
           tabBarLabel: "Settings",
           tabBarActiveTintColor: colors.palette.primary400,

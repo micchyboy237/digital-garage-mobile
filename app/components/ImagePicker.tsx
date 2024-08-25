@@ -1,17 +1,29 @@
-// digital-garage/packages/api/src/components/ImagePicker.tsx
-
 import { Ionicons } from "@expo/vector-icons"
 import * as ExpoImagePicker from "expo-image-picker"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Image, ImageStyle, StyleSheet, TouchableOpacity, View, ViewStyle } from "react-native"
 import { colors, spacing } from "../theme"
 
 interface ImagePickerProps {
   onImageSelected: (uri: string) => void
+  containerStyle?: ViewStyle
+  children?: React.ReactNode
+  size?: number
+  value?: string | null
 }
 
-export const ImagePicker: React.FC<ImagePickerProps> = ({ onImageSelected }) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+export const ImagePicker: React.FC<ImagePickerProps> = ({
+  onImageSelected,
+  containerStyle,
+  children,
+  size = 100,
+  value = null,
+}) => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(value)
+
+  useEffect(() => {
+    setSelectedImage(value)
+  }, [value])
 
   const pickImage = async () => {
     const result = await ExpoImagePicker.launchImageLibraryAsync({
@@ -19,8 +31,6 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onImageSelected }) => 
       allowsMultipleSelection: false,
       allowsEditing: true,
       quality: 1,
-      // preferredAssetRepresentationMode:
-      //   ExpoImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
     })
 
     if (!result.canceled) {
@@ -31,16 +41,20 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ onImageSelected }) => 
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <TouchableOpacity onPress={pickImage} style={styles.touchable}>
-        <View style={styles.placeholder}>
+        <View style={[styles.placeholder, { width: size, height: size, borderRadius: size / 2 }]}>
           {selectedImage ? (
-            <Image source={{ uri: selectedImage }} style={styles.image} />
+            <Image
+              source={{ uri: selectedImage }}
+              style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]}
+            />
           ) : (
-            <Ionicons name="person" size={54} color="white" />
+            <Ionicons name="person" size={size / 2} color="white" />
           )}
         </View>
       </TouchableOpacity>
+      {children}
     </View>
   )
 }
@@ -54,15 +68,9 @@ const styles = StyleSheet.create({
     position: "relative",
   } as ViewStyle,
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
     marginBottom: spacing.sm,
   } as ImageStyle,
   placeholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
     backgroundColor: colors.textDim,
     justifyContent: "center",
     alignItems: "center",

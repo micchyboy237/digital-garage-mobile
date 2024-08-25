@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
-import { Screen, TextField } from "app/components"
+import { Header, Screen, TextField } from "app/components"
 import { Button } from "app/components/Button"
 import { ImagePicker } from "app/components/ImagePicker"
 import SelectTextField from "app/components/SelectTextField"
@@ -8,15 +8,15 @@ import { useProfile } from "app/models/hooks/useProfile"
 import { useUser } from "app/models/hooks/useUser"
 import { useLogout } from "app/screens/auth/useLogout"
 import { UK_CITIES } from "app/screens/digital-garage/data/uk-cities"
+import { BackButton } from "app/screens/user/components/BackButton"
 import { useProfileSubmit } from "app/screens/user/ProfileScreen/useProfileSubmit"
-import { colors, spacing, typography } from "app/theme"
+import { colors, spacing } from "app/theme"
 import React, { useState } from "react"
 import { Alert, StyleSheet, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const allCities = UK_CITIES.map(({ city }) => city).sort()
 
-export function ProfileScreen() {
+export const UserProfileScreen = () => {
   const logout = useLogout()
   const user = useUser()
   const profile = useProfile()
@@ -54,15 +54,34 @@ export function ProfileScreen() {
     })
   }
 
-  const { handleSubmit } = useProfileSubmit()
-
-  const insets = useSafeAreaInsets()
+  const handleSubmit = useProfileSubmit()
 
   return (
-    <Screen preset="scroll" contentContainerStyle={styles.contentContainer}>
-      <View style={[styles.header, { paddingTop: insets.top }]}>
+    <Screen
+      safeAreaEdges={["bottom"]}
+      preset="scroll"
+      contentContainerStyle={styles.contentContainer}
+    >
+      <View>
+        {navigation.canGoBack() && (
+          <Header
+            title="Profile"
+            titleStyle={styles.headerTitle}
+            safeAreaEdges={["top"]}
+            LeftActionComponent={<BackButton onPress={navigation.goBack} />}
+            containerStyle={[
+              {
+                backgroundColor: "transparent",
+                // position: "absolute",
+                paddingHorizontal: spacing.md,
+                justifyContent: "flex-start",
+              },
+            ]}
+          />
+        )}
         <ImagePicker
           size={180}
+          value={profilePicture}
           onImageSelected={setProfilePicture}
           containerStyle={styles.photoContainer}
         >
@@ -125,7 +144,14 @@ export function ProfileScreen() {
         <Button
           testID="submit-button"
           preset="reversed"
-          onPress={handleSubmit}
+          onPress={() => {
+            handleSubmit({
+              firstName,
+              lastName,
+              location: city,
+              profilePicture,
+            })
+          }}
           style={styles.submitButton}
           textStyle={styles.submitButtonText}
         >
@@ -139,33 +165,17 @@ export function ProfileScreen() {
 const styles = StyleSheet.create({
   contentContainer: {
     minHeight: "100%",
-    backgroundColor: colors.background,
-  },
-  header: {
-    width: "100%",
-    height: 227,
-    backgroundColor: colors.palette.primary400,
-    paddingHorizontal: spacing.md,
-    alignItems: "center",
-  },
-  headerTop: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   headerTitle: {
     fontSize: 25,
-    fontFamily: typography.primary.semiBold,
-    color: colors.palette.neutral100,
   },
   photoContainer: {
     marginTop: spacing.xl,
+    alignSelf: "center",
   },
   content: {
     flex: 1,
     paddingHorizontal: spacing.md,
-    marginTop: 80,
   },
   section: {
     gap: spacing.lg,

@@ -1,3 +1,4 @@
+import { AspectRatioImage } from "app/components/image/AspectRatioImage"
 import { useStores } from "app/models"
 import { AuthEmailPwButton } from "app/screens/auth/sign-up/SignUpButtons"
 import { SignInButton } from "app/screens/auth/SignInButton"
@@ -5,7 +6,7 @@ import { useAppleAuth } from "app/screens/auth/useAppleAuth"
 import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import { BackButton } from "app/screens/user/components/BackButton"
 import React, { FC, useState } from "react"
-import { Image, TextStyle, View, ViewStyle } from "react-native"
+import { TextStyle, View, ViewStyle } from "react-native"
 import { Header, Screen, Text, TextField, Toggle } from "../../../components"
 import { AppStackScreenProps } from "../../../navigators"
 import { colors, spacing } from "../../../theme"
@@ -58,13 +59,10 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
 
       <View style={$body}>
         <View>
-          <Image
-            source={logoWithText}
-            style={{ width: 207, height: 108, alignSelf: "center", marginBottom: 20 }}
-          />
+          <AspectRatioImage source={logoWithText} width={207} style={$logo} />
 
           <Text preset="subheading" style={$enterDetails}>
-            Sign up for a free 14-day trial to start your Digital Garage journey.
+            Create your account
           </Text>
         </View>
 
@@ -152,6 +150,17 @@ const $screenContentContainer: ViewStyle = {
   paddingHorizontal: spacing.lg,
 }
 
+const $logo: ViewStyle = {
+  alignSelf: "center",
+  marginBottom: spacing.sm,
+}
+
+const $enterDetails: TextStyle = {
+  marginBottom: spacing.lg,
+  textAlign: "center",
+  fontSize: 24,
+}
+
 const $body: ViewStyle = {
   flex: 3,
   justifyContent: "center",
@@ -159,11 +168,6 @@ const $body: ViewStyle = {
 
 const $footer: ViewStyle = {
   flex: 1,
-}
-
-const $enterDetails: TextStyle = {
-  marginBottom: spacing.lg,
-  textAlign: "center",
 }
 
 const $textField: ViewStyle = {
