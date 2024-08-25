@@ -18,6 +18,7 @@
       <string>applinks:www.classicgarage.uk</string>
       <string>applinks:dev.classicgarage.uk</string>
       <string>applinks:staging.classicgarage.uk</string>
+      <string>applinks:classic-garage-164c2.firebaseapp.com</string>
     </array>
   </dict>
 </plist>

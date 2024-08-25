@@ -18,19 +18,7 @@
     },
     "jsEngine": "hermes",
     "assetBundlePatterns": ["**/*"],
-    "android": {
-      "icon": "./assets/images/app-icon-android-legacy.png",
-      "package": "com.agileminds.classicgarage",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
-        "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
-      },
-      "splash": {
-        "image": "./assets/images/splash-logo-android-universal.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#191015"
-      }
-    },
+    "userInterfaceStyle": "automatic",
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
       "buildNumber": "1",
@@ -50,12 +38,28 @@
         "aps-environment": "production",
         "com.apple.developer.applesignin": ["Default"]
       },
-      "icon": "./assets/images/app-icon-ios.png",
-      "supportsTablet": true,
       "usesAppleSignIn": true,
+      "supportsTablet": true,
+      "icon": "./assets/app-icons/ios/app-icon.png",
       "splash": {
-        "image": "./assets/images/splash-logo-ios-mobile.png",
-        "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
+        "image": "./assets/app-icons/ios/splash-mobile.png",
+        "backgroundColor": "#FFFFFF",
+        "dark": {
+          "image": "./assets/app-icons/ios/splash-mobile-dark.png",
+          "backgroundColor": "#000000"
+        },
+        "resizeMode": "contain"
+      }
+    },
+    "android": {
+      "icon": "./assets/images/app-icon-android-legacy.png",
+      "package": "com.agileminds.classicgarage",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
+        "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
+      },
+      "splash": {
+        "image": "./assets/images/splash-logo-android-universal.png",
         "resizeMode": "contain",
         "backgroundColor": "#191015"
       }
