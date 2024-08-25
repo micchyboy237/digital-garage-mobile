@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native"
+import { AspectRatioImage } from "app/components/image/AspectRatioImage"
 import { Session } from "app/models/session/Session"
 import { LoginErrorCodes } from "app/screens/auth/errors/errors"
 import { SignInButton } from "app/screens/auth/SignInButton"
@@ -9,7 +10,7 @@ import { useGoogleAuth } from "app/screens/auth/useGoogleAuth"
 import { trpc } from "app/services/api"
 import { observer } from "mobx-react-lite"
 import React, { ComponentType, FC, useEffect, useMemo, useRef, useState } from "react"
-import { Image, TextInput, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { TextInput, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
 import {
   Button,
   Icon,
@@ -25,7 +26,7 @@ import { colors, spacing } from "../theme"
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
-const logo = require("../../assets/images/logo.png")
+const logoWithText = require("../../assets/app-icons/classic-garage.png")
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const navigation = useNavigation()
@@ -130,9 +131,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   return (
     <Screen preset="scroll" contentContainerStyle={$screenContentContainer}>
       <View>
-        <Image
-          source={logo}
-          style={{ width: 80, height: 80, alignSelf: "center", marginBottom: 20 }}
+        <AspectRatioImage
+          source={logoWithText}
+          width={207}
+          style={{ alignSelf: "center", marginBottom: 20 }}
         />
 
         <Text preset="subheading" style={$enterDetails}>

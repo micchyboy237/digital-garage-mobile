@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native"
 import * as Application from "expo-application"
 import React, { FC } from "react"
 import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
@@ -42,6 +43,15 @@ export const UserDebugScreen: FC<UserTabScreenProps<"UserDebug">> = function Use
   const {
     authenticationStore: { logout },
   } = useStores()
+  const navigation = useNavigation()
+
+  const handleLogout = () => {
+    logout()
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Login" }],
+    })
+  }
 
   const usingHermes = typeof HermesInternal === "object" && HermesInternal !== null
   // @ts-expect-error
@@ -134,7 +144,7 @@ export const UserDebugScreen: FC<UserTabScreenProps<"UserDebug">> = function Use
         <Text style={$hint}>{translations[`${Platform.OS}ReactotronHint` as const]}</Text>
       </View>
       <View style={$buttonContainer}>
-        <Button style={$button} onPress={logout}>
+        <Button style={$button} onPress={handleLogout}>
           Log Out
         </Button>
       </View>

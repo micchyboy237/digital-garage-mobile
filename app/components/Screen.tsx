@@ -1,6 +1,6 @@
 import { useScrollToTop } from "@react-navigation/native"
 import { StatusBar, StatusBarProps } from "expo-status-bar"
-import React, { useRef, useState } from "react"
+import React, { Suspense, useRef, useState } from "react"
 import {
   KeyboardAvoidingView,
   KeyboardAvoidingViewProps,
@@ -12,6 +12,7 @@ import {
   View,
   ViewStyle,
 } from "react-native"
+import Loading from "../components/Loading" // Assuming you have a Loading component
 import { colors } from "../theme"
 import { ExtendedEdge, useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 
@@ -52,6 +53,10 @@ interface BaseScreenProps {
    * Pass any additional props directly to the KeyboardAvoidingView component.
    */
   KeyboardAvoidingViewProps?: KeyboardAvoidingViewProps
+  /**
+   * Disable the suspense fallback. Defaults to false.
+   */
+  disableSuspense?: boolean
 }
 
 interface FixedScreenProps extends BaseScreenProps {
@@ -233,11 +238,12 @@ export function Screen(props: ScreenProps) {
     safeAreaEdges,
     StatusBarProps,
     statusBarStyle = "dark",
+    disableSuspense = false,
   } = props
 
   const $containerInsets = useSafeAreaInsetsStyle(safeAreaEdges)
 
-  return (
+  const content = (
     <View style={[$containerStyle, { backgroundColor }, $containerInsets]}>
       <StatusBar style={statusBarStyle} {...StatusBarProps} />
 
@@ -255,6 +261,8 @@ export function Screen(props: ScreenProps) {
       </KeyboardAvoidingView>
     </View>
   )
+
+  return !disableSuspense ? <Suspense fallback={<Loading />}>{content}</Suspense> : content
 }
 
 const $containerStyle: ViewStyle = {

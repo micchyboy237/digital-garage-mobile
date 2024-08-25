@@ -12,7 +12,7 @@ import { colors, spacing } from "../../../theme"
 
 interface SignUpScreenProps extends AppStackScreenProps<"SignUp"> {}
 
-const logo = require("../../../../assets/images/logo.png")
+const logoWithText = require("../../../../assets/app-icons/classic-garage.png")
 
 export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props) {
   const [email, setEmail] = useState("micchyboy.developer@gmail.com")
@@ -59,8 +59,8 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
       <View style={$body}>
         <View>
           <Image
-            source={logo}
-            style={{ width: 80, height: 80, alignSelf: "center", marginBottom: 20 }}
+            source={logoWithText}
+            style={{ width: 207, height: 108, alignSelf: "center", marginBottom: 20 }}
           />
 
           <Text preset="subheading" style={$enterDetails}>

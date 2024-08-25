@@ -87,3 +87,4 @@ web-build/
 !env.js
 
 /coverage
+backup/
