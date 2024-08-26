@@ -1,4 +1,4 @@
-import { NavigatorScreenParams, useNavigation } from "@react-navigation/native"
+import { NavigatorScreenParams } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 import { useGetInitialLoggedInRoute } from "app/models/hooks/useGetInitialLoggedInRoute"
 import { UserNavigator, UserTabParamList } from "app/navigators/UserNavigator"
@@ -10,7 +10,7 @@ import { SubscriptionScreen } from "app/screens/SubscriptionScreen"
 import { CarDetailsScreen } from "app/screens/user/CarDetailsScreen"
 import { UserProfileScreen } from "app/screens/user/UserProfileScreen"
 import { colors } from "app/theme"
-import React, { useEffect } from "react"
+import React from "react"
 import Config from "../config"
 
 export type LoggedInStackParamList = {
@@ -31,16 +31,10 @@ const Stack = createNativeStackNavigator<LoggedInStackParamList>()
 export const LoggedInNavigator = () => {
   const { isReady } = useLoggedInBootstrap()
   const initialRoute = useGetInitialLoggedInRoute()
-  const navigation = useNavigation()
 
-  useEffect(() => {
-    if (isReady && initialRoute) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: initialRoute }],
-      })
-    }
-  }, [initialRoute])
+  if (!isReady) {
+    return null
+  }
 
   return (
     <Stack.Navigator

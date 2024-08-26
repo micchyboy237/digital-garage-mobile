@@ -45,8 +45,11 @@ model Session {
   token      String   @unique
   expiresAt  DateTime
   provider   AuthProvider
+  deviceFingerprint String   @unique
   userId     String
   user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([deviceFingerprint, userId])
 }
 
 

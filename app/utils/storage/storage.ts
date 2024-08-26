@@ -77,3 +77,4 @@ export async function clear(): Promise<void> {
     await AsyncStorage.clear()
   } catch {}
 }
+// clear()

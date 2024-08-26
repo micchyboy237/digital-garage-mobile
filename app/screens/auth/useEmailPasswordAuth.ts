@@ -4,6 +4,7 @@ import { User } from "app/models/user/User"
 import { AuthError } from "app/screens/auth/errors/authErrors"
 import { LoginErrorCodes } from "app/screens/auth/errors/errors"
 import { UseAuthEmailArgs, UseAuthEmailPwReturn } from "app/screens/auth/types"
+import { generateFingerprint } from "app/screens/auth/utils"
 import { jwtDecode } from "jwt-decode"
 import { useState } from "react"
 
@@ -39,11 +40,13 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
         isEmailVerified: userCredential.user.emailVerified,
       } as User
 
+      const deviceFingerprint = await generateFingerprint(derivedUser.id)
       const derivedSession = {
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
         provider: "EMAIL_PASSWORD",
-        userId: derivedUser.id,
+        deviceFingerprint,
+        userId: userCredential.user.uid,
       } as Session
 
       authReturn = {
@@ -81,20 +84,13 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
     try {
       console.log("AUTH:registerAsync:email\n", email)
       const userCredential = await auth().createUserWithEmailAndPassword(email, password)
+      console.log("userCredential:\n", JSON.stringify(userCredential, null, 2))
       const idTokenResult = await userCredential.user.getIdTokenResult()
 
       console.log("idTokenResult:", JSON.stringify(idTokenResult, null, 2))
-      console.log("userCredential:\n", JSON.stringify(userCredential, null, 2))
 
       const jwtDecodedResult = jwtDecode(idTokenResult.token)
       console.log("\nAUTH:emailpwAuthResponse:jwtDecodedResult\n", jwtDecodedResult)
-
-      const derivedSession = {
-        token: idTokenResult.token,
-        expiresAt: new Date(idTokenResult.expirationTime),
-        provider: "EMAIL_PASSWORD",
-        userId: userCredential.user.uid,
-      } as Session
 
       const derivedUser = {
         id: userCredential.user.uid,
@@ -104,6 +100,15 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
         subscription: undefined,
         accountStatus: "ONBOARDING",
       } as User
+
+      const deviceFingerprint = await generateFingerprint(derivedUser.id)
+      const derivedSession = {
+        token: idTokenResult.token,
+        expiresAt: new Date(idTokenResult.expirationTime),
+        provider: "EMAIL_PASSWORD",
+        deviceFingerprint,
+        userId: userCredential.user.uid,
+      } as Session
 
       authReturn = {
         user: derivedUser,
@@ -122,6 +127,7 @@ export const useEmailPasswordAuth = (args?: UseAuthEmailArgs): UseAuthEmailPwRet
         session: derivedSession,
       })
     } catch (error: any) {
+      console.error("\nAUTH:registerAsync:error\n", error)
       const authError = new AuthError(error)
       setError(authError)
     } finally {

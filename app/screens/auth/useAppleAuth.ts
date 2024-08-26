@@ -1,8 +1,10 @@
 import appleAuth from "@invertase/react-native-apple-authentication"
 import auth from "@react-native-firebase/auth"
+import { Profile } from "app/models/profile/Profile"
 import { Session } from "app/models/session/Session"
 import { User } from "app/models/user/User"
 import { UseAuthArgs, UseAuthReturn } from "app/screens/auth/types"
+import { generateFingerprint } from "app/screens/auth/utils"
 import { jwtDecode } from "jwt-decode"
 import { useState } from "react"
 
@@ -25,10 +27,12 @@ export const useAppleAuth = (args?: UseAuthArgs): UseAuthReturn => {
   const signInAsync = async (): Promise<{
     user: User | null
     session: Session | null
+    profile: Profile | null
   }> => {
     let appleAuthReturn = {} as {
       user: User | null
       session: Session | null
+      profile: Profile | null
     }
     console.log("\nAUTH:signInAsync")
     setLoading(true)
@@ -67,22 +71,28 @@ export const useAppleAuth = (args?: UseAuthArgs): UseAuthReturn => {
         id: userCredential.user.uid,
         email: userCredential.user.email,
         firebaseUid: userCredential.user.uid,
-        profile: undefined,
-        subscription: undefined,
-        accountStatus: "ONBOARDING",
+        isEmailVerified: userCredential.user.emailVerified,
       } as User
 
+      const deviceFingerprint = await generateFingerprint(derivedUser.id)
       const derivedSession = {
-        id: generateId(),
         token: idTokenResult.token,
         expiresAt: new Date(idTokenResult.expirationTime),
         provider: "APPLE",
+        deviceFingerprint,
         userId: userCredential.user.uid,
       } as Session
+
+      const derivedProfile = {
+        firstName: appleAuthResponse.fullName?.givenName || undefined,
+        lastName: appleAuthResponse.fullName?.familyName || undefined,
+        userId: derivedUser.id,
+      } as Profile
 
       appleAuthReturn = {
         user: derivedUser,
         session: derivedSession,
+        profile: derivedProfile,
       }
       setSession(derivedSession)
       setUser(derivedUser)
@@ -93,6 +103,7 @@ export const useAppleAuth = (args?: UseAuthArgs): UseAuthReturn => {
       onSignIn?.({
         user: derivedUser,
         session: derivedSession,
+        profile: derivedProfile,
       })
     } catch (error) {
       console.error("\nAUTH:signInAsync:error\n", error)

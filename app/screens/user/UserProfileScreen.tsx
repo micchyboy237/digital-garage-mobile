@@ -5,7 +5,6 @@ import { Button } from "app/components/Button"
 import { ImagePicker } from "app/components/ImagePicker"
 import SelectTextField from "app/components/SelectTextField"
 import { useProfile } from "app/models/hooks/useProfile"
-import { useUser } from "app/models/hooks/useUser"
 import { useLogout } from "app/screens/auth/useLogout"
 import { UK_CITIES } from "app/screens/digital-garage/data/uk-cities"
 import { BackButton } from "app/screens/user/components/BackButton"
@@ -18,7 +17,6 @@ const allCities = UK_CITIES.map(({ city }) => city).sort()
 
 export const UserProfileScreen = () => {
   const logout = useLogout()
-  const user = useUser()
   const profile = useProfile()
   const [firstName, setFirstName] = useState(profile?.firstName || "")
   const [lastName, setLastName] = useState(profile?.lastName || "")

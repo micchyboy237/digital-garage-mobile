@@ -34,8 +34,7 @@ export const SignupErrorCodes = {
 } as const
 
 export const SignupErrorMessages = {
-  [SignupErrorCodes.EMAIL_ALREADY_IN_USE]:
-    "An account with this email already exists. Please try logging in or reset your password.",
+  [SignupErrorCodes.EMAIL_ALREADY_IN_USE]: "An account with this email already exists.",
   [SignupErrorCodes.INVALID_EMAIL]: "The email address you entered is invalid.",
   [SignupErrorCodes.OPERATION_NOT_ALLOWED]:
     "Sorry, we are currently unable to process your request. Please try again later.",

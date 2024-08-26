@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import Purchases, {
   CustomerInfo,
   MakePurchaseResult,
+  PurchasesEntitlementInfo,
   PurchasesOffering,
   PurchasesPackage,
   REFUND_REQUEST_STATUS,
@@ -30,6 +31,8 @@ type UseRevenueCatReturn = {
   packages: PurchasesPackage[]
   customerInfo: CustomerInfo | null
   currentOffering: PurchasesOffering | null
+  hasActiveEntitlement: boolean
+  activeEntitlementInfo: PurchasesEntitlementInfo | null
   fetchPackages: () => Promise<void>
   refundPurchase: () => Promise<REFUND_REQUEST_STATUS>
   makePurchase: (pkg: PurchasesPackage) => Promise<MakePurchaseReturn | void>
@@ -53,6 +56,11 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
   const [packages, setPackages] = useState<PurchasesPackage[]>([])
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null)
   const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null)
+  const activeEntitlementInfo = customerInfo?.entitlements.active[entitlementId] || null
+  const hasActiveEntitlement = !!activeEntitlementInfo?.isActive
+
+  console.log("activeEntitlementInfo:\n", JSON.stringify(activeEntitlementInfo, null, 2))
+  console.log("hasActiveEntitlement:", hasActiveEntitlement)
 
   useEffect(() => {
     if (!hasKeys()) {
@@ -68,16 +76,17 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
   }, [userEmail])
 
   const setupPurchases = async (userEmail: string): Promise<void> => {
-    await logIn(userEmail)
+    const appUserID = await Purchases.getAppUserID()
+    console.log("RevenueCat appUserID:", appUserID)
+    const customerInfo = await Purchases.getCustomerInfo()
+    setCustomerInfo(customerInfo)
     await fetchPackages()
   }
 
   const fetchPackages = async (): Promise<void> => {
     try {
       const offerings = await Purchases.getOfferings()
-      console.log("MyOfferings:\n", JSON.stringify(offerings, null, 2))
       const allOfferingsKeys = Object.keys(offerings.all)
-      console.log("Offerings Keys:", allOfferingsKeys)
       const availablePackages = offerings.all[allOfferingsKeys[0]].availablePackages
       // availablePackages = await updateWithPromos(availablePackages)
       setPackages(availablePackages)
@@ -110,31 +119,9 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
   //   )
   // }
 
-  const logIn = async (userEmail: string): Promise<void> => {
-    try {
-      const loginResult = await Purchases.logIn(userEmail)
-
-      console.log("User logged in:\n", JSON.stringify(loginResult, null, 2))
-
-      setCustomerInfo(loginResult.customerInfo)
-    } catch (error) {
-      console.error("Error logging in:", error)
-    }
-  }
-
-  // const logOut = async (): Promise<CustomerInfo | null> => {
-  //   let customerInfo: CustomerInfo | null = null
-  //   try {
-  //     customerInfo = await Purchases.logOut()
-  //     console.log("User logged out:\n", JSON.stringify(customerInfo, null, 2))
-  //   } catch (error) {
-  //     console.error("Error logging out:", error)
-  //   }
-  //   return customerInfo
-  // }
-
   const makePurchase = async (pkg: PurchasesPackage): Promise<MakePurchaseReturn | void> => {
     try {
+      console.log("Making purchase:\n", JSON.stringify(pkg, null, 2))
       const purchasePackageResult = await Purchases.purchasePackage(pkg)
       console.log("Purchase successful:\n", JSON.stringify(purchasePackageResult, null, 2))
       setCustomerInfo(purchasePackageResult.customerInfo)
@@ -167,7 +154,8 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
         }
       }
     } catch (error) {
-      console.error("Purchase failed:", error)
+      const appUserID = await Purchases.getAppUserID()
+      console.error(`Purchase failed (${appUserID}):`, error)
     }
   }
 
@@ -197,6 +185,8 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     packages,
     customerInfo,
     currentOffering,
+    hasActiveEntitlement,
+    activeEntitlementInfo,
     fetchPackages,
     makePurchase,
     refundPurchase,

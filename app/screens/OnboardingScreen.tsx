@@ -1,7 +1,9 @@
 // digital-garage/packages/api/src/screens/OnboardingScreen.tsx
 
 import { useStores } from "app/models"
+import { useProfile } from "app/models/hooks/useProfile"
 import { useUserId } from "app/models/hooks/useUserId"
+import { fetchExistingProfile } from "app/screens/auth/sign-up/api"
 import { UK_CITIES } from "app/screens/digital-garage/data/uk-cities"
 import { trpc } from "app/services/api"
 import React, { FC, useState } from "react"
@@ -17,22 +19,26 @@ interface OnboardingScreenProps extends AppStackScreenProps<"Onboarding"> {}
 const allCities = UK_CITIES.map(({ city }) => city).sort()
 
 export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
-  const [firstName, setFirstName] = useState("Jethro")
-  const [lastName, setLastName] = useState("Estrada")
-  const [city, setCity] = useState("London")
+  const profile = useProfile()
+  console.log("PROFILE:\n", JSON.stringify(profile, null, 2))
+  const [firstName, setFirstName] = useState(profile?.firstName || "")
+  const [lastName, setLastName] = useState(profile?.lastName || "")
+  const [city, setCity] = useState(profile?.location || "")
   const [recentStates, setRecentStates] = useState<string[]>(allCities)
-  const [profilePicture, setProfilePicture] = useState<string | null>(null)
+  const [profilePicture, setProfilePicture] = useState<string | null>(
+    profile?.profilePicture || null,
+  )
 
   const { authenticationStore } = useStores()
   const userId = useUserId()
   const createProfileMutation = trpc.admin.profile.createOneProfile.useMutation()
   const updateProfileMutation = trpc.admin.profile.updateOneProfile.useMutation()
-  const profileMutation = authenticationStore.authProfile
-    ? updateProfileMutation
-    : createProfileMutation
+
   const updateUserMutation = trpc.admin.user.updateOneUser.useMutation()
 
   async function submitOnboarding() {
+    const existingProfile = await fetchExistingProfile(userId)
+    const profileMutation = existingProfile ? updateProfileMutation : createProfileMutation
     const profileMutationResult = await profileMutation.mutateAsync({
       data: {
         firstName,
@@ -84,7 +90,7 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
         </Text>
       </View>
 
-      <ImagePicker onImageSelected={setProfilePicture} />
+      <ImagePicker onImageSelected={setProfilePicture} value={profilePicture} />
 
       <TextField
         value={firstName}

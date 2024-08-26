@@ -8,6 +8,13 @@ import { types } from "mobx-state-tree"
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({
+    loginForm: types.optional(
+      types.model({
+        email: types.optional(types.string, ""),
+        password: types.optional(types.string, ""),
+      }),
+      {},
+    ),
     authUser: types.maybe(types.maybeNull(UserModel)),
     authSession: types.maybe(types.maybeNull(SessionModel)),
     authProfile: types.maybe(types.maybeNull(ProfileModel)),
@@ -31,6 +38,9 @@ export const AuthenticationStoreModel = types
     },
   }))
   .actions((store) => ({
+    setLoginFormEmail(email: string) {
+      store.loginForm.email = email
+    },
     setAuthUser(user: User) {
       store.authUser = user
       // store.userStore.addUser(user) // Add the user to UserStoreModel

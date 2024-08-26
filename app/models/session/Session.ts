@@ -8,6 +8,7 @@ export const SessionModel = types
     token: types.string,
     expiresAt: types.Date,
     provider: types.enumeration(["EMAIL_PASSWORD", "GOOGLE", "APPLE"]),
+    deviceFingerprint: types.string,
     userId: types.string,
   })
   .actions(withSetPropAction)

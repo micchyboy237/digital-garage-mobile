@@ -1,9 +1,10 @@
+import { Profile } from "app/models/profile/Profile"
 import { Session } from "app/models/session/Session"
 import { User } from "app/models/user/User"
 import { AuthError } from "app/screens/auth/errors/authErrors"
 
 export interface UseAuthArgs {
-  onSignIn?: (state: { user: User; session: Session }) => void
+  onSignIn?: (state: { user: User; session: Session; profile: Profile }) => void
   onSignOut?: (user: User | null) => void
 }
 
@@ -25,6 +26,7 @@ export interface UseAuthReturn {
   signInAsync: () => Promise<{
     user: User | null
     session: Session | null
+    profile: Profile | null
   }>
   signOutAsync: () => Promise<void>
   resetError: () => void

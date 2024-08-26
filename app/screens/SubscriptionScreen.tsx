@@ -17,7 +17,7 @@ interface SubscriptionScreenProps extends AppStackScreenProps<"Subscription"> {}
 export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) => {
   const [selectedOption, setSelectedOption] = useState<string>("free")
   const subscriptionOptions = useSubscriptionOptions()
-  const { packages, makePurchase } = useRevenueCat()
+  const { packages, makePurchase, activeEntitlementInfo, hasActiveEntitlement } = useRevenueCat()
 
   const { authenticationStore } = useStores()
   const userId = useUserId()
@@ -59,11 +59,11 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
         // const subscriptionObj = SubscriptionModel.create(subscription)
         console.log("Subscription object:", subscription)
         // console.log("Subscription object create:", subscriptionObj)
-        const subscriptionResult = await subscriptionMutation.mutateAsync({
+        const subscriptionResult = await createSubscriptionMutation.mutateAsync({
           data: subscription,
-          where: {
-            userId,
-          },
+          // where: {
+          //   userId,
+          // },
         })
         console.log("Subscription mutation result:", subscriptionResult)
         authenticationStore.setAuthSubscription(subscriptionResult)
@@ -84,21 +84,30 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
           console.log("Payment mutation result:", paymentResult)
           authenticationStore.addAuthPayment(paymentResult)
         }
-
-        const userMutationResult = await updateUserMutation.mutateAsync({
-          data: {
-            accountStatus: "ACTIVE",
-          },
-          where: {
-            id: userId,
-          },
-        })
-        if (userMutationResult) {
-          authenticationStore.setAuthUser(userMutationResult)
-        }
       }
     }
-    navigation.navigate("SubscriptionSuccess")
+
+    const userMutationResult = await updateUserMutation.mutateAsync({
+      data: {
+        accountStatus: "ACTIVE",
+      },
+      where: {
+        id: userId,
+      },
+    })
+    if (userMutationResult) {
+      authenticationStore.setAuthUser(userMutationResult)
+    }
+
+    if (selectedOption === "free") {
+      navigation.reset({
+        index: 0,
+        // routes: [{ name: "User" }],
+        routes: [{ name: "LoggedIn" }],
+      })
+    } else {
+      navigation.navigate("SubscriptionSuccess")
+    }
   }
 
   return (
@@ -107,27 +116,82 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
       safeAreaEdges={["top", "bottom"]}
       contentContainerStyle={styles.screenContentContainer}
     >
-      <ScrollView contentContainerStyle={styles.optionsContainer}>
-        <View style={styles.row}>
-          {subscriptionOptions.map((option, index) => (
-            <View key={option.id} style={styles.column}>
-              <SubscriptionOptionCard
-                option={option}
-                isSelected={selectedOption === option.id}
-                onSelect={() => handleSelectOption(option.id)}
-              />
-            </View>
-          ))}
+      {hasActiveEntitlement ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+          }}
+        >
+          <View style={styles.entitlementContainer}>
+            <Text style={styles.entitlementTitle}>Active Subscription</Text>
+            <Text style={styles.entitlementDetail}>
+              Product: {activeEntitlementInfo?.productIdentifier}
+            </Text>
+            <Text style={styles.entitlementDetail}>
+              Expires At: {activeEntitlementInfo?.expirationDate}
+            </Text>
+            <Text style={styles.entitlementDetail}>
+              Original Purchase Date: {activeEntitlementInfo?.originalPurchaseDate}
+            </Text>
+          </View>
+
+          <Button
+            testID="go-to-dashboard-button"
+            style={{
+              ...styles.confirmButton,
+              backgroundColor: colors.palette.primary400,
+              marginTop: spacing.xl,
+            }}
+            preset="reversed"
+            onPress={async () => {
+              const userMutationResult = await updateUserMutation.mutateAsync({
+                data: {
+                  accountStatus: "ACTIVE",
+                },
+                where: {
+                  id: userId,
+                },
+              })
+              if (userMutationResult) {
+                authenticationStore.setAuthUser(userMutationResult)
+              }
+
+              navigation.reset({
+                index: 0,
+                // routes: [{ name: "User" }],
+                routes: [{ name: "LoggedIn" }],
+              })
+            }}
+          >
+            Go to Dashboard
+          </Button>
         </View>
-      </ScrollView>
-      <Button
-        testID="confirm-button"
-        style={styles.confirmButton}
-        preset="reversed"
-        onPress={handleConfirmSelection}
-      >
-        Confirm Selection
-      </Button>
+      ) : (
+        <>
+          <ScrollView contentContainerStyle={styles.optionsContainer}>
+            <View style={styles.row}>
+              {subscriptionOptions.map((option, index) => (
+                <View key={option.id} style={styles.column}>
+                  <SubscriptionOptionCard
+                    option={option}
+                    isSelected={selectedOption === option.id}
+                    onSelect={() => handleSelectOption(option.id)}
+                  />
+                </View>
+              ))}
+            </View>
+          </ScrollView>
+          <Button
+            testID="confirm-button"
+            style={styles.confirmButton}
+            preset="reversed"
+            onPress={handleConfirmSelection}
+          >
+            Confirm Selection
+          </Button>
+        </>
+      )}
     </Screen>
   )
 }
@@ -244,4 +308,23 @@ const styles = {
     borderRadius: 6, // Reduced from 8
     paddingVertical: spacing.sm, // Reduced from spacing.md
   } as ViewStyle,
+  entitlementContainer: {
+    padding: spacing.md,
+    backgroundColor: colors.palette.primary100,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.palette.primary400,
+  } as ViewStyle,
+  entitlementTitle: {
+    fontSize: 20,
+    fontFamily: typography.primary.bold,
+    color: colors.text,
+    marginBottom: spacing.sm,
+  } as TextStyle,
+  entitlementDetail: {
+    fontSize: 16,
+    fontFamily: typography.primary.normal,
+    color: colors.textDim,
+    marginBottom: spacing.xs,
+  } as TextStyle,
 }

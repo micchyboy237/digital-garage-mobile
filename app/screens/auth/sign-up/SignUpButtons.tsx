@@ -1,6 +1,5 @@
 import { useNavigation } from "@react-navigation/native"
 import { Button } from "app/components"
-import { useStores } from "app/models"
 import { useAuthActions } from "app/screens/auth/useAuthActions"
 import { useEmailPasswordAuth } from "app/screens/auth/useEmailPasswordAuth"
 import { trpc } from "app/services/api"
@@ -20,13 +19,11 @@ export const AuthEmailPwButton: React.FC<AuthButtonProps> = ({
   isTermsAccepted,
 }) => {
   const navigation = useNavigation()
-  const { authenticationStore } = useStores()
   const emailpwAuth = useEmailPasswordAuth()
   const { sendVerificationEmail } = useAuthActions()
   const signUpMutation = trpc.admin.user.createOneUser.useMutation()
-  const sessionMutation = trpc.admin.session.createOneSession.useMutation()
 
-  const loading = signUpMutation.isPending || sessionMutation.isPending
+  const loading = signUpMutation.isPending
 
   const handleSubmit = async () => {
     if (!isTermsAccepted) {
@@ -41,10 +38,6 @@ export const AuthEmailPwButton: React.FC<AuthButtonProps> = ({
       data: result.user,
     })
     console.log("signUpMutationResult:", signUpMutationResult)
-    // const sessionMutationResult = await sessionMutation.mutateAsync({
-    //   data: result.session,
-    // })
-    // console.log("sessionMutationResult:", sessionMutationResult)
     await sendVerificationEmail()
     console.log("Verification email sent to:", email)
 
@@ -63,9 +56,6 @@ export const AuthEmailPwButton: React.FC<AuthButtonProps> = ({
     navigation.replace("SignUpSuccess")
     // if (signUpMutationResult) {
     //   authenticationStore.setAuthUser(signUpMutationResult)
-    // }
-    // if (sessionMutationResult) {
-    //   authenticationStore.setAuthSession(sessionMutationResult)
     // }
   }
 
