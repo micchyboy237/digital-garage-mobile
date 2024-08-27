@@ -7,5 +7,5 @@
  */
 export default {
   API_URL: "https://api.rss2json.com/v1/",
-  API_TRPC_URL: "https://7feb-2001-4450-4903-7400-18da-821b-66fd-e424.ngrok-free.app/trpc",
+  API_TRPC_URL: "https://dev-classicgarage.loca.lt/trpc",
 }

@@ -7,5 +7,5 @@
  */
 export default {
   API_URL: "CHANGEME",
-  API_TRPC_URL: "CHANGEME",
+  API_TRPC_URL: "https://dev-classicgarage.loca.lt/trpc",
 }

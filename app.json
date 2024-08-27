@@ -2,6 +2,7 @@
   "name": "Classic Garage",
   "displayName": "Classic Garage",
   "expo": {
+    "owner": "agileminds_owner",
     "name": "Classic Garage",
     "slug": "classic-garage",
     "scheme": "classicgarage",
