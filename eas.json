@@ -15,20 +15,16 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "buildConfiguration": "Debug",
-        "simulator": false,
         "scheme": "ClassicGarage_TestStoreKit"
       }
     },
     "development": {
-      "extends": "production",
+      "developmentClient": true,
       "distribution": "internal",
       "android": {
         "gradleCommand": ":app:assembleDebug"
       },
       "ios": {
-        "buildConfiguration": "Debug",
-        "simulator": false,
         "scheme": "ClassicGarage_TestStoreKit"
       }
     },

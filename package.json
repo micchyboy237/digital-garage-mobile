@@ -5,6 +5,7 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "npx expo start",
+    "start:tunnel": "npx expo start --tunnel",
     "start:clean": "yarn clean:watchman && yarn clean:derived && npx expo start -c",
     "ios": "expo run:ios",
     "ios:scheme:storekit": "expo run:ios --scheme ClassicGarage_TestStoreKit",

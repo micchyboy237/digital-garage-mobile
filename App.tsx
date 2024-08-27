@@ -1,6 +1,7 @@
 import "@expo/metro-runtime"
-import React from "react"
+import "expo-dev-client"
 import * as SplashScreen from "expo-splash-screen"
+import React from "react"
 import App from "./app/app"
 
 SplashScreen.preventAutoHideAsync()
