@@ -3,21 +3,11 @@ import { useNavigation } from "@react-navigation/native"
 import { Screen } from "app/components"
 import { useStores } from "app/models"
 import { mock2ndUser, mockUser } from "app/screens/digital-garage/data/mock"
-import { AddVehicleForm } from "app/screens/digital-garage/screens/dashboard/AddVehicleForm"
 import { spacing } from "app/theme"
 import { VehicleOwnership } from "app/types"
 import React, { useState } from "react"
-import {
-  Button,
-  Image,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Button, Image, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native"
+import { AddVehicleModal } from "./AddVehicleModal"
 
 interface DashboardScreenProps {}
 
@@ -25,7 +15,6 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   const [user, setUser] = useState(mockUser)
   const [isAddingVehicle, setIsAddingVehicle] = useState(false)
   const navigation = useNavigation()
-  const insets = useSafeAreaInsets()
 
   const {
     authenticationStore: { logout },
@@ -89,25 +78,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           </Text>
         </View>
       </View>
-      <Modal visible={isAddingVehicle} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View
-            style={[
-              styles.modalContent,
-              {
-                marginTop: insets.top,
-                marginBottom: insets.bottom,
-              },
-            ]}
-          >
-            <AddVehicleForm
-              user={user}
-              onAddVehicle={handleAddVehicle}
-              onClose={() => setIsAddingVehicle(false)}
-            />
-          </View>
-        </View>
-      </Modal>
+      <AddVehicleModal
+        visible={isAddingVehicle}
+        user={user}
+        onAddVehicle={handleAddVehicle}
+        onClose={() => setIsAddingVehicle(false)}
+      />
       <View style={styles.vehicleSection}>
         <Text style={styles.sectionTitle}>Current Vehicles</Text>
         {currentVehicles.map((vehicleOwnership) => (
@@ -230,17 +206,5 @@ const styles = StyleSheet.create({
   },
   vehicleItem: {
     fontSize: 16,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 8,
   },
 })

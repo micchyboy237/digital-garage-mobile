@@ -21,8 +21,8 @@ interface SignUpScreenProps extends AppStackScreenProps<"SignUp"> {}
 const logoWithText = require("../../../../assets/app-icons/classic-garage.png")
 
 export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props) {
-  const [email, setEmail] = useState("cg.tester2@gmail.com")
-  const [password, setPassword] = useState("asdasd!123")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [isTermsAccepted, setIsTermsAccepted] = useState(true)
 
   const { authenticationStore } = useStores()

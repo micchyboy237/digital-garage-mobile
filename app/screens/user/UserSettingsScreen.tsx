@@ -50,6 +50,10 @@ export const UserSettingsScreen: FC<UserTabScreenProps<"UserSettings">> =
       navigation.navigate("UserProfile")
     }
 
+    const handleSubscription = () => {
+      navigation.navigate("Subscription")
+    }
+
     const userReactotron = React.useMemo(
       () => async () => {
         if (__DEV__) {
@@ -132,7 +136,12 @@ export const UserSettingsScreen: FC<UserTabScreenProps<"UserSettings">> =
         </View> */}
         <View style={$buttonContainer}>
           <Button style={$button} onPress={handleProfile}>
-            See Profile
+            My Profile
+          </Button>
+        </View>
+        <View style={$buttonContainer}>
+          <Button style={$button} onPress={handleSubscription}>
+            Subscription
           </Button>
         </View>
         <View style={$buttonContainer}>

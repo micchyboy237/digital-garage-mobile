@@ -1,135 +1,178 @@
 import { Ionicons } from "@expo/vector-icons"
+import { useNetInfo } from "@react-native-community/netinfo"
 import { useNavigation } from "@react-navigation/native"
-import { Screen } from "app/components"
-import { MOCK_CARS } from "app/screens/user/UserCarsScreen/mock"
-import { ListingsProps } from "app/screens/user/UserCarsScreen/types"
-import { trpc } from "app/services/api"
-import React, { useEffect, useRef, useState } from "react"
-import {
-  FlatList,
-  Image,
-  ListRenderItem,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native"
-import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated"
+import { AutoImage, Screen } from "app/components"
+import { AspectRatioImage } from "app/components/image/AspectRatioImage"
+import { Loading } from "app/components/Loading"
+import { useProfile } from "app/models/hooks/useProfile"
+import { useUser } from "app/models/hooks/useUser"
+import { mockUser } from "app/screens/digital-garage/data/mock"
+import { AddVehicleModal } from "app/screens/digital-garage/screens/dashboard/AddVehicleModal"
+import { spacing } from "app/theme"
+import { VehicleOwnership } from "app/types"
+import React, { useEffect, useState } from "react"
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Car } from "../MyCarsScreen/Car"
 
-export const UserCarsScreen = () => {
-  const [loading, setLoading] = useState(false)
-  const [category, setCategory] = useState("all")
-  const listRef = useRef<FlatList>(null)
+const logoWithText = require("../../../../assets/app-icons/classic-garage.png")
+
+export function UserCarsScreen() {
+  const [cars, setCars] = useState<VehicleOwnership[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isAddingVehicle, setIsAddingVehicle] = useState(false)
+
+  const user = useUser()
   const navigation = useNavigation()
+  const netInfo = useNetInfo()
+  const profile = useProfile()
+  const vehicleCount = cars.length
 
-  const data = MOCK_CARS
-  // const {
-  //   data: dbData,
-  //   error: dbError,
-  //   isPending: dbPending,
-  // } = trpc.user.findManyUser.useQuery({
-  //   select: {
-  //     id: true,
-  //     session: true,
-  //     subscription: true,
-  //     vehicleOwnerships: true,
-  //     documents: true,
-  //   },
-  // })
+  console.log("Profile: ", profile)
 
-  const {
-    data: userData,
-    error: userError,
-    isPending: userPending,
-  } = trpc.user.findUniqueUser.useQuery({
-    where: {
-      id: "user-1",
-    },
-    include: {
-      session: true,
-      subscription: true,
-      vehicleOwnerships: true,
-      documents: true,
-    },
-  })
-  console.log("User query:", {
-    userData,
-    userError,
-    userPending,
-  })
-
-  useEffect(() => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-    }, 200)
-  }, [category])
-
-  const renderRow: ListRenderItem<ListingsProps> = ({ item }) => {
-    return (
-      <TouchableOpacity onPress={() => navigation.navigate("CarDetails", { id: item.id })}>
-        <Animated.View style={styles.listings} entering={FadeInRight} exiting={FadeOutLeft}>
-          <Image
-            source={{ uri: item.medium_url ? item.medium_url! : item.xl_picture_url! }}
-            style={styles.image}
-          />
-          <TouchableOpacity style={{ position: "absolute", right: 30, top: 40 }}>
-            <Ionicons name="heart-outline" size={24} color="primary" />
-          </TouchableOpacity>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: 10,
-            }}
-          >
-            <Text style={{ fontSize: 18 }}>{item.name}</Text>
-            <View style={{ flexDirection: "row" }}>
-              <Ionicons name="star" />
-              <Text style={{ marginLeft: 5 }}>
-                {item.review_scores_rating ? item.review_scores_rating / 20 : "New"}
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              marginTop: 5,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View>
-              <Text style={{ fontSize: 13 }}>{item.smart_location}</Text>
-              <Text style={{ fontSize: 13 }}>{item.room_type}</Text>
-            </View>
-            <View>
-              <Text style={{ fontSize: 13, fontWeight: "bold" }}>
-                {"Monthly rent: " + item.weekly_price + "€"}
-              </Text>
-            </View>
-          </View>
-        </Animated.View>
-      </TouchableOpacity>
-    )
+  const handleVehiclePress = (vehicleOwnership: VehicleOwnership) => {
+    navigation.navigate("VehicleDetails", { vehicleOwnership })
   }
 
+  const handleAddVehicle = (newVehicle: VehicleOwnership) => {
+    console.log("newVehicle: ", newVehicle)
+  }
+
+  async function fetchCars() {
+    try {
+      setLoading(true)
+      const response = mockUser.vehicleOwnerships // Updated to use mock data
+      setCars(response)
+    } catch (error) {
+      console.log("fetchCars error: " + error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchCars()
+  }, [])
+
+  useEffect(() => {
+    if (netInfo.isConnected === true) {
+      // Handle online synchronization if needed
+    }
+  }, [netInfo.isConnected])
+
+  const insets = useSafeAreaInsets()
+
   return (
-    <Screen preset="fixed" safeAreaEdges={["top"]}>
-      <FlatList renderItem={renderRow} data={loading ? [] : data} ref={listRef} />
-    </Screen>
+    <>
+      <Screen preset="fixed">
+        <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
+          <View style={styles.headerContent}>
+            <AspectRatioImage source={logoWithText} width={100} />
+            <View style={styles.headerContentRight}>
+              <TouchableOpacity onPress={() => setIsAddingVehicle(true)}>
+                <Ionicons name="add-circle-outline" size={24} color="black" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
+                <Ionicons name="notifications-outline" size={24} color="black" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+                <Ionicons name="settings-outline" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.profileContainer}>
+          <AutoImage
+            style={styles.profilePicture}
+            source={{
+              uri: profile?.profilePicture,
+            }}
+          />
+          <View style={styles.profileDetails}>
+            <Text style={styles.fullName}>
+              {profile?.firstName} {profile?.lastName}
+            </Text>
+            <Text style={styles.vehicleCount}>Vehicles: {vehicleCount}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("UserProfile")}
+            style={styles.userProfileButton}
+          >
+            <Ionicons name="person-circle-outline" size={30} color="black" />
+          </TouchableOpacity>
+        </View>
+
+        {loading ? (
+          <Loading />
+        ) : (
+          <FlatList
+            data={cars}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <Car data={item} onPress={() => handleVehiclePress(item)} />}
+            contentContainerStyle={styles.carList}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </Screen>
+      <AddVehicleModal
+        visible={isAddingVehicle}
+        user={user}
+        onAddVehicle={handleAddVehicle}
+        onClose={() => setIsAddingVehicle(false)}
+      />
+    </>
   )
 }
 
 const styles = StyleSheet.create({
-  listings: {
-    paddingTop: 30,
-    padding: 16,
-  },
-  image: {
+  header: {
     width: "100%",
-    height: 300,
-    borderRadius: 10,
+    justifyContent: "flex-end",
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerContentRight: {
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+  profileContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    backgroundColor: "#f8f8f8",
+    marginBottom: spacing.md,
+    borderRadius: 8,
+  },
+  profilePicture: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: spacing.md,
+  },
+  profileDetails: {
+    flex: 1,
+    flexDirection: "column",
+  },
+  fullName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: spacing.xs,
+  },
+  vehicleCount: {
+    fontSize: 14,
+    color: "gray",
+  },
+  userProfileButton: {
+    marginLeft: spacing.md,
+  },
+  carList: {
+    padding: spacing.md,
   },
 })

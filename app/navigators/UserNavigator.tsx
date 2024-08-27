@@ -1,12 +1,12 @@
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
+import { HomeScreen } from "app/screens/user/HomeScreen"
 import { UserCarsScreen } from "app/screens/user/UserCarsScreen"
 import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "../components"
-import { UserCommunityScreen, UserFeaturesScreen, UserSettingsScreen } from "../screens"
-import { UserPodcastListScreen } from "../screens/user/UserPodcastListScreen"
+import { DashboardScreen, DemoShowroomScreen, UserFeaturesScreen } from "../screens"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 
@@ -87,7 +87,8 @@ export function UserNavigator() {
 
       <Tab.Screen
         name="UserPodcastList"
-        component={UserPodcastListScreen}
+        // component={UserPodcastListScreen}
+        component={HomeScreen}
         options={{
           tabBarAccessibilityLabel: "For Sale",
           tabBarLabel: "For Sale",
@@ -120,7 +121,8 @@ export function UserNavigator() {
 
       <Tab.Screen
         name="UserCommunity"
-        component={UserCommunityScreen}
+        // component={UserCommunityScreen}
+        component={DashboardScreen}
         options={{
           tabBarLabel: "Community",
           tabBarActiveTintColor: colors.palette.primary400,
@@ -136,7 +138,8 @@ export function UserNavigator() {
 
       <Tab.Screen
         name="UserSettings"
-        component={UserSettingsScreen}
+        // component={UserSettingsScreen}
+        component={DemoShowroomScreen}
         options={{
           tabBarLabel: "Settings",
           tabBarActiveTintColor: colors.palette.primary400,

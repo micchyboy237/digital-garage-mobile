@@ -110,9 +110,7 @@ export const createTrpcClient = (rootStore: RootStore) =>
         transformer: SuperJSON,
         url: Config.API_TRPC_URL,
         headers: async () => {
-          console.log("rootStore:", rootStore)
           const token = rootStore.authenticationStore.authSession?.token
-          console.log("headers token:", token)
           if (!token) {
             return {}
           }

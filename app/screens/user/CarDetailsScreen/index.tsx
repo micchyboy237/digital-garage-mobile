@@ -1,161 +1,161 @@
-import React, { useEffect, useState } from "react"
-import { StatusBar, StyleSheet, Text, View } from "react-native"
-
-import Animated, {
-  Extrapolate,
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-} from "react-native-reanimated"
-import { Accessory } from "../components/Accessory"
-import { BackButton } from "../components/BackButton"
-import { ImageSlider } from "../components/ImageSlider"
-
+import { Ionicons } from "@expo/vector-icons"
 import { useNavigation, useRoute } from "@react-navigation/native"
-import { Button } from "../components/Button"
-import { CarModel } from "../MyCarsScreen/CarModel"
-import { CarDTO } from "../MyCarsScreen/types"
-
-import { useNetInfo } from "@react-native-community/netinfo"
-import { Screen } from "app/components"
-import { MOCK_CARS_DATA } from "app/screens/digital-garage/data/mock-cars"
-import { Car } from "app/screens/digital-garage/data/types"
-import { getAccessoryIcon } from "app/screens/user/MyCarsScreen/getAccessories"
+import { mockUser } from "app/screens/digital-garage/data/mock"
 import { colors, typography } from "app/theme"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { VehicleOwnership } from "app/types"
+import React, { useLayoutEffect, useRef } from "react"
+import { Dimensions, Image, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import Animated, {
+  interpolate,
+  SlideInDown,
+  useAnimatedStyle,
+  useScrollViewOffset,
+} from "react-native-reanimated"
+
+const IMG_HEIGHT = 300
+const { width } = Dimensions.get("window")
 
 interface Params {
-  car: CarModel
+  id: string
 }
 
-export function CarDetailsScreen() {
-  const navigation = useNavigation()
+export const CarDetailsScreen = () => {
   const route = useRoute()
-  const { car } = route.params as Params
-  const netInfo = useNetInfo()
-  const insets = useSafeAreaInsets()
+  const { id } = route.params as Params
+  const listing: VehicleOwnership | undefined = mockUser.vehicleOwnerships.find(
+    (item) => item.id === id,
+  )
+  const navigation = useNavigation()
+  const scrollRef = useRef<Animated.ScrollView>(null) // Use React.createRef instead
 
-  //STATES
-  const [carUpdated, setCarUpdated] = useState<CarDTO>({} as CarDTO)
-  console.log("carUpdated:", JSON.stringify(carUpdated, null, 2))
-
-  //Animations
-  const scrollY = useSharedValue(0)
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollY.value = event.contentOffset.y
-  })
-
-  const headerStyleAnimation = useAnimatedStyle(() => {
-    return {
-      height: interpolate(scrollY.value, [0, 200], [200, 70], Extrapolate.CLAMP),
+  const shareListing = async () => {
+    if (!listing) return
+    try {
+      await Share.share({
+        title: `${listing.vehicle?.make} ${listing.vehicle?.model}`,
+        url: listing.displayPicture?.url,
+      })
+    } catch (err) {
+      console.log(err)
     }
-  })
-
-  const sliderCarsStyleAnimation = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(scrollY.value, [0, 150], [1, 0], Extrapolate.CLAMP),
-    }
-  })
-
-  //Navigation Functions
-
-  function handleScheduling() {
-    navigation.navigate("Scheduling", { car })
   }
 
-  function handleGoBack() {
-    navigation.navigate("Home")
-  }
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: "",
+      headerTransparent: true,
+      headerBackground: () => (
+        <Animated.View style={[headerAnimatedStyle, styles.header]}></Animated.View>
+      ),
+      headerRight: () => (
+        <View style={styles.bar}>
+          <TouchableOpacity style={styles.roundButton} onPress={shareListing}>
+            <Ionicons name="share-outline" size={22} color={colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.roundButton}>
+            <Ionicons name="heart-outline" size={22} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+      ),
+      headerLeft: () => (
+        <TouchableOpacity style={styles.roundButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+      ),
+    })
+  }, [])
 
-  //UseEffects
-  useEffect(() => {
-    async function fetchCarUpdated() {
-      //   const response = await api.get(`/cars/${car.id}`)
-      const result = MOCK_CARS_DATA.cars.find((item) => item.id === car.id) as Car
-      const response = {
-        data: result,
-      }
-      setCarUpdated(response.data)
+  const scrollOffset = useScrollViewOffset(scrollRef)
+
+  const imageAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(
+            scrollOffset.value,
+            [-IMG_HEIGHT, 0, IMG_HEIGHT, IMG_HEIGHT],
+            [-IMG_HEIGHT / 2, 0, IMG_HEIGHT * 0.75],
+          ),
+        },
+        {
+          scale: interpolate(scrollOffset.value, [-IMG_HEIGHT, 0, IMG_HEIGHT], [2, 1, 1]),
+        },
+      ],
     }
-    if (netInfo.isConnected === true) {
-      fetchCarUpdated()
+  })
+
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(scrollOffset.value, [0, IMG_HEIGHT / 1.5], [0, 1]),
     }
-  }, [netInfo.isConnected])
+  }, [])
+
+  if (!listing) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.name}>Car not found</Text>
+      </View>
+    )
+  }
 
   return (
-    <Screen preset="fixed" safeAreaEdges={["top", "bottom"]} style={styles.container}>
-      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
-
-      <Animated.View
-        style={[headerStyleAnimation, styles.header, { backgroundColor: colors.background }]}
-      >
-        <View style={styles.headerContent}>
-          <BackButton onPress={handleGoBack} />
-        </View>
-        <Animated.View style={sliderCarsStyleAnimation}>
-          <View style={styles.carImages}>
-            <ImageSlider
-              imageUrl={
-                carUpdated.photos
-                  ? carUpdated.photos
-                  : [{ id: car.thumbnail, photo: car.thumbnail }]
-              }
-            />
-          </View>
-        </Animated.View>
-      </Animated.View>
-
+    <View style={styles.container}>
       <Animated.ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: 24,
-          paddingTop: insets.top + 180,
-        }}
-        showsVerticalScrollIndicator={false}
-        onScroll={scrollHandler}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        ref={scrollRef} // Use the ref here
         scrollEventThrottle={16}
       >
-        <View style={styles.details}>
-          <View style={styles.description}>
-            <Text style={styles.brand}>{car.brand}</Text>
-            <Text style={styles.name}>{car.name}</Text>
-          </View>
-
-          <View style={styles.rent}>
-            <Text style={styles.period}>{car.rent.period}</Text>
-            <Text style={styles.price}>{`£ ${
-              netInfo.isConnected === true ? car.rent.price : "..."
-            }`}</Text>
-          </View>
-        </View>
-
-        {carUpdated.accessories && (
-          <View style={styles.accessories}>
-            {carUpdated.accessories.map((accessory) => (
-              <Accessory
-                key={accessory.type}
-                name={accessory.name}
-                icon={getAccessoryIcon(accessory.type)}
-              />
-            ))}
-          </View>
-        )}
-
-        <Text style={styles.about}>{car.about}</Text>
-      </Animated.ScrollView>
-      <View style={styles.footer}>
-        <Button
-          title="Transfer ownership"
-          onPress={handleScheduling}
-          enabled={netInfo.isConnected === true}
+        <Animated.Image
+          source={{ uri: listing.displayPicture?.url }}
+          style={[styles.image, imageAnimatedStyle]}
+          resizeMode="cover"
         />
-        {netInfo.isConnected === false && (
-          <Text style={styles.offlineInfo}>
-            Connect to the internet to view more details and schedule your rental.
+
+        <View style={styles.infoContainer}>
+          <Text style={styles.name}>{`${listing.vehicle?.make} ${listing.vehicle?.model}`}</Text>
+          <Text style={styles.location}>{listing.vehicle?.details?.colour}</Text>
+          <Text style={styles.rooms}>
+            {listing.vehicle?.details?.yearOfManufacture} ·{" "}
+            {listing.vehicle?.details?.engineCapacity} cc · {listing.vehicle?.details?.fuelType}
           </Text>
-        )}
-      </View>
-    </Screen>
+          <View style={{ flexDirection: "row", gap: 4 }}>
+            <Ionicons name="star" size={16} />
+            <Text style={styles.ratings}>Rated 5.0</Text>
+          </View>
+          <View style={styles.divider} />
+
+          <View style={styles.hostView}>
+            <Image source={{ uri: listing.user?.profilePicture?.url }} style={styles.host} />
+
+            <View>
+              <Text style={{ fontWeight: "500", fontSize: 16 }}>
+                Owned by {listing.user?.firstName} {listing.user?.lastName}
+              </Text>
+              <Text>Since {listing.startDate?.getFullYear()}</Text>
+            </View>
+          </View>
+
+          <View style={styles.divider} />
+
+          <Text style={styles.description}>{listing.description}</Text>
+        </View>
+      </Animated.ScrollView>
+
+      <Animated.View style={styles.footer} entering={SlideInDown.delay(200)}>
+        <View
+          style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
+        >
+          <TouchableOpacity style={styles.footerText}>
+            <Text style={styles.footerPrice}>£{listing.vehicle?.details?.engineCapacity}</Text>
+            <Text>year</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.btn, { paddingRight: 20, paddingLeft: 20 }]}>
+            <Text style={styles.btnText}>Transfer Ownership</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </View>
   )
 }
 
@@ -164,76 +164,109 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    position: "absolute",
-    overflow: "hidden",
-    zIndex: 1,
+  image: {
+    height: IMG_HEIGHT,
+    width: width,
   },
-  headerContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 18,
-    marginLeft: 24,
-  },
-  carImages: {
-    marginTop: 32,
-  },
-  details: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  description: {},
-  brand: {
-    fontFamily: typography.primary.bold,
-    color: colors.textDim,
-    fontSize: 10,
-    textTransform: "uppercase",
+  infoContainer: {
+    padding: 24,
+    backgroundColor: colors.palette.neutral100,
   },
   name: {
-    fontFamily: typography.primary.bold,
-    color: colors.text,
-    fontSize: 25,
+    fontSize: 26,
+    fontWeight: "bold",
+    fontFamily: typography.primary.semiBold,
   },
-  rent: {},
-  period: {
-    fontFamily: typography.primary.bold,
+  location: {
+    fontSize: 18,
+    marginTop: 10,
+    fontFamily: typography.primary.semiBold,
+  },
+  rooms: {
+    fontSize: 16,
     color: colors.textDim,
-    fontSize: 10,
-    textTransform: "uppercase",
-  },
-  price: {
-    fontFamily: typography.primary.bold,
-    color: colors.tint,
-    fontSize: 25,
-  },
-  accessories: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 16,
-  },
-  about: {
+    marginVertical: 4,
     fontFamily: typography.primary.normal,
-    color: colors.text,
-    fontSize: 15,
-    textAlign: "justify",
-    marginTop: 23,
-    lineHeight: 25,
+  },
+  ratings: {
+    fontSize: 16,
+    fontFamily: typography.primary.semiBold,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.border,
+    marginVertical: 16,
+  },
+  host: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: colors.textDim,
+  },
+  hostView: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  footerText: {
+    height: "100%",
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  footerPrice: {
+    fontSize: 18,
+    fontFamily: typography.primary.semiBold,
+  },
+  roundButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    backgroundColor: colors.palette.neutral100,
+    alignItems: "center",
+    justifyContent: "center",
+    color: colors.tint,
+  },
+  bar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
+  header: {
+    backgroundColor: colors.palette.neutral100,
+    height: 100,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
+  description: {
+    fontSize: 16,
+    marginTop: 10,
+    fontFamily: typography.primary.normal,
   },
   footer: {
-    width: "100%",
-    backgroundColor: colors.background,
-    padding: 24,
-    paddingBottom: 24,
+    position: "absolute",
+    height: 100,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.palette.neutral100,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderTopColor: colors.border,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
-  offlineInfo: {
-    fontFamily: typography.primary.normal,
-    color: colors.tint,
-    fontSize: 10,
-    textAlign: "center",
+  btn: {
+    backgroundColor: colors.tint,
+    height: 50,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  btnText: {
+    color: colors.palette.neutral100,
+    fontSize: 16,
+    fontFamily: typography.primary.bold,
   },
 })

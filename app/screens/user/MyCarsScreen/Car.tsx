@@ -1,90 +1,97 @@
-import { useNetInfo } from "@react-native-community/netinfo"
-import { CarDTO } from "app/screens/user/MyCarsScreen/types"
+import { MaterialIcons } from "@expo/vector-icons" // Import the vector icon
+import { Text } from "app/components"
+import { colors, spacing } from "app/theme"
+import { VehicleOwnership } from "app/types"
 import React from "react"
-import { Image, StyleSheet, Text, View } from "react-native"
+import { Dimensions, Image, StyleSheet, View } from "react-native"
 import { RectButton, RectButtonProps } from "react-native-gesture-handler"
-import { getAccessoryIcon } from "./getAccessories"
+
 interface Props extends RectButtonProps {
-  data: CarDTO
+  data: VehicleOwnership
 }
 
+// Calculate the height based on the aspect ratio
+const aspectRatio = 390 / 180
+const screenWidth = Dimensions.get("window").width
+const imageHeight = screenWidth / aspectRatio
+
 export function Car({ data, ...rest }: Props) {
-  const MotorIcon = getAccessoryIcon(data.fuelType)
-  const netInfo = useNetInfo()
-  console.log("data.rent.price:", data.rent.price)
-  console.log("netInfo.isConnected:", netInfo.isConnected)
+  const imageUrl = data.displayPicture?.url
+
   return (
-    <RectButton style={styles.container} {...rest}>
-      <View style={styles.details}>
-        <Text style={styles.brand}>{data.brand}</Text>
-        <Text style={styles.name}>{data.name}</Text>
-
-        <View style={styles.about}>
-          <View style={styles.rent}>
-            <Text style={styles.period}>{data.rent.period}</Text>
-            <Text style={styles.price}>{`£${data.rent.price}`}</Text>
-          </View>
-
-          <View style={styles.type}>
-            <MotorIcon />
-          </View>
+    <RectButton style={[styles.container, { height: imageHeight }]} {...rest}>
+      {imageUrl ? (
+        <Image style={styles.carImage} resizeMode="cover" source={{ uri: imageUrl }} />
+      ) : (
+        <View style={styles.placeholderContainer}>
+          <MaterialIcons name="directions-car" size={64} color={colors.palette.neutral300} />
         </View>
+      )}
+      <View style={styles.details}>
+        <Text style={styles.make}>
+          {data.vehicle.make} {data.vehicle.model}
+        </Text>
+        <Text style={styles.model}>{data.vehicle?.details.colour}</Text>
+        <Text style={styles.description}>{data.vehicle.registrationNumber}</Text>
       </View>
-      <Image style={styles.carImage} resizeMode="contain" source={{ uri: data.thumbnail }} />
     </RectButton>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    height: 126,
-    backgroundColor: "#F3F4F5", // Replace with theme.colors.background_secondary
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 24,
-    marginBottom: 16,
-  },
-  details: {
-    // Add any specific styles if needed
-  },
-  brand: {
-    fontFamily: "Inter_500Medium", // Replace with theme.fonts.secondary_500
-    color: "#AEAEB3", // Replace with theme.colors.text_detail
-    fontSize: 10,
-    textTransform: "uppercase",
-  },
-  name: {
-    fontFamily: "Inter_500Medium", // Replace with theme.fonts.secondary_500
-    color: "#47474D", // Replace with theme.colors.title
-    fontSize: 15,
-    textTransform: "capitalize",
-  },
-  about: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 16,
-  },
-  rent: {
-    marginRight: 24,
-  },
-  period: {
-    fontFamily: "Inter_500Medium", // Replace with theme.fonts.secondary_500
-    color: "#AEAEB3", // Replace with theme.colors.text_detail
-    fontSize: 10,
-    textTransform: "uppercase",
-  },
-  price: {
-    fontFamily: "Inter_500Medium", // Replace with theme.fonts.secondary_500
-    color: "#DC1637", // Replace with theme.colors.main
-    fontSize: 15,
-  },
-  type: {
-    // Add any specific styles if needed
+    marginBottom: spacing.md,
+    backgroundColor: colors.palette.neutral100,
+    borderColor: colors.palette.neutral300,
+    borderWidth: 1,
+    borderRadius: 16,
+    shadowColor: colors.palette.neutral800,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12.81,
+    elevation: 16,
   },
   carImage: {
-    width: 167,
-    height: 85,
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
+  },
+  placeholderContainer: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 16,
+    backgroundColor: colors.palette.neutral200,
+  },
+  details: {
+    position: "absolute",
+    bottom: spacing.sm,
+    left: spacing.sm,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: spacing.xs,
+    borderRadius: spacing.xs,
+  },
+  make: {
+    fontFamily: "Inter_500Medium",
+    fontSize: 15,
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textTransform: "capitalize",
+  },
+  model: {
+    fontFamily: "Inter_500Medium",
+    fontSize: 15,
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textTransform: "capitalize",
+  },
+  description: {
+    marginTop: spacing.xs,
+    fontFamily: "Inter_500Medium",
+    fontSize: 15,
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    textTransform: "capitalize",
   },
 })

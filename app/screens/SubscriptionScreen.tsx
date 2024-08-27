@@ -5,19 +5,28 @@ import { Subscription } from "app/models/subscription/Subscription"
 import { SubscriptionOptionPlan } from "app/screens/subscription/types"
 import { useRevenueCat } from "app/screens/subscription/useRevenueCat"
 import { useSubscriptionOptions } from "app/screens/subscription/useSubscriptionOptions"
+import { BackButton } from "app/screens/user/components/BackButton"
 import { trpc } from "app/services/api"
-import React, { FC, useState } from "react"
-import { Pressable, ScrollView, TextStyle, View, ViewStyle } from "react-native"
-import { Button, Screen, Text } from "../components"
+import React, { FC, useEffect, useState } from "react"
+import { Alert, Pressable, ScrollView, TextStyle, View, ViewStyle } from "react-native"
+import { Button, Header, Screen, Text } from "../components"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing, typography } from "../theme"
 
 interface SubscriptionScreenProps extends AppStackScreenProps<"Subscription"> {}
 
 export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) => {
-  const [selectedOption, setSelectedOption] = useState<string>("free")
   const subscriptionOptions = useSubscriptionOptions()
   const { packages, makePurchase, activeEntitlementInfo, hasActiveEntitlement } = useRevenueCat()
+  useEffect(() => {
+    if (hasActiveEntitlement) {
+      Alert.alert(
+        "Active Subscription",
+        activeEntitlementInfo?.store + "\n" + activeEntitlementInfo?.productIdentifier,
+      )
+    }
+  }, [activeEntitlementInfo])
+  const [selectedOption, setSelectedOption] = useState<string>("free")
 
   const { authenticationStore } = useStores()
   const userId = useUserId()
@@ -110,13 +119,42 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
     }
   }
 
+  const handleWithActive = async () => {
+    const subscription = activeEntitlementInfo
+
+    const userMutationResult = await updateUserMutation.mutateAsync({
+      data: {
+        accountStatus: "ACTIVE",
+      },
+      where: {
+        id: userId,
+      },
+    })
+    if (userMutationResult) {
+      authenticationStore.setAuthUser(userMutationResult)
+    }
+
+    navigation.reset({
+      index: 0,
+      // routes: [{ name: "User" }],
+      routes: [{ name: "LoggedIn" }],
+    })
+  }
+
   return (
     <Screen
       preset="scroll"
       safeAreaEdges={["top", "bottom"]}
       contentContainerStyle={styles.screenContentContainer}
     >
-      {hasActiveEntitlement ? (
+      {navigation.canGoBack() && (
+        <Header
+          safeAreaEdges={[]}
+          LeftActionComponent={<BackButton onPress={navigation.goBack} />}
+        />
+      )}
+      {/* {hasActiveEntitlement ? ( */}
+      {false ? (
         <View
           style={{
             flex: 1,
@@ -144,25 +182,7 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
               marginTop: spacing.xl,
             }}
             preset="reversed"
-            onPress={async () => {
-              const userMutationResult = await updateUserMutation.mutateAsync({
-                data: {
-                  accountStatus: "ACTIVE",
-                },
-                where: {
-                  id: userId,
-                },
-              })
-              if (userMutationResult) {
-                authenticationStore.setAuthUser(userMutationResult)
-              }
-
-              navigation.reset({
-                index: 0,
-                // routes: [{ name: "User" }],
-                routes: [{ name: "LoggedIn" }],
-              })
-            }}
+            onPress={handleWithActive}
           >
             Go to Dashboard
           </Button>

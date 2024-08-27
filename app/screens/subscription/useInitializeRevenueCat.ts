@@ -1,6 +1,6 @@
-import { useUserEmail } from "app/models/hooks/useUserEmail"
+import { useUserId } from "app/models/hooks/useUserId"
 import { useEffect, useState } from "react"
-import Purchases, { CustomerInfo } from "react-native-purchases"
+import Purchases, { CustomerInfo, REFUND_REQUEST_STATUS } from "react-native-purchases"
 
 type UseInitializeRevenueCatReturn = {
   initialized: boolean
@@ -20,7 +20,7 @@ const hasKeys = () => {
 }
 
 export const useInitializeRevenueCat = (): UseInitializeRevenueCatReturn => {
-  const userEmail = useUserEmail()
+  const userId = useUserId()
   const [error, setError] = useState<Error | null>(null)
   const [initialized, setInitialized] = useState(false)
 
@@ -31,11 +31,11 @@ export const useInitializeRevenueCat = (): UseInitializeRevenueCatReturn => {
       throw new Error("Please provide RevenueCat entitlement ID")
     }
 
-    if (userEmail) {
-      console.log("Initializing RevenueCat User:", userEmail)
-      initializeRevenueCat(userEmail)
+    if (userId) {
+      console.log("Initializing RevenueCat User:", userId)
+      initializeRevenueCat(userId)
     }
-  }, [userEmail])
+  }, [userId])
 
   useEffect(() => {
     const customerInfoListener = (customerInfo: CustomerInfo) => {
@@ -54,30 +54,31 @@ export const useInitializeRevenueCat = (): UseInitializeRevenueCatReturn => {
     }
   }, [])
 
-  const initializeRevenueCat = async (userEmail: string): Promise<void> => {
-    await configureAppUserId(userEmail)
-    await clearCache()
-    await syncPurchases()
+  const initializeRevenueCat = async (userId: string): Promise<void> => {
+    configureAppUserId(userId)
+    // await clearCache()
     // const offerings = await Purchases.getOfferings()
     // console.log("OFFERINGS:", JSON.stringify(offerings, null, 2))
     // console.log(
     //   "OFFERINGS LENGTH:",
     //   offerings.all["Classic Garage Premium"].availablePackages.length,
     // )
-    await logIn(userEmail)
+    await logIn(userId)
+    // await syncPurchases()
     // await restorePurchases()
+    // await refundPurchase()
     const appUserID = await Purchases.getAppUserID()
     console.log("Initial appUserID:", appUserID)
   }
 
-  const configureAppUserId = async (userEmail: string): Promise<void> => {
+  const configureAppUserId = (userId: string): void => {
     try {
       const verificationMode = Purchases.ENTITLEMENT_VERIFICATION_MODE.INFORMATIONAL
 
       Purchases.configure({
         apiKey: APIKeys.apple,
         entitlementVerificationMode: verificationMode,
-        appUserID: userEmail,
+        appUserID: userId,
       })
 
       setInitialized(true)
@@ -88,9 +89,9 @@ export const useInitializeRevenueCat = (): UseInitializeRevenueCatReturn => {
     }
   }
 
-  const logIn = async (userEmail: string): Promise<void> => {
+  const logIn = async (userId: string): Promise<void> => {
     try {
-      const loginResult = await Purchases.logIn(userEmail)
+      const loginResult = await Purchases.logIn(userId)
       const customerInfo = loginResult.customerInfo
       console.log("CustomerInfo:\n", JSON.stringify(customerInfo, null, 2))
     } catch (error) {
@@ -98,15 +99,16 @@ export const useInitializeRevenueCat = (): UseInitializeRevenueCatReturn => {
     }
   }
 
-  const logOut = async (): Promise<CustomerInfo | null> => {
-    let customerInfo: CustomerInfo | null = null
+  const refundPurchase = async (): Promise<REFUND_REQUEST_STATUS> => {
     try {
-      customerInfo = await Purchases.logOut()
-      console.log("User logged out:\n", JSON.stringify(customerInfo, null, 2))
+      console.info("Refunding purchase")
+      const refundStatus = await Purchases.beginRefundRequestForActiveEntitlement()
+      console.info("Refund status:", refundStatus)
+      return refundStatus
     } catch (error) {
-      console.error("Error logging out:", error)
+      console.error("Error refunding purchase:", error)
+      return REFUND_REQUEST_STATUS.ERROR
     }
-    return customerInfo
   }
 
   const restorePurchases = async (): Promise<void> => {

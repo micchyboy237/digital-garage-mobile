@@ -61,8 +61,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   useEffect(() => {
     // Here is where you could fetch credentials from keychain or storage
     // and pre-fill the form fields.
-    setAuthEmail(authenticationStore.loginForm.email || "jethroestrada237@gmail.com")
-    setAuthPassword("asdasd!123")
+    setAuthEmail(authenticationStore.loginForm.email)
+    setAuthPassword("")
 
     // Return a "cleanup" function that React will run when the component unmounts
     return () => {
@@ -117,6 +117,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           where: { deviceFingerprint: result.session?.deviceFingerprint },
         })
         authenticationStore.setAuthSession(sessionMutationResult)
+
+        authenticationStore.setLoginFormEmail(authEmail)
+
         _props.navigation.navigate("LoggedIn")
       }
     }

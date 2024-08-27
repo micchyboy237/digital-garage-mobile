@@ -1,4 +1,4 @@
-import { useUserEmail } from "app/models/hooks/useUserEmail"
+import { useUserId } from "app/models/hooks/useUserId"
 import { PeriodUnit } from "app/screens/subscription/types"
 import { derivePeriodUnit } from "app/screens/subscription/utils"
 import { useEffect, useState } from "react"
@@ -52,7 +52,7 @@ const hasKeys = () => {
 }
 
 export const useRevenueCat = (): UseRevenueCatReturn => {
-  const userEmail = useUserEmail()
+  const userId = useUserId()
   const [packages, setPackages] = useState<PurchasesPackage[]>([])
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null)
   const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null)
@@ -69,13 +69,13 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       throw new Error("Please provide RevenueCat entitlement ID")
     }
 
-    if (userEmail) {
-      setupPurchases(userEmail)
+    if (userId) {
+      setupPurchases()
       fetchPackages()
     }
-  }, [userEmail])
+  }, [userId])
 
-  const setupPurchases = async (userEmail: string): Promise<void> => {
+  const setupPurchases = async (): Promise<void> => {
     const appUserID = await Purchases.getAppUserID()
     console.log("RevenueCat appUserID:", appUserID)
     const customerInfo = await Purchases.getCustomerInfo()
@@ -156,6 +156,15 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     } catch (error) {
       const appUserID = await Purchases.getAppUserID()
       console.error(`Purchase failed (${appUserID}):`, error)
+    }
+  }
+
+  const syncPurchases = async (): Promise<void> => {
+    try {
+      await Purchases.syncPurchases()
+      console.log("Purchases synced")
+    } catch (error: any) {
+      console.error("Error syncing purchases:", error)
     }
   }
 
