@@ -7,7 +7,8 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "simulator": true
+        "simulator": true,
+        "scheme": "ClassicGarage_TestStoreKit"
       }
     },
     "development:device": {
@@ -15,7 +16,8 @@
       "distribution": "internal",
       "ios": {
         "buildConfiguration": "Debug",
-        "simulator": false
+        "simulator": false,
+        "scheme": "ClassicGarage_TestStoreKit"
       }
     },
     "development": {
@@ -26,7 +28,8 @@
       },
       "ios": {
         "buildConfiguration": "Debug",
-        "simulator": false
+        "simulator": false,
+        "scheme": "ClassicGarage_TestStoreKit"
       }
     },
     "preview": {
