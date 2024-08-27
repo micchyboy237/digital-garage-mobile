@@ -23,7 +23,7 @@ const logoWithText = require("../../../../assets/app-icons/classic-garage.png")
 export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [isTermsAccepted, setIsTermsAccepted] = useState(true)
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false)
 
   const { authenticationStore } = useStores()
 
@@ -170,7 +170,7 @@ export const SignUpScreen: FC<SignUpScreenProps> = function SignUpScreen(_props)
 
       <View style={$body}>
         <View>
-          <AspectRatioImage source={logoWithText} width={207} style={$logo} />
+          <AspectRatioImage source={logoWithText} width={180} style={$logo} />
 
           <Text preset="subheading" style={$enterDetails}>
             Create your account
@@ -300,7 +300,7 @@ const $screenContentContainer: ViewStyle = {
 
 const $logo: ViewStyle = {
   alignSelf: "center",
-  marginBottom: spacing.sm,
+  marginBottom: spacing.lg,
 }
 
 const $enterDetails: TextStyle = {

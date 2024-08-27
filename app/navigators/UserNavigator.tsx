@@ -6,7 +6,7 @@ import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Icon } from "../components"
-import { DashboardScreen, DemoShowroomScreen, UserFeaturesScreen } from "../screens"
+import { DashboardScreen, UserFeaturesScreen, UserSettingsScreen } from "../screens"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 
@@ -138,8 +138,8 @@ export function UserNavigator() {
 
       <Tab.Screen
         name="UserSettings"
-        // component={UserSettingsScreen}
-        component={DemoShowroomScreen}
+        component={UserSettingsScreen}
+        // component={DemoShowroomScreen}
         options={{
           tabBarLabel: "Settings",
           tabBarActiveTintColor: colors.palette.primary400,

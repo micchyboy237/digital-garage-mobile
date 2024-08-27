@@ -8,6 +8,5 @@ export const useProfile = (): Profile | undefined => {
   const profile = trpc.admin.profile.findUniqueProfile.useQuery({
     where: { userId },
   })
-
   return profile.data
 }

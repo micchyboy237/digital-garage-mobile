@@ -6,12 +6,14 @@ import { AspectRatioImage } from "app/components/image/AspectRatioImage"
 import { Loading } from "app/components/Loading"
 import { useProfile } from "app/models/hooks/useProfile"
 import { useUser } from "app/models/hooks/useUser"
+import { generateUUID } from "app/screens/auth/utils"
 import { mockUser } from "app/screens/digital-garage/data/mock"
 import { AddVehicleModal } from "app/screens/digital-garage/screens/dashboard/AddVehicleModal"
 import { spacing } from "app/theme"
-import { VehicleOwnership } from "app/types"
+import { MediaFile, Vehicle, VehicleDetails, VehicleOwnership } from "app/types"
 import React, { useEffect, useState } from "react"
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { RectButton } from "react-native-gesture-handler"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Car } from "../MyCarsScreen/Car"
 
@@ -34,8 +36,41 @@ export function UserCarsScreen() {
     navigation.navigate("VehicleDetails", { vehicleOwnership })
   }
 
-  const handleAddVehicle = (newVehicle: VehicleOwnership) => {
-    console.log("newVehicle: ", newVehicle)
+  const handleAddVehicle = async (
+    make: string,
+    model: string,
+    details: Partial<VehicleDetails>,
+    displayPicture?: MediaFile,
+  ) => {
+    const newVehicleId = await generateUUID()
+    const newVehicle = {
+      id: newVehicleId,
+      make,
+      model,
+      registrationNumber: details.registrationNumber,
+      details,
+      ownershipHistory: [],
+      documents: [],
+      events: [],
+    } as Vehicle
+
+    const newVehicleOwnershipId = await generateUUID()
+    const newVehicleOwnership = {
+      id: newVehicleOwnershipId,
+      userId: user?.id,
+      vehicleId: newVehicle.id,
+      displayPicture,
+      isCurrentOwner: true,
+      isTemporaryOwner: false,
+      canEditDocuments: true,
+      user,
+      vehicle: newVehicle,
+      events: [],
+    } as VehicleOwnership
+
+    console.log("New Vehicle: ", JSON.stringify(newVehicleOwnership, null, 2))
+
+    setCars([...cars, newVehicleOwnership])
   }
 
   async function fetchCars() {
@@ -82,7 +117,10 @@ export function UserCarsScreen() {
           </View>
         </View>
 
-        <View style={styles.profileContainer}>
+        <RectButton
+          onPress={() => navigation.navigate("UserProfile")}
+          style={styles.profileContainer}
+        >
           <AutoImage
             style={styles.profilePicture}
             source={{
@@ -95,13 +133,10 @@ export function UserCarsScreen() {
             </Text>
             <Text style={styles.vehicleCount}>Vehicles: {vehicleCount}</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("UserProfile")}
-            style={styles.userProfileButton}
-          >
+          <View style={styles.userProfileIcon}>
             <Ionicons name="person-circle-outline" size={30} color="black" />
-          </TouchableOpacity>
-        </View>
+          </View>
+        </RectButton>
 
         {loading ? (
           <Loading />
@@ -148,7 +183,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     backgroundColor: "#f8f8f8",
     marginBottom: spacing.md,
-    borderRadius: 8,
   },
   profilePicture: {
     width: 60,
@@ -169,7 +203,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "gray",
   },
-  userProfileButton: {
+  userProfileIcon: {
     marginLeft: spacing.md,
   },
   carList: {

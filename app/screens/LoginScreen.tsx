@@ -202,7 +202,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   return (
     <Screen preset="scroll" contentContainerStyle={$screenContentContainer}>
       <View>
-        <AspectRatioImage source={logoWithText} width={207} style={$logo} />
+        <AspectRatioImage source={logoWithText} width={180} style={$logo} />
 
         <Text preset="subheading" style={$enterDetails}>
           Login to your account
@@ -340,7 +340,7 @@ const $screenContentContainer: ViewStyle = {
 
 const $logo: ViewStyle = {
   alignSelf: "center",
-  marginBottom: spacing.sm,
+  marginBottom: spacing.lg,
 }
 
 const $enterDetails: TextStyle = {

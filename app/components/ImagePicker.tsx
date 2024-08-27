@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons"
 import * as ExpoImagePicker from "expo-image-picker"
 import React, { useEffect, useState } from "react"
 import { Image, ImageStyle, StyleSheet, TouchableOpacity, View, ViewStyle } from "react-native"
-import { colors, spacing } from "../theme"
+import { colors } from "../theme"
 
 interface ImagePickerProps {
   onImageSelected: (uri: string) => void
@@ -10,6 +10,8 @@ interface ImagePickerProps {
   children?: React.ReactNode
   size?: number
   value?: string | null
+  icon?: keyof typeof Ionicons.glyphMap
+  fullWidth?: boolean // New prop for full width variant
 }
 
 export const ImagePicker: React.FC<ImagePickerProps> = ({
@@ -18,6 +20,8 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
   children,
   size = 100,
   value = null,
+  icon = "person",
+  fullWidth = false, // Default value for full width variant
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(value)
 
@@ -41,19 +45,42 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
   }
 
   return (
-    <View style={[styles.container, containerStyle]}>
-      <TouchableOpacity onPress={pickImage} style={styles.touchable}>
-        <View style={[styles.placeholder, { width: size, height: size, borderRadius: size / 2 }]}>
+    <View style={[styles.container, containerStyle, fullWidth && styles.fullWidthContainer]}>
+      <TouchableOpacity
+        onPress={pickImage}
+        style={[
+          styles.touchable,
+          fullWidth && { width: "100%" }, // Ensure touchable takes full width
+        ]}
+      >
+        <View
+          style={[
+            styles.placeholder,
+            { width: size, height: size, borderRadius: size / 2 },
+            fullWidth && { width: "100%", height: size, borderRadius: 0 }, // Ensure aspect ratio is preserved
+          ]}
+        >
           {selectedImage ? (
             <Image
               source={{ uri: selectedImage }}
-              style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]}
+              style={[
+                styles.image,
+                { width: size, height: size, borderRadius: size / 2 },
+                fullWidth && {
+                  width: "100%",
+                  height: size,
+                  // aspectRatio: 1,
+                  borderRadius: 0,
+                  resizeMode: "cover",
+                }, // Cover to ensure aspect ratio
+              ]}
             />
           ) : (
-            <Ionicons name="person" size={size / 2} color="white" />
+            <Ionicons name={icon} size={size / 2} color="white" />
           )}
         </View>
       </TouchableOpacity>
+
       {children}
     </View>
   )
@@ -62,19 +89,28 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    marginBottom: spacing.md,
+  } as ViewStyle,
+  fullWidthContainer: {
+    width: "100%",
   } as ViewStyle,
   touchable: {
     position: "relative",
   } as ViewStyle,
-  image: {
-    marginBottom: spacing.sm,
+  image: {} as ImageStyle,
+  fullWidthImage: {
+    width: "100%",
+    height: "auto",
+    borderRadius: 0,
   } as ImageStyle,
   placeholder: {
     backgroundColor: colors.textDim,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: spacing.sm,
+  } as ViewStyle,
+  fullWidthPlaceholder: {
+    width: "100%",
+    height: "auto",
+    borderRadius: 0,
   } as ViewStyle,
   icon: {
     position: "absolute",
