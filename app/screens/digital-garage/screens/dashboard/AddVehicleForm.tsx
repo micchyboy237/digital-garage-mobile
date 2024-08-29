@@ -1,10 +1,11 @@
+import { Ionicons } from "@expo/vector-icons"
 import { Button, Text, TextField } from "app/components"
 import { ImagePicker } from "app/components/ImagePicker"
 import { User } from "app/models/user/User"
 import { colors, spacing, typography } from "app/theme"
 import { MediaFile, MediaFileType, VehicleDetails } from "app/types"
 import React, { useEffect, useState } from "react"
-import { StyleSheet, View } from "react-native"
+import { StyleSheet, TouchableOpacity, View } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 
 export interface AddVehicleFormProps {
@@ -156,6 +157,12 @@ export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehic
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Add Vehicle</Text>
+        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          <Ionicons name="close" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={{ gap: spacing.sm }}>
           <TextField
@@ -259,8 +266,17 @@ export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehic
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            marginTop: spacing.sm,
+            padding: spacing.sm,
             gap: spacing.lg,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: -2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+            backgroundColor: colors.background,
           }}
         >
           <Button
@@ -290,8 +306,31 @@ export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehic
 const styles = StyleSheet.create({
   container: {
     maxHeight: "100%",
+    overflow: "hidden",
   },
-  contentContainer: {},
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    position: "absolute",
+    right: spacing.sm - 4,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  contentContainer: {
+    padding: spacing.md,
+  },
   error: {
     color: "red",
     marginBottom: 16,

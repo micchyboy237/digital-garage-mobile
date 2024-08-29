@@ -29,10 +29,10 @@ export function Car({ data, ...rest }: Props) {
       )}
       <View style={styles.details}>
         <Text style={styles.make}>
-          {data.vehicle.make} {data.vehicle.model}
+          {data.vehicle?.make} {data.vehicle?.model}
         </Text>
         <Text style={styles.model}>{data.vehicle?.details.colour}</Text>
-        <Text style={styles.description}>{data.vehicle.registrationNumber}</Text>
+        <Text style={styles.description}>{data.vehicle?.registrationNumber}</Text>
       </View>
     </RectButton>
   )

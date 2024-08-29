@@ -1,3 +1,8 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 enum AuthProvider {
   EMAIL_PASSWORD
   GOOGLE
@@ -29,38 +34,49 @@ enum PaymentStatus {
   FAILED
 }
 
+enum TransferStatus {
+  REQUESTED
+  ACCEPTED
+  REJECTED
+}
+
+enum FieldType {
+  STRING
+  NUMBER
+  DATE
+  BOOLEAN
+}
+
 model User {
   id                String          @id @default(uuid())
   email             String          @unique
   firebaseUid       String          @unique
-  isEmailVerified   Boolean         @default(false)  
-  profile           Profile?
-  subscription      Subscription?
+  isEmailVerified   Boolean         @default(false)
+  firstName         String?
+  lastName          String?
+  displayPicture    String?
+  location          String?
   accountStatus     AccountStatus   @default(ONBOARDING)
   sessions          Session[]
+  vehicles          Vehicle[]       
+  vehicleDocuments  VehicleDocument[]
+  vehiclePosts      VehiclePost[]
+  transfersReceived VehicleTransfer[] @relation("receivedTransfers")
+  transfersSent     VehicleTransfer[] @relation("sentTransfers")
+  subscription      Subscription?
+  vehicleOwnerships  VehicleOwnership[]
 }
 
 model Session {
-  id         String   @id @default(uuid())
-  token      String   @unique
-  expiresAt  DateTime
-  provider   AuthProvider
-  deviceFingerprint String   @unique
-  userId     String
-  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String          @id @default(uuid())
+  token             String          @unique
+  expiresAt         DateTime
+  provider          AuthProvider
+  deviceFingerprint String          @unique
+  userId            String
+  user              User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([deviceFingerprint, userId])
-}
-
-
-model Profile {
-  id                String          @id @default(uuid())
-  firstName         String?
-  lastName          String?
-  profilePicture    String?
-  location          String?
-  userId            String          @unique
-  user              User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
@@ -73,7 +89,7 @@ model Subscription {
   expiresAt         DateTime?
   userId            String              @unique
   user              User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  payments          Payment[]           // Relation to Payment model
+  payments          Payment[]           
 }
 
 model Payment {
@@ -84,5 +100,101 @@ model Payment {
   transactionId     String
   transactionDate   DateTime
   subscriptionId    String
-  subscription      Subscription?     @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  subscription      Subscription?   @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model Photo {
+  id             String         @id @default(uuid())
+  thumbnailUrl   String
+  imageUrl       String
+  vehiclePostId  String?
+  vehiclePost    VehiclePost?   @relation(fields: [vehiclePostId], references: [id], onDelete: Cascade)
+  vehicleOwnershipId String?    @unique
+  vehicleOwnership VehicleOwnership? @relation(fields: [vehicleOwnershipId], references: [id], onDelete: Cascade)
+}
+
+model Vehicle {
+  id                 String              @id @default(uuid())
+  brand              String
+  model              String
+  plateNumber        String              @unique
+  ownerId            String
+  owner              User?               @relation(fields: [ownerId], references: [id])
+  ownershipHistory   VehicleOwnership[]
+  transfers          VehicleTransfer[]
+}
+
+model VehicleOwnership {
+  id                String             @id @default(uuid())
+  userId            String
+  vehicleId         String
+  isCurrentOwner    Boolean            @default(true)
+  description       String?
+  displayPicture    Photo?
+  startDate         DateTime           @default(now())
+  endDate           DateTime?
+  user              User?              @relation(fields: [userId], references: [id])
+  vehicle           Vehicle?           @relation(fields: [vehicleId], references: [id])
+  posts             VehiclePost[]      
+  documents         VehicleDocument[]  
+  excludedPosts     String[]           // IDs of posts excluded for this owner
+  excludedPhotos    String[]           // IDs of photos excluded for this owner
+  excludedDocs      String[]           // IDs of documents excluded for this owner
+}
+
+model VehicleTransfer {
+  id             String          @id @default(uuid())
+  vehicleId      String
+  vehicle        Vehicle?        @relation(fields: [vehicleId], references: [id])
+  senderId       String
+  sender         User?           @relation("sentTransfers", fields: [senderId], references: [id])
+  recipientId    String
+  recipient      User?           @relation("receivedTransfers", fields: [recipientId], references: [id])
+  status         TransferStatus  @default(REQUESTED)
+  transferDate   DateTime        @default(now())
+  responseDate   DateTime?
+  reason         String?         // Transfer reason
+  notes          String?         // Additional transfer notes
+}
+
+model VehiclePost {
+  id             String         @id @default(uuid())
+  date           DateTime
+  title          String
+  description    String?
+  type           String?
+  postData       PostData?      @relation(fields: [type], references: [name])
+  photos         Photo[]
+  documents      VehicleDocument[]
+  createdById    String
+  createdBy      User?          @relation(fields: [createdById], references: [id])
+  vehicleOwnershipId String?
+  vehicleOwnership VehicleOwnership? @relation(fields: [vehicleOwnershipId], references: [id], onDelete: Cascade)
+}
+
+model VehicleDocument {
+  id             String         @id @default(uuid())
+  fileUrl        String
+  mimeType       String
+  createdById    String
+  createdBy      User?          @relation(fields: [createdById], references: [id])
+  vehiclePostId  String?
+  vehiclePost    VehiclePost?   @relation(fields: [vehiclePostId], references: [id], onDelete: Cascade)
+  vehicleOwnershipId String?
+  vehicleOwnership VehicleOwnership? @relation(fields: [vehicleOwnershipId], references: [id], onDelete: Cascade)
+}
+
+model PostData {
+  id                String          @id @default(uuid())
+  name              String          @unique
+  fields            PostField[]     
+  vehiclePosts      VehiclePost[]
+}
+
+model PostField {
+  id                String          @id @default(uuid())
+  label             String
+  fieldType         FieldType
+  postDataId    String
+  postData      PostData    @relation(fields: [postDataId], references: [id], onDelete: Cascade)
 }
