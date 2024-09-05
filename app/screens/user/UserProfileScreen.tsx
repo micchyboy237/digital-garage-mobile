@@ -4,45 +4,35 @@ import { Header, Screen, TextField } from "app/components"
 import { Button } from "app/components/Button"
 import { ImagePicker } from "app/components/ImagePicker"
 import SelectTextField from "app/components/SelectTextField"
+import { useStores } from "app/models"
 import { useProfile } from "app/models/hooks/useProfile"
-import { useLogout } from "app/screens/auth/useLogout"
+import { MediaFile, MediaFileModel } from "app/models/media-file/MediaFile"
+import { MediaFileType } from "app/models/media-file/MediaFileType"
+import { generateUUID } from "app/screens/auth/utils"
 import { UK_CITIES } from "app/screens/digital-garage/data/uk-cities"
+import { uploadProfile } from "app/screens/digital-garage/screens/dashboard/vehicle-form/api"
 import { BackButton } from "app/screens/user/components/BackButton"
-import { useProfileSubmit } from "app/screens/user/ProfileScreen/useProfileSubmit"
+import { trpc } from "app/services/api"
 import { colors, spacing } from "app/theme"
 import React, { useState } from "react"
-import { Alert, StyleSheet, View } from "react-native"
+import { StyleSheet, View } from "react-native"
 
 const allCities = UK_CITIES.map(({ city }) => city).sort()
 
 export const UserProfileScreen = () => {
-  const logout = useLogout()
   const profile = useProfile()
   const [firstName, setFirstName] = useState(profile?.firstName || "")
   const [lastName, setLastName] = useState(profile?.lastName || "")
   const [city, setCity] = useState(profile?.location || "")
   const [recentStates, setRecentStates] = useState<string[]>(allCities)
-  const [profilePicture, setProfilePicture] = useState<string | null>(
-    profile?.profilePicture || null,
+  const [profilePicture, setProfilePicture] = useState<MediaFile | null>(
+    profile?.displayPicture || null,
   )
   const navigation = useNavigation()
 
-  function handleLogout() {
-    Alert.alert(
-      "Are you sure?",
-      "Remember that if you log out, you will need internet to log in again.",
-      [
-        { text: "Cancel", onPress: () => {}, style: "cancel" },
-        {
-          text: "Log Out",
-          onPress: () => {
-            logout()
-          },
-          style: "default",
-        },
-      ],
-    )
-  }
+  console.log("PROFILE:", profile)
+
+  const { authenticationStore } = useStores()
 
   function handleSelectCity(selectedCity: string) {
     setCity(selectedCity)
@@ -52,7 +42,32 @@ export const UserProfileScreen = () => {
     })
   }
 
-  const handleSubmit = useProfileSubmit()
+  const updateProfileMutation = trpc.me.updateProfile.useMutation()
+
+  const handleSubmit = async () => {
+    // const profileMutationResult = await updateProfileMutation.mutateAsync({
+    //   firstName,
+    //   lastName,
+    //   location: city,
+    //   displayPicture: profilePicture,
+    // })
+    const formData = new FormData()
+    if (profilePicture) {
+      formData.append("displayPicture", {
+        uri: profilePicture.url,
+        name: profilePicture.fileName,
+        type: profilePicture.mimeType,
+      })
+    }
+    formData.append("firstName", firstName)
+    formData.append("lastName", lastName)
+    formData.append("location", city)
+
+    const updateProfileResult = await uploadProfile(formData)
+    console.log("updateProfileResult:\n", JSON.stringify(updateProfileResult, null, 2))
+    authenticationStore.setAuthUser(updateProfileResult)
+    navigation.goBack()
+  }
 
   return (
     <Screen
@@ -78,9 +93,20 @@ export const UserProfileScreen = () => {
           />
         )}
         <ImagePicker
-          size={180}
-          value={profilePicture}
-          onImageSelected={setProfilePicture}
+          size={150}
+          value={profilePicture?.url}
+          onImageSelected={async (file) => {
+            setProfilePicture(
+              MediaFileModel.create({
+                id: await generateUUID(),
+                url: file.uri,
+                thumbnailUrl: file.uri,
+                type: file.type === "image" ? MediaFileType.IMAGE : MediaFileType.VIDEO,
+                fileName: "profile-picture.jpg",
+                mimeType: file.mimeType || "image/jpeg",
+              }),
+            )
+          }}
           containerStyle={styles.photoContainer}
         >
           <View
@@ -142,14 +168,7 @@ export const UserProfileScreen = () => {
         <Button
           testID="submit-button"
           preset="reversed"
-          onPress={() => {
-            handleSubmit({
-              firstName,
-              lastName,
-              location: city,
-              profilePicture,
-            })
-          }}
+          onPress={handleSubmit}
           style={styles.submitButton}
           textStyle={styles.submitButtonText}
         >

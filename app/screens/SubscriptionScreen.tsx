@@ -1,31 +1,37 @@
 import { useStores } from "app/models"
 import { useUserId } from "app/models/hooks/useUserId"
 import { Payment } from "app/models/payment/Payment"
-import { Subscription } from "app/models/subscription/Subscription"
 import { SubscriptionOptionPlan } from "app/screens/subscription/types"
 import { useRevenueCat } from "app/screens/subscription/useRevenueCat"
 import { useSubscriptionOptions } from "app/screens/subscription/useSubscriptionOptions"
 import { BackButton } from "app/screens/user/components/BackButton"
 import { trpc } from "app/services/api"
-import React, { FC, useEffect, useState } from "react"
-import { Alert, Pressable, ScrollView, TextStyle, View, ViewStyle } from "react-native"
+import React, { FC, useState } from "react"
+import { Pressable, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Header, Screen, Text } from "../components"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing, typography } from "../theme"
 
 interface SubscriptionScreenProps extends AppStackScreenProps<"Subscription"> {}
 
-export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) => {
+export const SubscriptionScreen: FC<SubscriptionScreenProps> = (_props) => {
   const subscriptionOptions = useSubscriptionOptions()
-  const { packages, makePurchase, activeEntitlementInfo, hasActiveEntitlement } = useRevenueCat()
-  useEffect(() => {
-    if (hasActiveEntitlement) {
-      Alert.alert(
-        "Active Subscription",
-        activeEntitlementInfo?.store + "\n" + activeEntitlementInfo?.productIdentifier,
-      )
-    }
-  }, [activeEntitlementInfo])
+  const {
+    packages,
+    makePurchase,
+    activeEntitlementInfo,
+    hasActiveEntitlement,
+    activeSubscriptionPeriodUnit,
+    refundPurchase,
+  } = useRevenueCat()
+  // useEffect(() => {
+  //   if (hasActiveEntitlement) {
+  //     Alert.alert(
+  //       "Active Subscription",
+  //       activeEntitlementInfo?.store + "\n" + activeEntitlementInfo?.productIdentifier,
+  //     )
+  //   }
+  // }, [activeEntitlementInfo])
   const [selectedOption, setSelectedOption] = useState<string>("free")
 
   const { authenticationStore } = useStores()
@@ -37,6 +43,8 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
     : createSubscriptionMutation
   const createPaymentMutation = trpc.admin.payment.createOnePayment.useMutation()
   const updateUserMutation = trpc.admin.user.updateOneUser.useMutation()
+
+  const subscribeMutation = trpc.me.subscribe.useMutation()
 
   const handleSelectOption = (optionId: string) => setSelectedOption(optionId)
 
@@ -56,26 +64,18 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
           productIdentifier,
           payment: purchasePayment,
         } = purchaseResult
-        // TODO: Save purchase result to DB
-        const subscription = {
+        // console.log("Subscription object create:", subscriptionObj)
+        const subscriptionResult = await subscribeMutation.mutateAsync({
           plan: subscriptionPeriodUnit,
-          status: isActive ? "ACTIVE" : "INACTIVE",
+          status: isActive ? "ACTIVE" : "EXPIRED",
           startDate: new Date(originalPurchaseDate),
           expiresAt: expiresAt ? new Date(expiresAt) : undefined,
           productId: productIdentifier,
-          userId,
-        } as Subscription
-        // const subscriptionObj = SubscriptionModel.create(subscription)
-        console.log("Subscription object:", subscription)
-        // console.log("Subscription object create:", subscriptionObj)
-        const subscriptionResult = await createSubscriptionMutation.mutateAsync({
-          data: subscription,
-          // where: {
-          //   userId,
-          // },
         })
-        console.log("Subscription mutation result:", subscriptionResult)
-        authenticationStore.setAuthSubscription(subscriptionResult)
+        console.log("handleConfirmSelection result:\n", JSON.stringify(subscriptionResult, null, 2))
+        authenticationStore.setAuthUser(subscriptionResult)
+        _props.navigation.navigate("User")
+        return
 
         if (purchasePayment) {
           const payment = {
@@ -109,35 +109,23 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
     }
 
     if (selectedOption === "free") {
-      navigation.reset({
+      _props.navigation.reset({
         index: 0,
         // routes: [{ name: "User" }],
         routes: [{ name: "LoggedIn" }],
       })
     } else {
-      navigation.navigate("SubscriptionSuccess")
+      _props.navigation.reset({
+        index: 0,
+        routes: [{ name: "SubscriptionSuccess" }],
+      })
     }
   }
 
   const handleWithActive = async () => {
-    const subscription = activeEntitlementInfo
-
-    const userMutationResult = await updateUserMutation.mutateAsync({
-      data: {
-        accountStatus: "ACTIVE",
-      },
-      where: {
-        id: userId,
-      },
-    })
-    if (userMutationResult) {
-      authenticationStore.setAuthUser(userMutationResult)
-    }
-
-    navigation.reset({
+    _props.navigation.reset({
       index: 0,
-      // routes: [{ name: "User" }],
-      routes: [{ name: "LoggedIn" }],
+      routes: [{ name: "User" }],
     })
   }
 
@@ -147,14 +135,14 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
       safeAreaEdges={["top", "bottom"]}
       contentContainerStyle={styles.screenContentContainer}
     >
-      {navigation.canGoBack() && (
+      {_props.navigation.canGoBack() && (
         <Header
           safeAreaEdges={[]}
-          LeftActionComponent={<BackButton onPress={navigation.goBack} />}
+          LeftActionComponent={<BackButton onPress={_props.navigation.goBack} />}
         />
       )}
-      {/* {hasActiveEntitlement ? ( */}
-      {false ? (
+      {/* {false ? ( */}
+      {hasActiveEntitlement ? (
         <View
           style={{
             flex: 1,
@@ -186,6 +174,19 @@ export const SubscriptionScreen: FC<SubscriptionScreenProps> = ({ navigation }) 
           >
             Go to Dashboard
           </Button>
+
+          {/* <Button
+            testID="refund-button"
+            style={{
+              ...styles.confirmButton,
+              backgroundColor: colors.palette.primary400,
+              marginTop: spacing.xl,
+            }}
+            preset="reversed"
+            onPress={refundPurchase}
+          >
+            Request Refund
+          </Button> */}
         </View>
       ) : (
         <>

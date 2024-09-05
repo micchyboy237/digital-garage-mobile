@@ -1,4 +1,6 @@
-## Prompt
+## Prompt 1
+Given the below schema.prisma, write a seed file that will demonstrate user flows to populate all fields with the best real world samples
+
 enum AuthProvider {
   EMAIL_PASSWORD
   GOOGLE
@@ -194,10 +196,7 @@ enum FieldType {
   DATE
 }
 
-
-Given the above schema.prisma, write a seed file that will demonstrate user flows to populate all fields with the best real world samples
-
-## ChatGPT 4o Response
+## ChatGPT 4o Response 1
 To create a seed file for your Prisma schema, we can populate your database with realistic data that demonstrates user flows, such as user registration, vehicle ownership, subscription management, payments, and vehicle transfers. Below is a seed file written in TypeScript that you can use with Prisma's seed command. This script will create sample data, including users, profiles, sessions, subscriptions, payments, vehicles, and more.
 
 ### Seed File (`prisma/seed.ts`)

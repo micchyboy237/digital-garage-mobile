@@ -21,9 +21,9 @@ export enum DocumentType {
 }
 
 export enum MediaFileType {
-  photo = "photo",
-  video = "video",
-  document = "document",
+  photo = "IMAGE",
+  video = "VIDEO",
+  document = "DOCUMENT",
 }
 
 export enum UserRole {

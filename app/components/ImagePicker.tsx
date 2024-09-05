@@ -1,11 +1,12 @@
 import { Ionicons } from "@expo/vector-icons"
+import { pickImage } from "app/utils/filePicker"
 import * as ExpoImagePicker from "expo-image-picker"
 import React, { useEffect, useState } from "react"
 import { Image, ImageStyle, StyleSheet, TouchableOpacity, View, ViewStyle } from "react-native"
 import { colors } from "../theme"
 
 interface ImagePickerProps {
-  onImageSelected: (uri: string) => void
+  onImageSelected: (file: ExpoImagePicker.ImagePickerAsset) => void
   containerStyle?: ViewStyle
   children?: React.ReactNode
   size?: number
@@ -29,27 +30,22 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
     setSelectedImage(value)
   }, [value])
 
-  const pickImage = async () => {
-    const result = await ExpoImagePicker.launchImageLibraryAsync({
-      mediaTypes: ExpoImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: false,
-      allowsEditing: true,
-      quality: 1,
-    })
+  const handlePickImage = async () => {
+    const fileAsset = await pickImage()
 
-    if (!result.canceled) {
-      const uri = result.assets[0].uri
-      setSelectedImage(uri)
-      onImageSelected(uri)
+    if (fileAsset) {
+      setSelectedImage(fileAsset.uri)
+      onImageSelected(fileAsset)
     }
   }
 
   return (
-    <View style={[styles.container, containerStyle, fullWidth && styles.fullWidthContainer]}>
-      <TouchableOpacity
-        onPress={pickImage}
+    <TouchableOpacity
+      onPress={handlePickImage}
+      style={[styles.container, containerStyle, fullWidth && styles.fullWidthContainer]}
+    >
+      <View
         style={[
-          styles.touchable,
           fullWidth && { width: "100%" }, // Ensure touchable takes full width
         ]}
       >
@@ -79,10 +75,10 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
             <Ionicons name={icon} size={size / 2} color="white" />
           )}
         </View>
-      </TouchableOpacity>
+      </View>
 
       {children}
-    </View>
+    </TouchableOpacity>
   )
 }
 

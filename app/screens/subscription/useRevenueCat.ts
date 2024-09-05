@@ -1,4 +1,3 @@
-import { useUserId } from "app/models/hooks/useUserId"
 import { PeriodUnit } from "app/screens/subscription/types"
 import { derivePeriodUnit } from "app/screens/subscription/utils"
 import { useEffect, useState } from "react"
@@ -8,6 +7,7 @@ import Purchases, {
   PurchasesEntitlementInfo,
   PurchasesOffering,
   PurchasesPackage,
+  PurchasesStoreProduct,
   REFUND_REQUEST_STATUS,
 } from "react-native-purchases"
 
@@ -52,15 +52,20 @@ const hasKeys = () => {
 }
 
 export const useRevenueCat = (): UseRevenueCatReturn => {
-  const userId = useUserId()
+  const [offerings, setOfferings] = useState<PurchasesOffering | null>(null)
   const [packages, setPackages] = useState<PurchasesPackage[]>([])
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null)
   const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null)
+  const [activeProduct, setActiveProduct] = useState<PurchasesStoreProduct | null>(null)
   const activeEntitlementInfo = customerInfo?.entitlements.active[entitlementId] || null
   const hasActiveEntitlement = !!activeEntitlementInfo?.isActive
+  const activeSubscriptionPeriodUnit = activeProduct?.subscriptionPeriod
+    ? derivePeriodUnit(activeProduct.subscriptionPeriod)
+    : null
 
   console.log("activeEntitlementInfo:\n", JSON.stringify(activeEntitlementInfo, null, 2))
   console.log("hasActiveEntitlement:", hasActiveEntitlement)
+  console.log("activeSubscriptionPeriodUnit:", activeSubscriptionPeriodUnit)
 
   useEffect(() => {
     if (!hasKeys()) {
@@ -69,16 +74,20 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       throw new Error("Please provide RevenueCat entitlement ID")
     }
 
-    if (userId) {
-      setupPurchases()
-      fetchPackages()
-    }
-  }, [userId])
+    setupPurchases()
+    fetchPackages()
+  }, [])
 
   const setupPurchases = async (): Promise<void> => {
     const appUserID = await Purchases.getAppUserID()
     console.log("RevenueCat appUserID:", appUserID)
     const customerInfo = await Purchases.getCustomerInfo()
+    const activeEntitlementInfo = customerInfo?.entitlements.active[entitlementId] || null
+    const hasActiveEntitlement = !!activeEntitlementInfo?.isActive
+    if (hasActiveEntitlement) {
+      const activeProducts = await Purchases.getProducts([activeEntitlementInfo.productIdentifier])
+      setActiveProduct(activeProducts[0])
+    }
     setCustomerInfo(customerInfo)
     await fetchPackages()
   }
@@ -89,6 +98,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       const allOfferingsKeys = Object.keys(offerings.all)
       const availablePackages = offerings.all[allOfferingsKeys[0]].availablePackages
       // availablePackages = await updateWithPromos(availablePackages)
+      // setOfferings(offerings)
       setPackages(availablePackages)
       if (offerings.current) {
         setCurrentOffering(offerings.current)
@@ -128,12 +138,17 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
       if (entitlementId) {
         const entitlement = purchasePackageResult.customerInfo.entitlements.active[entitlementId]
         const products = await Purchases.getProducts([entitlement.productIdentifier])
+        console.log("PRODUCTS:\n", JSON.stringify(products, null, 2))
         const product = products[0]
         const subscriptionPeriodUnit = product.subscriptionPeriod
           ? derivePeriodUnit(product.subscriptionPeriod)
           : null
         console.info("User has access to premium features")
         const { transaction, ...purchaseResult } = purchasePackageResult
+        console.log("Subscription period unit:", {
+          productSubscriptionPeriod: product.subscriptionPeriod,
+          subscriptionPeriodUnit,
+        })
         // Grant access to premium features
         return {
           ...purchaseResult,
@@ -196,6 +211,7 @@ export const useRevenueCat = (): UseRevenueCatReturn => {
     currentOffering,
     hasActiveEntitlement,
     activeEntitlementInfo,
+    activeSubscriptionPeriodUnit,
     fetchPackages,
     makePurchase,
     refundPurchase,

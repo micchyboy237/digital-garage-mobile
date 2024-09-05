@@ -17,17 +17,17 @@ export const generateUUID = async (): Promise<string> => {
     .join("")}-${hexArray.slice(8, 10).join("")}-${hexArray.slice(10, 16).join("")}`
 }
 
-export const generateFingerprint = async (userId?: string): Promise<string | void> => {
-  if (!userId) {
-    throw new Error("userId is required to generate a fingerprint")
+export const generateFingerprint = async (email?: string): Promise<string | void> => {
+  if (!email) {
+    throw new Error("email is required to generate a fingerprint")
   }
 
   try {
     // Gather device-specific data
     const deviceInfo = `${Device.osBuildId}-${Device.modelName}-${Device.osVersion}`
 
-    // Combine userId and deviceInfo
-    const dataToHash = `${userId}-${deviceInfo}`
+    // Combine email and deviceInfo
+    const dataToHash = `${email}-${deviceInfo}`
 
     // Generate a secure hash using expo-crypto
     const fingerprintHash = await Crypto.digestStringAsync(

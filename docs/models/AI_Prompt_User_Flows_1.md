@@ -1,3 +1,63 @@
+## Prompt
+Given the following schema, please add more to the existing list of real world user stories that is supported by this schema.
+
+Current User Stories:
+
+Authentication
+- Can sign up for an account using my email and password, apple, or google.
+- Can login to my account using my email and password, apple, or google with auto account creation if it doesn't exist for apple or google.
+- Can request a password reset email if I forgot my password for email/password authentication.
+
+Onboarding
+- Can update my profile information.
+- Can upload a profile picture.
+- Can view my profile information.
+
+Subscription
+- Can subscribe to a subscription plan.
+- Can view my subscription details.
+- Can cancel my subscription.
+
+Vehicle Management
+- Can search for a vehicle by registration number with the option to add it to my account.
+- Search results should prepopulate with vehicle details if available.
+- Can view / edit vehicle details
+
+Vehicle Posts
+- Can create a post for a vehicle I own.
+- Can view posts for a vehicle I own.
+- Can delete a post for a vehicle I own.
+- Can categorize a post as a gallery or history post.
+- Can only add photos or videos to a gallery post.
+- Can only add pdf documents to a history post.
+
+Vehicle Transfer
+- Can transfer ownership of a vehicle to another user.
+- Can view vehicles that have been requested for transfer to me by another user.
+- Can accept or reject a vehicle transfer request.
+- Can filter out files of certain types from being transferred.
+
+Vehicle Ownership
+- Can only view current and past vehicles I have owned.
+- New owners can set a display photo for the vehicle.
+- New owners have their own vehicle details and posts.
+- New owners can only update their own vehicle details and posts.
+
+Vehicle Gallery
+- All previous owner posts with category gallery are displayed in the gallery.
+- New owners cannot update / delete previous owner posts.
+- New owners can only update / delete their own created posts.
+- New owners can only add / delete photos or videos to their own posts.
+
+Vehicle History
+- All previous owner posts with category history are displayed in the history.
+- New owners cannot update / delete previous owner posts.
+- New owners can only update / delete their own created posts.
+- New owners can only add / delete pdf documents to their own posts.
+
+
+
+```schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -265,3 +325,81 @@ model VehiclePost {
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
 }
+
+```
+
+## Response
+Here are some additional user stories that are supported by the schema provided:
+
+### Authentication
+
+- **As a user, I can** update my password after logging in.
+- **As a user, I can** receive an email notification when my account password is changed.
+
+### Onboarding
+
+- **As a user, I can** complete the onboarding process by selecting a subscription plan to access the application features.
+- **As a user, I can** choose to skip adding profile information during onboarding and add it later.
+
+### Subscription Management
+
+- **As a user, I can** upgrade or downgrade my subscription plan.
+- **As a user, I can** view the history of my subscription changes.
+- **As a user, I can** receive an email notification when my subscription is about to expire.
+- **As a user, I can** manage my payment methods for subscription renewal.
+
+### Payment Management
+
+- **As a user, I can** view the payment history for my subscription.
+- **As a user, I can** request a refund for a subscription payment.
+- **As a user, I can** add a new payment method for my subscription.
+- **As a user, I can** receive a receipt for my subscription payments via email.
+
+### Vehicle Management
+
+- **As a user, I can** request verification for the details of a vehicle.
+- **As a user, I can** add custom notes or tags to my vehicles for personal reference.
+- **As a user, I can** link a vehicle to its documents, such as registration and insurance papers.
+
+### Vehicle Details Management
+
+- **As a user, I can** update specific details of a vehicle, such as MOT status or tax status, if I am the current owner.
+- **As a user, I can** upload documents related to the vehicle's maintenance history.
+
+### Vehicle Transfer
+
+- **As a user, I can** provide a reason when requesting a vehicle transfer.
+- **As a user, I can** track the status of my vehicle transfer requests.
+
+### Vehicle Ownership
+
+- **As a user, I can** view the ownership history of my vehicle.
+- **As a user, I can** share ownership information with potential buyers.
+
+### Vehicle Gallery
+
+- **As a user, I can** organize photos and videos in the vehicle gallery by date or type.
+- **As a user, I can** add comments or captions to photos and videos in the gallery.
+- **As a user, I can** download photos and videos from the gallery to my device.
+
+### Vehicle History
+
+- **As a user, I can** upload and categorize service invoices or repair records as part of the vehicle history.
+- **As a user, I can** generate a report of the vehicle's history records.
+
+### Notifications
+
+- **As a user, I can** receive notifications when a new post is added to a vehicle I own.
+- **As a user, I can** configure notification settings to receive alerts about vehicle transfers, subscription changes, or new posts.
+
+### Post Management
+
+- **As a user, I can** update the title and description of my posts.
+- **As a user, I can** categorize posts under custom labels for better organization.
+
+### Media Management
+
+- **As a user, I can** view a list of all media files (images, videos, documents) related to my vehicles.
+- **As a user, I can** preview images, videos, or documents before downloading them.
+
+These additional user stories further leverage the relationships and functionalities supported by the schema, providing more comprehensive user experiences for managing vehicles, subscriptions, payments, and media within the application.

@@ -30,8 +30,6 @@ export function UserCarsScreen() {
   const profile = useProfile()
   const vehicleCount = cars.length
 
-  console.log("Profile: ", profile)
-
   const handleVehiclePress = (vehicleOwnership: VehicleOwnership) => {
     navigation.navigate("VehicleDetails", { vehicleOwnership })
   }
@@ -124,7 +122,7 @@ export function UserCarsScreen() {
           <AutoImage
             style={styles.profilePicture}
             source={{
-              uri: profile?.profilePicture,
+              uri: profile?.displayPicture?.thumbnailUrl,
             }}
           />
           <View style={styles.profileDetails}>

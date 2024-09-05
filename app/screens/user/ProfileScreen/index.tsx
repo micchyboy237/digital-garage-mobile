@@ -4,14 +4,18 @@ import { Screen, TextField } from "app/components"
 import { Button } from "app/components/Button"
 import { ImagePicker } from "app/components/ImagePicker"
 import SelectTextField from "app/components/SelectTextField"
+import { useStores } from "app/models"
 import { useProfile } from "app/models/hooks/useProfile"
 import { useUser } from "app/models/hooks/useUser"
+import { MediaFile, MediaFileModel } from "app/models/media-file/MediaFile"
+import { MediaFileType } from "app/models/media-file/MediaFileType"
 import { useLogout } from "app/screens/auth/useLogout"
+import { generateUUID } from "app/screens/auth/utils"
 import { UK_CITIES } from "app/screens/digital-garage/data/uk-cities"
-import { useProfileSubmit } from "app/screens/user/ProfileScreen/useProfileSubmit"
+import { trpc } from "app/services/api"
 import { colors, spacing, typography } from "app/theme"
 import React, { useState } from "react"
-import { Alert, StyleSheet, View } from "react-native"
+import { StyleSheet, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const allCities = UK_CITIES.map(({ city }) => city).sort()
@@ -24,27 +28,12 @@ export function ProfileScreen() {
   const [lastName, setLastName] = useState(profile?.lastName || "")
   const [city, setCity] = useState(profile?.location || "")
   const [recentStates, setRecentStates] = useState<string[]>(allCities)
-  const [profilePicture, setProfilePicture] = useState<string | null>(
-    profile?.profilePicture || null,
+  const [profilePicture, setProfilePicture] = useState<MediaFile | null>(
+    profile?.displayPicture || null,
   )
   const navigation = useNavigation()
 
-  function handleLogout() {
-    Alert.alert(
-      "Are you sure?",
-      "Remember that if you log out, you will need internet to log in again.",
-      [
-        { text: "Cancel", onPress: () => {}, style: "cancel" },
-        {
-          text: "Log Out",
-          onPress: () => {
-            logout()
-          },
-          style: "default",
-        },
-      ],
-    )
-  }
+  const { authenticationStore } = useStores()
 
   function handleSelectCity(selectedCity: string) {
     setCity(selectedCity)
@@ -54,7 +43,19 @@ export function ProfileScreen() {
     })
   }
 
-  const { handleSubmit } = useProfileSubmit()
+  const updateProfileMutation = trpc.me.updateProfile.useMutation()
+
+  const handleSubmit = async () => {
+    const profileMutationResult = await updateProfileMutation.mutateAsync({
+      firstName,
+      lastName,
+      location: city,
+      displayPicture: profilePicture,
+    })
+    console.log("profileMutationResult:\n", JSON.stringify(profileMutationResult, null, 2))
+    authenticationStore.setAuthUser(profileMutationResult)
+    navigation.goBack()
+  }
 
   const insets = useSafeAreaInsets()
 
@@ -63,7 +64,19 @@ export function ProfileScreen() {
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <ImagePicker
           size={180}
-          onImageSelected={setProfilePicture}
+          value={profilePicture?.url}
+          onImageSelected={async (file) => {
+            setProfilePicture(
+              MediaFileModel.create({
+                id: await generateUUID(),
+                url: file.uri,
+                thumbnailUrl: file.uri,
+                type: file.type === "image" ? MediaFileType.IMAGE : MediaFileType.VIDEO,
+                fileName: file.fileName || "photo.jpg",
+                mimeType: file.type || "image/jpeg",
+              }),
+            )
+          }}
           containerStyle={styles.photoContainer}
         >
           <View

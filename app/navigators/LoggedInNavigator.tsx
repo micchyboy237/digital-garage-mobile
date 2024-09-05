@@ -32,7 +32,7 @@ export const LoggedInNavigator = () => {
   const { isReady } = useLoggedInBootstrap()
   const initialRoute = useGetInitialLoggedInRoute()
 
-  if (!isReady) {
+  if (!isReady || !initialRoute) {
     return null
   }
 

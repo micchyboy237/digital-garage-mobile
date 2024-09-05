@@ -49,7 +49,8 @@
     "build:ios:device": "eas build --profile development:device --platform ios",
     "build:ios:prod": "eas build --profile production --platform ios",
     "submit:ios": "eas submit --profile production --platform ios",
-    "submit:android": "eas submit --profile production --platform android"
+    "submit:android": "eas submit --profile production --platform android",
+    "ngrok:serve": "ngrok http 3000 --domain=brief-leading-polliwog.ngrok-free.app"
   },
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.2.2",
@@ -83,6 +84,7 @@
     "expo-crypto": "~13.0.2",
     "expo-dev-client": "~4.0.14",
     "expo-device": "~6.0.2",
+    "expo-document-picker": "~12.0.2",
     "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.5",
     "expo-image": "~1.12.15",

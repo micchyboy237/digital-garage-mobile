@@ -15,35 +15,21 @@ export async function setupRootStore(rootStore: RootStore) {
   let restoredState: RootStoreSnapshot | undefined | null
 
   try {
-    // Load the last known state from AsyncStorage
-    const storedState = await storage.load(ROOT_STATE_STORAGE_KEY)
-    if (storedState) {
-      restoredState = JSON.parse(storedState) as RootStoreSnapshot
-
-      // Modify the snapshot to ensure references contain only IDs
-      if (restoredState && restoredState.authenticationStore?.authUser) {
-        restoredState.authenticationStore.authUser = restoredState.authenticationStore.authUser
-      }
-
-      if (restoredState && restoredState.authenticationStore?.authSession) {
-        restoredState.authenticationStore.authSession =
-          restoredState.authenticationStore.authSession
-      }
-
-      // Apply the modified snapshot
-      applySnapshot(rootStore, restoredState)
-    }
+    // load the last known state from AsyncStorage
+    restoredState = ((await storage.load(ROOT_STATE_STORAGE_KEY)) ?? {}) as RootStoreSnapshot
+    applySnapshot(rootStore, restoredState)
   } catch (e) {
+    // if there's any problems loading, then inform the dev what happened
     if (__DEV__) {
-      console.error("Failed to load state:", e)
+      if (e instanceof Error) console.error(e.message)
     }
   }
 
+  // stop tracking state changes if we've already setup
   if (_disposer) _disposer()
 
-  _disposer = onSnapshot(rootStore, (snapshot) => {
-    storage.save(ROOT_STATE_STORAGE_KEY, JSON.stringify(snapshot))
-  })
+  // track changes & save to AsyncStorage
+  _disposer = onSnapshot(rootStore, (snapshot) => storage.save(ROOT_STATE_STORAGE_KEY, snapshot))
 
   const unsubscribe = () => {
     _disposer?.()

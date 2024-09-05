@@ -1,7 +1,7 @@
 import {
   AddVehicleForm,
   AddVehicleFormProps,
-} from "app/screens/digital-garage/screens/dashboard/AddVehicleForm"
+} from "app/screens/digital-garage/screens/dashboard/vehicle-form/AddVehicleForm"
 import React from "react"
 import { Modal, StyleSheet, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"

@@ -10,8 +10,7 @@ export const SubscriptionSuccessScreen: FC<SubscriptionSuccessScreenProps> = ({ 
   function handleSubmit() {
     navigation.reset({
       index: 0,
-      // routes: [{ name: "User" }],
-      routes: [{ name: "LoggedIn" }],
+      routes: [{ name: "User" }],
     })
   }
 

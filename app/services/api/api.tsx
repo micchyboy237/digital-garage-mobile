@@ -1,13 +1,5 @@
-/**
- * This Api class lets you define an API endpoint and methods to request
- * data and process it.
- *
- * See the [Backend API Integration](https://docs.infinite.red/ignite-cli/boilerplate/app/services/#backend-api-integration)
- * documentation for more details.
- */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { httpBatchLink } from "@trpc/client"
-import { createTRPCQueryUtils, createTRPCReact } from "@trpc/react-query"
+import { createTRPCQueryUtils, createTRPCReact, httpLink } from "@trpc/react-query"
 import {
   ApiResponse, // @demo remove-current-line
   ApisauceInstance,
@@ -24,6 +16,9 @@ import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem" // @demo 
 
 // import type { AppRouter } from "@acme/api";
 import { rootStore, RootStore } from "app/models"
+import { navigationRef } from "app/navigators"
+import { trpcLink } from "app/services/api/trpcLink"
+import * as storage from "app/utils/storage"
 import SuperJSON from "superjson"
 import type { AppRouter } from "../../../../digital-garage/packages/api"
 /**
@@ -103,10 +98,35 @@ export const trpc = createTRPCReact<AppRouter>()
 
 export const queryClient = new QueryClient()
 
+const customLink = trpcLink({
+  onQuerySuccess: ({ op, result, elapsedMs }) => {
+    console.log(`Query Success!\nPath: "${op.path}"\nTime taken: ${elapsedMs}ms`)
+    console.log("Data:", JSON.stringify(result, null, 2))
+  },
+  onMutationSuccess: ({ op, result, elapsedMs }) => {
+    console.log(`Mutation Success!\nPath: "${op.path}"\nTime taken: ${elapsedMs}ms`)
+    console.log("Data:", JSON.stringify(result, null, 2))
+  },
+  onError: ({ op, result, elapsedMs }) => {
+    console.error(`Error occurred!\nPath: "${op.path}"\nTime taken: ${elapsedMs}ms`)
+    console.error(JSON.stringify(result, null, 2))
+    if (result.code === "UNAUTHORIZED") {
+      console.log("Logging out due to unauthorized request")
+      storage.clear()
+      navigationRef.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      })
+    }
+  },
+})
+
 export const createTrpcClient = (rootStore: RootStore) =>
   trpc.createClient({
     links: [
-      httpBatchLink({
+      // loggerLink(),
+      customLink,
+      httpLink({
         transformer: SuperJSON,
         url: Config.API_TRPC_URL,
         headers: async () => {

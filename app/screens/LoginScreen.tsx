@@ -46,6 +46,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const sessionUpdateMutation = trpc.admin.session.updateOneSession.useMutation()
   const profileCreateMutation = trpc.admin.profile.createOneProfile.useMutation()
 
+  const loginOrRegister = trpc.auth.loginOrRegister.useMutation()
+
   const { sendVerificationEmail } = useAuthActions()
 
   // useEffect(() => {
@@ -75,6 +77,22 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const handleLoginEmailPw = async () => {
     const result = await emailpwAuth.signInAsync(authEmail, authPassword)
+    console.log(`handleLoginEmailPw (Email/PW):\n`, JSON.stringify(result, null, 2))
+    const { account, user, ...session } = await loginOrRegister.mutateAsync({
+      email: result.user?.email,
+      provider: result.session?.provider,
+      deviceFingerprint: result.session?.deviceFingerprint,
+      token: result.session?.token,
+      expiresAt: result.session?.expiresAt,
+      firebaseUid: result.user?.firebaseUid,
+      isEmailVerified: result.user?.isEmailVerified,
+    })
+    console.log("handleLoginEmailPw result:\n", JSON.stringify({ account, user, session }, null, 2))
+    authenticationStore.setAuthAccount(account)
+    authenticationStore.setAuthUser(user)
+    authenticationStore.setAuthSession(session)
+    _props.navigation.navigate("LoggedIn")
+    return
 
     console.log("handleLoginEmailPw:", result)
 
@@ -128,6 +146,24 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const handleLoginSocial = (provider: "apple" | "google") => async () => {
     const result =
       provider === "apple" ? await appleAuth.signInAsync() : await googleAuth.signInAsync()
+    console.log(`handleLoginSocial (${provider}):\n`, JSON.stringify(result, null, 2))
+    const { account, user, ...session } = await loginOrRegister.mutateAsync({
+      email: result.user?.email,
+      provider: result.session?.provider,
+      deviceFingerprint: result.session?.deviceFingerprint,
+      token: result.session?.token,
+      expiresAt: result.session?.expiresAt,
+      firebaseUid: result.user?.firebaseUid,
+      isEmailVerified: result.user?.isEmailVerified,
+      firstName: result.profile?.firstName,
+      lastName: result.profile?.lastName,
+    })
+    console.log("handleLoginSocial result:\n", JSON.stringify({ account, user, session }, null, 2))
+    authenticationStore.setAuthAccount(account)
+    authenticationStore.setAuthUser(user)
+    authenticationStore.setAuthSession(session)
+    _props.navigation.navigate("LoggedIn")
+    return
     const existingUser = await fetchExistingUser(result.user.email)
     // Check if user exists by firebaseUid
     let userMutationResult

@@ -1,41 +1,45 @@
 import { Ionicons } from "@expo/vector-icons"
 import { Button, Text, TextField } from "app/components"
 import { ImagePicker } from "app/components/ImagePicker"
+import { MediaFile, MediaFileModel } from "app/models/media-file/MediaFile"
+import { MediaFileType } from "app/models/media-file/MediaFileType"
 import { User } from "app/models/user/User"
+import { VehicleDetails } from "app/models/vehicle-details/VehicleDetails"
+import { generateUUID } from "app/screens/auth/utils"
+import { uploadVehicleDetails } from "app/screens/digital-garage/screens/dashboard/vehicle-form/api"
+import { trpc } from "app/services/api"
 import { colors, spacing, typography } from "app/theme"
-import { MediaFile, MediaFileType, VehicleDetails } from "app/types"
+import { VehicleOwnership } from "app/types"
 import React, { useEffect, useState } from "react"
 import { StyleSheet, TouchableOpacity, View } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 
 export interface AddVehicleFormProps {
   user: User
-  onAddVehicle: (
-    make: string,
-    model: string,
-    details: Partial<VehicleDetails>,
-    displayPicture?: MediaFile,
-  ) => void
+  onAddVehicle: (vehicle: VehicleOwnership) => void
   onClose: () => void
 }
 
 type VehicleData =
   | (Partial<VehicleDetails> & {
+      displayPhoto: MediaFile | null
       make: string
       model: string
     })
   | null
 
-type ApiResponseDvla = Partial<VehicleDetails> & {
-  make: string
-}
+type ApiResponseDvla = Omit<VehicleDetails, "id" | "model" | "createdAt" | "updatedAt">
 
 export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehicle, onClose }) => {
   const [registrationNumber, setRegistrationNumber] = useState("")
-  const [vehicleData, setVehicleData] = useState<VehicleData>(null)
+  const [vehicleData, setVehicleData] = useState<VehicleData>({
+    displayPhoto: null,
+    make: "",
+    model: "",
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [displayPicture, setDisplayPicture] = useState<MediaFile | null>(null)
+  const [displayPhoto, setDisplayPhoto] = useState<MediaFile | null>(null)
 
   // Individual states for each text field
   const [make, setMake] = useState("")
@@ -55,6 +59,11 @@ export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehic
   const [dateOfLastV5CIssued, setDateOfLastV5CIssued] = useState("")
   const [wheelplan, setWheelplan] = useState("")
   const [monthOfFirstRegistration, setMonthOfFirstRegistration] = useState("")
+  const [artEndDate, setArtEndDate] = useState("")
+  const [revenueWeight, setRevenueWeight] = useState("")
+  const [realDrivingEmissions, setRealDrivingEmissions] = useState("")
+
+  const uploadVehicleDetailsMutation = trpc.uploadRouter.uploadVehicleDetails.useMutation()
 
   useEffect(() => {
     if (vehicleData) {
@@ -75,6 +84,9 @@ export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehic
       setDateOfLastV5CIssued(vehicleData.dateOfLastV5CIssued?.toDateString() || "")
       setWheelplan(vehicleData.wheelplan || "")
       setMonthOfFirstRegistration(vehicleData.monthOfFirstRegistration?.toDateString() || "")
+      setArtEndDate(vehicleData.artEndDate?.toDateString() || "")
+      setRevenueWeight(vehicleData.revenueWeight?.toString() || "")
+      setRealDrivingEmissions(vehicleData.realDrivingEmissions || "")
     }
   }, [vehicleData])
 
@@ -97,6 +109,7 @@ export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehic
       const data = (await response.json()) as ApiResponseDvla
       if (response.ok) {
         setVehicleData({
+          displayPhoto,
           model: "",
           make: data.make,
           registrationNumber: data.registrationNumber,
@@ -116,43 +129,75 @@ export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehic
           wheelplan: data.wheelplan,
           monthOfFirstRegistration:
             data.monthOfFirstRegistration && new Date(data.monthOfFirstRegistration),
+          artEndDate: data.artEndDate && new Date(data.artEndDate),
+          revenueWeight: data.revenueWeight,
+          realDrivingEmissions: data.realDrivingEmissions,
         })
       } else {
-        setError(data.message || "Failed to fetch vehicle data")
+        console.error("NOT OK RESPONSE:\n", data)
+        setError("Failed to fetch vehicle data")
       }
     } catch (err) {
+      console.error("ERROR FETCHING DATA:\n", err)
       setError(err.message || "Failed to fetch vehicle data")
     } finally {
       setLoading(false)
     }
   }
 
-  const handleAddVehicle = () => {
-    onAddVehicle(
-      make,
-      model,
-      {
-        yearOfManufacture: parseInt(yearOfManufacture, 10),
-        engineCapacity: parseInt(engineCapacity, 10),
-        fuelType,
-        colour,
-        taxStatus,
-        taxDueDate: taxDueDate ? new Date(taxDueDate) : undefined,
-        motStatus,
-        motExpiryDate: motExpiryDate ? new Date(motExpiryDate) : undefined,
-        co2Emissions: parseInt(co2Emissions, 10),
-        markedForExport: markedForExport === "Yes",
-        typeApproval,
-        euroStatus,
-        dateOfLastV5CIssued: dateOfLastV5CIssued ? new Date(dateOfLastV5CIssued) : undefined,
-        wheelplan,
-        monthOfFirstRegistration: monthOfFirstRegistration
-          ? new Date(monthOfFirstRegistration)
-          : undefined,
-      },
-      displayPicture,
-    )
-    onClose()
+  const handleAddVehicle = async () => {
+    try {
+      if (!displayPhoto) {
+        setError("Please select an image for the vehicle.")
+        return
+      }
+
+      setLoading(true)
+      setError(null)
+
+      // Prepare data to be sent to the backend
+      const formData = new FormData()
+      formData.append("displayPhoto.uri", displayPhoto.url)
+      formData.append("displayPhoto.name", displayPhoto.fileName)
+      formData.append("displayPhoto.type", displayPhoto.mimeType)
+
+      formData.append("model", model)
+      formData.append("make", make)
+      formData.append("yearOfManufacture", yearOfManufacture)
+      formData.append("engineCapacity", engineCapacity)
+      formData.append("fuelType", fuelType)
+      formData.append("colour", colour)
+      formData.append("taxStatus", taxStatus)
+      formData.append("taxDueDate", taxDueDate)
+      formData.append("motStatus", motStatus)
+      formData.append("motExpiryDate", motExpiryDate)
+      formData.append("co2Emissions", co2Emissions)
+      formData.append("markedForExport", markedForExport)
+      formData.append("typeApproval", typeApproval)
+      formData.append("euroStatus", euroStatus)
+      formData.append("dateOfLastV5CIssued", dateOfLastV5CIssued)
+      formData.append("wheelplan", wheelplan)
+      formData.append("monthOfFirstRegistration", monthOfFirstRegistration)
+      formData.append("artEndDate", artEndDate)
+      formData.append("revenueWeight", revenueWeight)
+      formData.append("realDrivingEmissions", realDrivingEmissions)
+
+      // Trigger the mutation to upload vehicle details
+      // await uploadVehicleDetailsMutation.mutateAsync(formData, {
+      //   onSuccess: (response) => {
+      //     onAddVehicle(response.vehicle)
+      //     onClose()
+      //   },
+      //   onError: (mutationError) => {
+      //     setError(mutationError.message)
+      //   },
+      // })
+      await uploadVehicleDetails(formData)
+    } catch (err) {
+      setError(err.message || "Failed to add vehicle.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -200,15 +245,19 @@ export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehic
                 Display Picture
               </Text>
               <ImagePicker
-                value={displayPicture?.thumbnailUrl}
-                onImageSelected={(image) =>
-                  setDisplayPicture({
-                    type: MediaFileType.photo,
-                    url: image,
-                    thumbnailUrl: image,
-                    mimeType: "image/jpeg",
-                  })
-                }
+                value={displayPhoto?.url}
+                onImageSelected={async (file) => {
+                  setDisplayPhoto(
+                    MediaFileModel.create({
+                      id: await generateUUID(),
+                      url: file.uri,
+                      thumbnailUrl: file.uri,
+                      type: file.type === "image" ? MediaFileType.IMAGE : MediaFileType.VIDEO,
+                      fileName: file.fileName || "photo.jpg",
+                      mimeType: file.type || "image/jpeg",
+                    }),
+                  )
+                }}
                 size={180}
                 fullWidth
                 icon="car"

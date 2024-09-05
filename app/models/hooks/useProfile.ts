@@ -1,12 +1,21 @@
-import { useUserId } from "app/models/hooks/useUserId"
-import { Profile } from "app/models/profile/Profile"
-import { trpc } from "app/services/api"
+import { useUser } from "app/models/hooks/useUser"
+import { MediaFile } from "app/models/media-file/MediaFile"
 
-export const useProfile = (): Profile | undefined => {
-  // const { authenticationStore } = useStores()
-  const userId = useUserId()
-  const profile = trpc.admin.profile.findUniqueProfile.useQuery({
-    where: { userId },
-  })
-  return profile.data
+interface Profile {
+  firstName?: string | null
+  lastName?: string | null
+  location?: string | null
+  displayPicture?: MediaFile | null
+}
+
+export const useProfile = (): Profile => {
+  const user = useUser()
+  const profile = {
+    firstName: user?.firstName,
+    lastName: user?.lastName,
+    location: user?.location,
+    displayPicture: user?.displayPicture,
+  }
+
+  return profile
 }

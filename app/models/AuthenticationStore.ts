@@ -1,3 +1,4 @@
+import { Account, AccountModel } from "app/models/account/Account"
 import { Payment, PaymentModel } from "app/models/payment/Payment"
 import { Profile, ProfileModel } from "app/models/profile/Profile"
 import { Session, SessionModel } from "app/models/session/Session"
@@ -15,6 +16,7 @@ export const AuthenticationStoreModel = types
       }),
       {},
     ),
+    authAccount: types.maybe(types.maybeNull(AccountModel)),
     authUser: types.maybe(types.maybeNull(UserModel)),
     authSession: types.maybe(types.maybeNull(SessionModel)),
     authProfile: types.maybe(types.maybeNull(ProfileModel)),
@@ -25,7 +27,7 @@ export const AuthenticationStoreModel = types
   })
   .views((store) => ({
     get isAuthenticated() {
-      return !!store.authSession && !!store.authUser?.isEmailVerified
+      return !!store.authSession && !!store.authAccount?.isEmailVerified
     },
     // get storesData() {
     //   return {
@@ -44,6 +46,9 @@ export const AuthenticationStoreModel = types
     setAuthUser(user: User) {
       store.authUser = user
       // store.userStore.addUser(user) // Add the user to UserStoreModel
+    },
+    setAuthAccount(account: Account) {
+      store.authAccount = account
     },
     setAuthSession(session: Session) {
       store.authSession = session
@@ -68,6 +73,7 @@ export const AuthenticationStoreModel = types
     logout() {
       store.authUser = null
       store.authSession = null
+      store.authAccount = null
       store.authProfile = null
       store.authSubscription = null
       store.authPayments.clear()

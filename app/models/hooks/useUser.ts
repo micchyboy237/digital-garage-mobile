@@ -1,7 +1,7 @@
-import { useStores } from "app/models"
 import { User } from "app/models/user/User"
+import { trpc } from "app/services/api"
 
 export const useUser = (): User | undefined => {
-  const { authenticationStore } = useStores()
-  return authenticationStore.authUser
+  const user = trpc.me.getUser.useQuery()
+  return user.data
 }

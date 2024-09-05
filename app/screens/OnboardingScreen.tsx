@@ -1,74 +1,36 @@
-// digital-garage/packages/api/src/screens/OnboardingScreen.tsx
-
+import { Feather } from "@expo/vector-icons"
+import { Header, Screen, TextField } from "app/components"
+import { Button } from "app/components/Button"
+import { ImagePicker } from "app/components/ImagePicker"
+import SelectTextField from "app/components/SelectTextField"
 import { useStores } from "app/models"
 import { useProfile } from "app/models/hooks/useProfile"
-import { useUserId } from "app/models/hooks/useUserId"
-import { fetchExistingProfile } from "app/screens/auth/sign-up/api"
+import { MediaFile, MediaFileModel } from "app/models/media-file/MediaFile"
+import { MediaFileType } from "app/models/media-file/MediaFileType"
+import { generateUUID } from "app/screens/auth/utils"
 import { UK_CITIES } from "app/screens/digital-garage/data/uk-cities"
+import { uploadProfile } from "app/screens/digital-garage/screens/dashboard/vehicle-form/api"
+import { BackButton } from "app/screens/user/components/BackButton"
 import { trpc } from "app/services/api"
-import React, { FC, useState } from "react"
-import { TextStyle, View, ViewStyle } from "react-native"
-import { Button, Screen, Text, TextField } from "../components"
-import { ImagePicker } from "../components/ImagePicker"
-import { SelectTextField } from "../components/SelectTextField"
-import { AppStackScreenProps } from "../navigators"
-import { spacing } from "../theme"
-
-interface OnboardingScreenProps extends AppStackScreenProps<"Onboarding"> {}
+import { colors, spacing } from "app/theme"
+import React, { useState } from "react"
+import { StyleSheet, View } from "react-native"
 
 const allCities = UK_CITIES.map(({ city }) => city).sort()
 
-export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
+export const OnboardingScreen = ({ navigation }) => {
   const profile = useProfile()
-  console.log("PROFILE:\n", JSON.stringify(profile, null, 2))
   const [firstName, setFirstName] = useState(profile?.firstName || "")
   const [lastName, setLastName] = useState(profile?.lastName || "")
   const [city, setCity] = useState(profile?.location || "")
   const [recentStates, setRecentStates] = useState<string[]>(allCities)
-  const [profilePicture, setProfilePicture] = useState<string | null>(
-    profile?.profilePicture || null,
+  const [profilePicture, setProfilePicture] = useState<MediaFile | null>(
+    profile?.displayPicture || null,
   )
 
+  console.log("PROFILE:", profile)
+
   const { authenticationStore } = useStores()
-  const userId = useUserId()
-  const createProfileMutation = trpc.admin.profile.createOneProfile.useMutation()
-  const updateProfileMutation = trpc.admin.profile.updateOneProfile.useMutation()
-
-  const updateUserMutation = trpc.admin.user.updateOneUser.useMutation()
-
-  async function submitOnboarding() {
-    const existingProfile = await fetchExistingProfile(userId)
-    const profileMutation = existingProfile ? updateProfileMutation : createProfileMutation
-    const profileMutationResult = await profileMutation.mutateAsync({
-      data: {
-        firstName,
-        lastName,
-        location: city,
-        profilePicture,
-        userId,
-      },
-      where: {
-        userId,
-      },
-    })
-    authenticationStore.setAuthProfile(profileMutationResult)
-
-    const userMutationResult = await updateUserMutation.mutateAsync({
-      data: {
-        accountStatus: "SELECT_SUBSCRIPTION",
-      },
-      where: {
-        id: userId,
-      },
-    })
-
-    if (userMutationResult) {
-      authenticationStore.setAuthUser(userMutationResult)
-    }
-
-    // Handle onboarding logic here
-    navigation.navigate("Subscription") // Replace "NextScreen" with the actual next screen in your app
-  }
 
   function handleSelectCity(selectedCity: string) {
     setCity(selectedCity)
@@ -78,76 +40,167 @@ export const OnboardingScreen: FC<OnboardingScreenProps> = ({ navigation }) => {
     })
   }
 
+  const updateProfileMutation = trpc.me.updateProfile.useMutation()
+
+  const handleSubmit = async () => {
+    const formData = new FormData()
+    if (profilePicture) {
+      formData.append("displayPicture", {
+        uri: profilePicture.url,
+        name: profilePicture.fileName,
+        type: profilePicture.mimeType,
+      })
+    }
+    formData.append("firstName", firstName)
+    formData.append("lastName", lastName)
+    formData.append("location", city)
+    formData.append("accountStatus", "SELECT_SUBSCRIPTION")
+
+    const updateProfileResult = await uploadProfile(formData)
+    console.log("updateProfileResult:\n", JSON.stringify(updateProfileResult, null, 2))
+    authenticationStore.setAuthUser(updateProfileResult.data)
+    console.log("Profile updated successfully")
+    navigation.navigate("Subscription")
+  }
+
   return (
     <Screen
-      preset="scroll"
       safeAreaEdges={["top", "bottom"]}
-      contentContainerStyle={$screenContentContainer}
+      preset="scroll"
+      contentContainerStyle={styles.contentContainer}
     >
       <View>
-        <Text preset="subheading" style={$enterDetails}>
-          Onboarding
-        </Text>
+        {navigation.canGoBack() && (
+          <Header
+            title="Profile"
+            titleStyle={styles.headerTitle}
+            safeAreaEdges={["top"]}
+            LeftActionComponent={<BackButton onPress={navigation.goBack} />}
+            containerStyle={[
+              {
+                backgroundColor: "transparent",
+                // position: "absolute",
+                paddingHorizontal: spacing.md,
+                justifyContent: "flex-start",
+              },
+            ]}
+          />
+        )}
+        <ImagePicker
+          size={150}
+          value={profilePicture?.url}
+          onImageSelected={async (file) => {
+            console.log("Image selected:", file)
+            setProfilePicture(
+              MediaFileModel.create({
+                id: await generateUUID(),
+                url: file.uri,
+                thumbnailUrl: file.uri,
+                type: file.type === "image" ? MediaFileType.IMAGE : MediaFileType.VIDEO,
+                fileName: "profile-picture.jpg",
+                mimeType: file.mimeType || "image/jpeg",
+              }),
+            )
+          }}
+          containerStyle={styles.photoContainer}
+        >
+          <View
+            pointerEvents="none"
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: colors.palette.primary400,
+              justifyContent: "center",
+              alignItems: "center",
+              position: "absolute",
+              bottom: 10,
+              right: 10,
+            }}
+            onPress={() => {}}
+          >
+            <Feather name="camera" size={24} color={colors.palette.neutral100} />
+          </View>
+        </ImagePicker>
       </View>
 
-      <ImagePicker onImageSelected={setProfilePicture} value={profilePicture} />
+      <View style={styles.content}>
+        <View style={styles.section}>
+          <TextField
+            value={firstName}
+            onChangeText={setFirstName}
+            containerStyle={styles.textField}
+            autoCapitalize="words"
+            autoComplete="name-given"
+            autoCorrect={false}
+            label="First Name"
+            placeholder="Enter your first name"
+          />
 
-      <TextField
-        value={firstName}
-        onChangeText={setFirstName}
-        containerStyle={$textField}
-        autoCapitalize="words"
-        autoComplete="name-given"
-        autoCorrect={false}
-        label="First Name"
-        placeholder="Enter your first name"
-      />
+          <TextField
+            value={lastName}
+            onChangeText={setLastName}
+            containerStyle={styles.textField}
+            autoCapitalize="words"
+            autoComplete="name-family"
+            autoCorrect={false}
+            label="Last Name"
+            placeholder="Enter your last name"
+          />
 
-      <TextField
-        value={lastName}
-        onChangeText={setLastName}
-        containerStyle={$textField}
-        autoCapitalize="words"
-        autoComplete="name-family"
-        autoCorrect={false}
-        label="Last Name"
-        placeholder="Enter your last name"
-      />
+          <SelectTextField
+            data={recentStates}
+            onSelect={handleSelectCity}
+            value={city}
+            maxItems={5}
+            label="City"
+            placeholder="Find your city"
+          />
+        </View>
+      </View>
 
-      <SelectTextField
-        data={recentStates}
-        onSelect={handleSelectCity}
-        value={city}
-        maxItems={5} // Limit the number of items shown
-        label="City"
-        placeholder="Find your city"
-      />
-
-      <Button
-        testID="submit-onboarding-button"
-        style={$submitButton}
-        preset="reversed"
-        onPress={submitOnboarding}
-      >
-        Submit
-      </Button>
+      <View style={styles.footer}>
+        <Button
+          testID="submit-button"
+          preset="reversed"
+          onPress={handleSubmit}
+          style={styles.submitButton}
+          textStyle={styles.submitButtonText}
+        >
+          Submit
+        </Button>
+      </View>
     </Screen>
   )
 }
 
-const $screenContentContainer: ViewStyle = {
-  paddingVertical: spacing.lg,
-  paddingHorizontal: spacing.lg,
-}
-
-const $enterDetails: TextStyle = {
-  marginBottom: spacing.md,
-}
-
-const $textField: ViewStyle = {
-  marginBottom: spacing.md,
-}
-
-const $submitButton: ViewStyle = {
-  marginTop: spacing.md,
-}
+const styles = StyleSheet.create({
+  contentContainer: {
+    minHeight: "100%",
+  },
+  headerTitle: {
+    fontSize: 25,
+  },
+  photoContainer: {
+    marginTop: spacing.xl,
+    alignSelf: "center",
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: spacing.md,
+  },
+  section: {
+    gap: spacing.lg,
+  },
+  footer: {
+    marginTop: spacing.xl,
+    padding: spacing.md,
+  },
+  textField: {},
+  submitButton: {
+    backgroundColor: colors.palette.primary400,
+    borderRadius: 6, // Reduced from 8
+    paddingVertical: spacing.sm, // Reduced from spacing.md
+  },
+  submitButtonText: {},
+})
