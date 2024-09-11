@@ -16,7 +16,8 @@ const screenWidth = Dimensions.get("window").width
 const imageHeight = screenWidth / aspectRatio
 
 export function Car({ data, ...rest }: Props) {
-  const imageUrl = data.displayPicture?.url
+  console.log("Car:", data)
+  const imageUrl = data.vehicleDisplayPhoto?.url
 
   return (
     <RectButton style={[styles.container, { height: imageHeight }]} {...rest}>
@@ -31,7 +32,7 @@ export function Car({ data, ...rest }: Props) {
         <Text style={styles.make}>
           {data.vehicle?.make} {data.vehicle?.model}
         </Text>
-        <Text style={styles.model}>{data.vehicle?.details.colour}</Text>
+        <Text style={styles.model}>{data.vehicleDetails?.colour}</Text>
         <Text style={styles.description}>{data.vehicle?.registrationNumber}</Text>
       </View>
     </RectButton>

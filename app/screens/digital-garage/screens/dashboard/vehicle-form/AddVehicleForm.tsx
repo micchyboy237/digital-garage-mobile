@@ -1,354 +1,219 @@
-import { Ionicons } from "@expo/vector-icons"
-import { Button, Text, TextField } from "app/components"
-import { ImagePicker } from "app/components/ImagePicker"
-import { MediaFile, MediaFileModel } from "app/models/media-file/MediaFile"
-import { MediaFileType } from "app/models/media-file/MediaFileType"
-import { User } from "app/models/user/User"
-import { VehicleDetails } from "app/models/vehicle-details/VehicleDetails"
-import { generateUUID } from "app/screens/auth/utils"
-import { uploadVehicleDetails } from "app/screens/digital-garage/screens/dashboard/vehicle-form/api"
-import { trpc } from "app/services/api"
-import { colors, spacing, typography } from "app/theme"
-import { VehicleOwnership } from "app/types"
-import React, { useEffect, useState } from "react"
-import { StyleSheet, TouchableOpacity, View } from "react-native"
+import { MaterialIcons } from "@expo/vector-icons"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Button, Field } from "app/components"
+import {
+  fetchVehicleData,
+  uploadVehicleDetails,
+} from "app/screens/digital-garage/screens/dashboard/vehicle-form/api"
+import { colors, spacing } from "app/theme"
+import React, { useState } from "react"
+import { FormProvider, useForm } from "react-hook-form"
+import { ActivityIndicator, StyleSheet, View } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
+import { z } from "zod"
 
-export interface AddVehicleFormProps {
-  user: User
-  onAddVehicle: (vehicle: VehicleOwnership) => void
-  onClose: () => void
-}
-
-type VehicleData =
-  | (Partial<VehicleDetails> & {
-      displayPhoto: MediaFile | null
-      make: string
-      model: string
+// Zod schema for validation
+const vehicleSchema = z.object({
+  registrationNumber: z.string().min(1, "Registration number is required"),
+  // displayPhoto is ImagePickerAsset type
+  displayPhoto: z
+    .object({
+      uri: z.string(),
+      fileName: z.string(),
+      mimeType: z.string(),
     })
-  | null
+    .nullable(),
+  make: z.string().min(1, "Make is required"),
+  model: z.string().min(1, "Model is required"),
+  yearOfManufacture: z
+    .number()
+    .min(1886, "Year must be valid")
+    .max(new Date().getFullYear(), "Year cannot be in the future"),
+  engineCapacity: z.number().min(1, "Engine capacity is required"),
+  fuelType: z.string().min(1, "Fuel type is required"),
+  colour: z.string().min(1, "Colour is required"),
+  taxStatus: z.string().nullish(),
+  taxDueDate: z.date().nullish(),
+  motStatus: z.string().nullish(),
+  motExpiryDate: z.date().nullish(),
+})
 
-type ApiResponseDvla = Omit<VehicleDetails, "id" | "model" | "createdAt" | "updatedAt">
+type VehicleData = z.infer<typeof vehicleSchema>
 
-export const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ user, onAddVehicle, onClose }) => {
-  const [registrationNumber, setRegistrationNumber] = useState("")
-  const [vehicleData, setVehicleData] = useState<VehicleData>({
-    displayPhoto: null,
-    make: "",
-    model: "",
-  })
+export const AddVehicleForm: React.FC = () => {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [displayPhoto, setDisplayPhoto] = useState<MediaFile | null>(null)
 
-  // Individual states for each text field
-  const [make, setMake] = useState("")
-  const [model, setModel] = useState("")
-  const [yearOfManufacture, setYearOfManufacture] = useState("")
-  const [engineCapacity, setEngineCapacity] = useState("")
-  const [fuelType, setFuelType] = useState("")
-  const [colour, setColour] = useState("")
-  const [taxStatus, setTaxStatus] = useState("")
-  const [taxDueDate, setTaxDueDate] = useState("")
-  const [motStatus, setMotStatus] = useState("")
-  const [motExpiryDate, setMotExpiryDate] = useState("")
-  const [co2Emissions, setCo2Emissions] = useState("")
-  const [markedForExport, setMarkedForExport] = useState("")
-  const [typeApproval, setTypeApproval] = useState("")
-  const [euroStatus, setEuroStatus] = useState("")
-  const [dateOfLastV5CIssued, setDateOfLastV5CIssued] = useState("")
-  const [wheelplan, setWheelplan] = useState("")
-  const [monthOfFirstRegistration, setMonthOfFirstRegistration] = useState("")
-  const [artEndDate, setArtEndDate] = useState("")
-  const [revenueWeight, setRevenueWeight] = useState("")
-  const [realDrivingEmissions, setRealDrivingEmissions] = useState("")
+  // Initialize form methods with zod resolver
+  const methods = useForm<VehicleData>({
+    resolver: zodResolver(vehicleSchema),
+    defaultValues: {
+      displayPhoto: null,
+      registrationNumber: "OGV 73P",
+      make: "",
+      model: "",
+      yearOfManufacture: 0,
+      engineCapacity: 0,
+      fuelType: "",
+      colour: "",
+      taxStatus: "",
+      taxDueDate: null,
+      motStatus: "",
+      motExpiryDate: null,
+    },
+  })
 
-  const uploadVehicleDetailsMutation = trpc.uploadRouter.uploadVehicleDetails.useMutation()
+  const {
+    getValues,
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = methods
 
-  useEffect(() => {
-    if (vehicleData) {
-      setMake(vehicleData.make || "")
-      setModel(vehicleData.model || "")
-      setYearOfManufacture(vehicleData.yearOfManufacture?.toString() || "")
-      setEngineCapacity(vehicleData.engineCapacity?.toString() || "")
-      setFuelType(vehicleData.fuelType || "")
-      setColour(vehicleData.colour || "")
-      setTaxStatus(vehicleData.taxStatus || "")
-      setTaxDueDate(vehicleData.taxDueDate?.toDateString() || "")
-      setMotStatus(vehicleData.motStatus || "")
-      setMotExpiryDate(vehicleData.motExpiryDate?.toDateString() || "")
-      setCo2Emissions(vehicleData.co2Emissions?.toString() || "")
-      setMarkedForExport(vehicleData.markedForExport ? "Yes" : "No")
-      setTypeApproval(vehicleData.typeApproval || "")
-      setEuroStatus(vehicleData.euroStatus || "")
-      setDateOfLastV5CIssued(vehicleData.dateOfLastV5CIssued?.toDateString() || "")
-      setWheelplan(vehicleData.wheelplan || "")
-      setMonthOfFirstRegistration(vehicleData.monthOfFirstRegistration?.toDateString() || "")
-      setArtEndDate(vehicleData.artEndDate?.toDateString() || "")
-      setRevenueWeight(vehicleData.revenueWeight?.toString() || "")
-      setRealDrivingEmissions(vehicleData.realDrivingEmissions || "")
-    }
-  }, [vehicleData])
-
-  const fetchVehicleData = async () => {
+  const onSearch = async (registrationNumber: string) => {
     setLoading(true)
-    setError(null)
     try {
-      const response = await fetch(
-        "https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles",
-        {
-          method: "POST",
-          headers: {
-            "x-api-key": "1x9gAFNoBFkL9lMpL07K14LSEFPkuvr20bzcjAd6",
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ registrationNumber }),
-        },
-      )
-      const data = (await response.json()) as ApiResponseDvla
-      if (response.ok) {
-        setVehicleData({
-          displayPhoto,
-          model: "",
-          make: data.make,
-          registrationNumber: data.registrationNumber,
-          taxStatus: data.taxStatus,
-          taxDueDate: data.taxDueDate && new Date(data.taxDueDate),
-          motStatus: data.motStatus,
-          motExpiryDate: data.motExpiryDate && new Date(data.motExpiryDate),
-          yearOfManufacture: data.yearOfManufacture,
-          engineCapacity: data.engineCapacity,
-          co2Emissions: data.co2Emissions,
-          fuelType: data.fuelType,
-          markedForExport: data.markedForExport,
-          colour: data.colour,
-          typeApproval: data.typeApproval,
-          euroStatus: data.euroStatus,
-          dateOfLastV5CIssued: data.dateOfLastV5CIssued && new Date(data.dateOfLastV5CIssued),
-          wheelplan: data.wheelplan,
-          monthOfFirstRegistration:
-            data.monthOfFirstRegistration && new Date(data.monthOfFirstRegistration),
-          artEndDate: data.artEndDate && new Date(data.artEndDate),
-          revenueWeight: data.revenueWeight,
-          realDrivingEmissions: data.realDrivingEmissions,
-        })
-      } else {
-        console.error("NOT OK RESPONSE:\n", data)
-        setError("Failed to fetch vehicle data")
+      const data = await fetchVehicleData({ registrationNumber })
+      console.log("Fetched Vehicle Data:", data)
+
+      // Transform the fetched data to match the Zod schema
+      const transformedData: Partial<VehicleData> = {
+        registrationNumber: data.registrationNumber,
+        make: data.make,
+        model: data.model,
+        yearOfManufacture: data.yearOfManufacture,
+        engineCapacity: data.engineCapacity,
+        fuelType: data.fuelType,
+        colour: data.colour,
+        taxStatus: data.taxStatus ?? null, // Handle nullable fields
+        taxDueDate: data.taxDueDate ? new Date(data.taxDueDate) : null, // Convert string to Date object
+        motStatus: data.motStatus ?? null,
+        motExpiryDate: data.motExpiryDate ? new Date(data.motExpiryDate) : null,
       }
-    } catch (err) {
-      console.error("ERROR FETCHING DATA:\n", err)
-      setError(err.message || "Failed to fetch vehicle data")
+
+      console.log("Transformed Vehicle Data:", transformedData)
+
+      // Dynamically set the values in the form
+      Object.entries(transformedData).forEach(([key, value]) => {
+        if (key in getValues()) {
+          setValue(key as keyof VehicleData, value as any)
+        }
+      })
+    } catch (error) {
+      console.error("Error fetching vehicle data:", error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleAddVehicle = async () => {
-    try {
-      if (!displayPhoto) {
-        setError("Please select an image for the vehicle.")
-        return
+  const onSubmit = async (formValues: VehicleData) => {
+    console.log("Form submitted with data:", formValues)
+
+    // Prepare data to be sent to the backend
+    const formData = new FormData()
+    if (formValues.displayPhoto) {
+      // Extract file name and type from the display photo
+      // const name = formValues.displayPhoto.split("/").pop()
+      // const fileExt = name?.split(".").pop()
+      // const type = `image/${fileExt}`
+      console.log("Display photo:", {
+        uri: formValues.displayPhoto.uri,
+        type: formValues.displayPhoto.mimeType,
+        name: formValues.displayPhoto.fileName,
+      })
+      formData.append("displayPhoto", {
+        uri: formValues.displayPhoto.uri,
+        type: formValues.displayPhoto.mimeType,
+        name: formValues.displayPhoto.fileName,
+      })
+      formData.append("registrationNumber", formValues.registrationNumber)
+      formData.append("make", formValues.make)
+      formData.append("model", formValues.model)
+      formData.append("yearOfManufacture", formValues.yearOfManufacture.toString())
+      formData.append("engineCapacity", formValues.engineCapacity.toString())
+      formData.append("fuelType", formValues.fuelType)
+      formData.append("colour", formValues.colour)
+      if (formValues.taxStatus) {
+        formData.append("taxStatus", formValues.taxStatus)
+      }
+      if (formValues.taxDueDate) {
+        formData.append("taxDueDate", formValues.taxDueDate.toISOString())
+      }
+      if (formValues.motStatus) {
+        formData.append("motStatus", formValues.motStatus)
+      }
+      if (formValues.motExpiryDate) {
+        formData.append("motExpiryDate", formValues.motExpiryDate.toISOString())
       }
 
-      setLoading(true)
-      setError(null)
-
-      // Prepare data to be sent to the backend
-      const formData = new FormData()
-      formData.append("displayPhoto.uri", displayPhoto.url)
-      formData.append("displayPhoto.name", displayPhoto.fileName)
-      formData.append("displayPhoto.type", displayPhoto.mimeType)
-
-      formData.append("model", model)
-      formData.append("make", make)
-      formData.append("yearOfManufacture", yearOfManufacture)
-      formData.append("engineCapacity", engineCapacity)
-      formData.append("fuelType", fuelType)
-      formData.append("colour", colour)
-      formData.append("taxStatus", taxStatus)
-      formData.append("taxDueDate", taxDueDate)
-      formData.append("motStatus", motStatus)
-      formData.append("motExpiryDate", motExpiryDate)
-      formData.append("co2Emissions", co2Emissions)
-      formData.append("markedForExport", markedForExport)
-      formData.append("typeApproval", typeApproval)
-      formData.append("euroStatus", euroStatus)
-      formData.append("dateOfLastV5CIssued", dateOfLastV5CIssued)
-      formData.append("wheelplan", wheelplan)
-      formData.append("monthOfFirstRegistration", monthOfFirstRegistration)
-      formData.append("artEndDate", artEndDate)
-      formData.append("revenueWeight", revenueWeight)
-      formData.append("realDrivingEmissions", realDrivingEmissions)
-
-      // Trigger the mutation to upload vehicle details
-      // await uploadVehicleDetailsMutation.mutateAsync(formData, {
-      //   onSuccess: (response) => {
-      //     onAddVehicle(response.vehicle)
-      //     onClose()
-      //   },
-      //   onError: (mutationError) => {
-      //     setError(mutationError.message)
-      //   },
-      // })
+      // Call the API to upload the vehicle details
       await uploadVehicleDetails(formData)
-    } catch (err) {
-      setError(err.message || "Failed to add vehicle.")
-    } finally {
-      setLoading(false)
     }
   }
+
+  console.log("Errors:", errors)
+  console.log("Values:", getValues())
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Add Vehicle</Text>
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-          <Ionicons name="close" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={{ gap: spacing.sm }}>
-          <TextField
-            label="Registration Number"
-            placeholder="Enter Registration Number"
-            value={registrationNumber}
-            onChangeText={setRegistrationNumber}
-          />
-          <Button preset="reversed" onPress={fetchVehicleData} disabled={loading}>
-            Search
-          </Button>
-          {!!error && <Text style={styles.error}>{error}</Text>}
-        </View>
+    <FormProvider {...methods}>
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          {/* Registration Number Input with Search */}
 
-        {vehicleData && (
-          <View
-            style={{
-              gap: spacing.lg,
-              borderTopWidth: 1,
-              borderTopColor: colors.border,
-              marginTop: spacing.lg,
-              paddingTop: spacing.lg,
-            }}
-          >
-            <TextField autoFocus label="Model" value={model} onChangeText={setModel} />
-            <TextField label="Make" value={make} onChangeText={setMake} />
-            <View>
-              <Text
-                style={{
-                  fontFamily: typography.primary.medium,
-                  color: colors.text,
-                  fontSize: 16,
-                }}
-              >
-                Display Picture
-              </Text>
-              <ImagePicker
-                value={displayPhoto?.url}
-                onImageSelected={async (file) => {
-                  setDisplayPhoto(
-                    MediaFileModel.create({
-                      id: await generateUUID(),
-                      url: file.uri,
-                      thumbnailUrl: file.uri,
-                      type: file.type === "image" ? MediaFileType.IMAGE : MediaFileType.VIDEO,
-                      fileName: file.fileName || "photo.jpg",
-                      mimeType: file.type || "image/jpeg",
-                    }),
-                  )
-                }}
-                size={180}
-                fullWidth
-                icon="car"
-              />
-            </View>
+          {loading && <ActivityIndicator animating color={colors.palette.primary400} />}
 
-            {/* Divider view */}
-            <View style={{ borderBottomWidth: 1, borderBottomColor: colors.border }} />
+          <View style={styles.formContainer}>
+            <Field label="Make" name="make" style={styles.input} />
+            <Field label="Model" name="model" style={styles.input} />
+            <Field
+              label="Registration Number"
+              name="registrationNumber"
+              style={styles.input}
+              RightAccessory={() => (
+                <MaterialIcons
+                  name="search"
+                  size={24}
+                  color="black"
+                  onPress={() => onSearch(getValues("registrationNumber"))}
+                />
+              )}
+            />
 
-            <TextField
+            <Field
+              label="Display Photo"
+              name="displayPhoto"
+              type="image"
+              size={180}
+              fullWidth
+              icon="car"
+            />
+            <Field
               label="Year of Manufacture"
-              value={yearOfManufacture}
-              onChangeText={setYearOfManufacture}
+              name="yearOfManufacture"
+              style={styles.input}
+              keyboardType="numeric"
             />
-            <TextField
-              label="Engine Capacity"
-              value={engineCapacity}
-              onChangeText={setEngineCapacity}
-            />
-            <TextField label="Fuel Type" value={fuelType} onChangeText={setFuelType} />
-            <TextField label="Colour" value={colour} onChangeText={setColour} />
-            <TextField label="Tax Status" value={taxStatus} onChangeText={setTaxStatus} />
-            <TextField label="Tax Due Date" value={taxDueDate} onChangeText={setTaxDueDate} />
-            <TextField label="MOT Status" value={motStatus} onChangeText={setMotStatus} />
-            <TextField
-              label="MOT Expiry Date"
-              value={motExpiryDate}
-              onChangeText={setMotExpiryDate}
-            />
-            <TextField label="CO2 Emissions" value={co2Emissions} onChangeText={setCo2Emissions} />
-            <TextField
-              label="Marked for Export"
-              value={markedForExport}
-              onChangeText={setMarkedForExport}
-            />
-            <TextField label="Type Approval" value={typeApproval} onChangeText={setTypeApproval} />
-            <TextField label="Euro Status" value={euroStatus} onChangeText={setEuroStatus} />
-            <TextField
-              label="Date of Last V5C Issued"
-              value={dateOfLastV5CIssued}
-              onChangeText={setDateOfLastV5CIssued}
-            />
-            <TextField label="Wheelplan" value={wheelplan} onChangeText={setWheelplan} />
-            <TextField
-              label="Month of First Registration"
-              value={monthOfFirstRegistration}
-              onChangeText={setMonthOfFirstRegistration}
-            />
-          </View>
-        )}
-      </ScrollView>
 
-      {vehicleData && (
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            padding: spacing.sm,
-            gap: spacing.lg,
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: -2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-            backgroundColor: colors.background,
-          }}
-        >
-          <Button
-            style={{
-              flex: 1,
-            }}
-            onPress={onClose}
-          >
-            Close
-          </Button>
-          <Button
-            style={{
-              flex: 1,
-              backgroundColor: colors.palette.primary400,
-            }}
-            preset="reversed"
-            onPress={handleAddVehicle}
-          >
-            Add Vehicle
-          </Button>
-        </View>
-      )}
-    </View>
+            <Field
+              label="Engine Capacity (cc)"
+              name="engineCapacity"
+              style={styles.input}
+              keyboardType="numeric"
+            />
+
+            <Field label="Fuel Type" name="fuelType" style={styles.input} />
+
+            <Field label="Color" name="colour" style={styles.input} />
+
+            {/* More Fields as needed */}
+            <Button onPress={handleSubmit(onSubmit)} style={styles.button}>
+              Submit
+            </Button>
+          </View>
+        </ScrollView>
+      </View>
+    </FormProvider>
   )
 }
 
@@ -357,31 +222,20 @@ const styles = StyleSheet.create({
     maxHeight: "100%",
     overflow: "hidden",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  closeButton: {
-    position: "absolute",
-    right: spacing.sm - 4,
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   contentContainer: {
     padding: spacing.md,
   },
-  error: {
+  formContainer: {
+    marginTop: 16,
+  },
+  input: {
+    marginBottom: 12,
+  },
+  button: {
+    marginTop: 20,
+  },
+  errorText: {
     color: "red",
-    marginBottom: 16,
+    marginBottom: 8,
   },
 })

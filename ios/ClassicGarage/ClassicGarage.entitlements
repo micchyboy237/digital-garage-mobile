@@ -20,5 +20,21 @@
       <string>applinks:staging.classicgarage.uk</string>
       <string>applinks:classic-garage-164c2.firebaseapp.com</string>
     </array>
+    <key>com.apple.developer.icloud-container-environment</key>
+    <string>Production</string>
+    <key>com.apple.developer.icloud-container-identifiers</key>
+    <array>
+      <string>iCloud.com.agileminds.classicgarage</string>
+    </array>
+    <key>com.apple.developer.icloud-services</key>
+    <array>
+      <string>CloudDocuments</string>
+    </array>
+    <key>com.apple.developer.ubiquity-container-identifiers</key>
+    <array>
+      <string>iCloud.com.agileminds.classicgarage</string>
+    </array>
+    <key>com.apple.developer.ubiquity-kvstore-identifier</key>
+    <string>$(TeamIdentifierPrefix)com.agileminds.classicgarage</string>
   </dict>
 </plist>

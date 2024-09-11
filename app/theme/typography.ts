@@ -1,31 +1,31 @@
 // TODO: write documentation about fonts and typography along with guides on how to add custom fonts in own
 // markdown file and add links from here
 
-import { Platform } from "react-native"
 import {
-  SpaceGrotesk_300Light as spaceGroteskLight,
-  SpaceGrotesk_400Regular as spaceGroteskRegular,
-  SpaceGrotesk_500Medium as spaceGroteskMedium,
-  SpaceGrotesk_600SemiBold as spaceGroteskSemiBold,
-  SpaceGrotesk_700Bold as spaceGroteskBold,
-} from "@expo-google-fonts/space-grotesk"
+  Raleway_700Bold as ralewayBold,
+  Raleway_300Light as ralewayLight,
+  Raleway_500Medium as ralewayMedium,
+  Raleway_400Regular as ralewayRegular,
+  Raleway_600SemiBold as ralewaySemiBold,
+} from "@expo-google-fonts/raleway"
+import { Platform } from "react-native"
 
 export const customFontsToLoad = {
-  spaceGroteskLight,
-  spaceGroteskRegular,
-  spaceGroteskMedium,
-  spaceGroteskSemiBold,
-  spaceGroteskBold,
+  ralewayLight,
+  ralewayRegular,
+  ralewayMedium,
+  ralewaySemiBold,
+  ralewayBold,
 }
 
 const fonts = {
-  spaceGrotesk: {
+  raleway: {
     // Cross-platform Google font.
-    light: "spaceGroteskLight",
-    normal: "spaceGroteskRegular",
-    medium: "spaceGroteskMedium",
-    semiBold: "spaceGroteskSemiBold",
-    bold: "spaceGroteskBold",
+    light: "ralewayLight",
+    normal: "ralewayRegular",
+    medium: "ralewayMedium",
+    semiBold: "ralewaySemiBold",
+    bold: "ralewayBold",
   },
   helveticaNeue: {
     // iOS only font.
@@ -59,7 +59,7 @@ export const typography = {
   /**
    * The primary font. Used in most places.
    */
-  primary: fonts.spaceGrotesk,
+  primary: fonts.raleway,
   /**
    * An alternate font used for perhaps titles and stuff.
    */

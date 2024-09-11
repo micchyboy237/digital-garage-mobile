@@ -67,11 +67,10 @@ enum MediaFileType {
 model User {
   id                String                @id @default(uuid())
   email             String                @unique
-  firebaseUid       String                @unique
-  isEmailVerified   Boolean               @default(false)
   firstName         String?
   lastName          String?
-  displayPicture    String?
+  displayPictureId  String?               @unique
+  displayPicture    MediaFile?            @relation(name: "UserDisplayPicture", fields: [displayPictureId], references: [id])
   location          String?
   accountStatus     AccountStatus         @default(ONBOARDING)
   sessions          Session[]
@@ -90,10 +89,11 @@ model User {
 model Account {
   id              String        @id @default(uuid())
   provider        AuthProvider
-  lastLogin       DateTime?
   userId          String
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  email           String
+  firebaseUid     String
+  isEmailVerified Boolean       @default(false)
+  lastLogin       DateTime?
   sessions        Session[]
 
   createdAt       DateTime      @default(now())
@@ -157,7 +157,8 @@ model MediaFile {
   thumbnailUrl          String
   postId                String?
   post                  VehiclePost?        @relation(name: "GalleryOrHistoryFiles", fields: [postId], references: [id], onDelete: Cascade)
-  displayPhotoOwnership VehicleOwnership?   @relation(name: "DisplayPhoto") // Updated relation
+  userDisplayPicture    User?               @relation(name: "UserDisplayPicture")
+  vehicleDisplayPhotoOwnership VehicleOwnership?   @relation(name: "VehicleDisplayPhoto") // Updated relation
   ownershipId           String?
   ownership             VehicleOwnership?   @relation(name: "OwnershipGalleryOrHistoryFiles", fields: [ownershipId], references: [id]) // Updated relation
 
@@ -171,7 +172,7 @@ model VehicleOwnership {  // Updated model name
   vehicleId         String
   isCurrentOwner    Boolean           @default(true)
   vehicleDisplayPhotoId String?       @unique
-  vehicleDisplayPhoto    MediaFile?   @relation("DisplayPhoto", fields: [vehicleDisplayPhotoId], references: [id])
+  vehicleDisplayPhoto    MediaFile?   @relation("VehicleDisplayPhoto", fields: [vehicleDisplayPhotoId], references: [id])
   startDate         DateTime          @default(now())
   endDate           DateTime?
   user              User?             @relation(fields: [userId], references: [id])

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { useNavigation } from "@react-navigation/native"
-import { AutoImage, Screen } from "app/components"
+import { AutoImage, Screen, Text } from "app/components"
 import { AspectRatioImage } from "app/components/image/AspectRatioImage"
 import { Loading } from "app/components/Loading"
 import { useProfile } from "app/models/hooks/useProfile"
@@ -9,10 +9,11 @@ import { useUser } from "app/models/hooks/useUser"
 import { generateUUID } from "app/screens/auth/utils"
 import { mockUser } from "app/screens/digital-garage/data/mock"
 import { AddVehicleModal } from "app/screens/digital-garage/screens/dashboard/AddVehicleModal"
+import { useVehicleOwnerships } from "app/screens/user/UserCarsScreen/useVehicleOwnerships"
 import { spacing } from "app/theme"
 import { MediaFile, Vehicle, VehicleDetails, VehicleOwnership } from "app/types"
-import React, { useEffect, useState } from "react"
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import React, { useEffect, useMemo, useState } from "react"
+import { SectionList, StyleSheet, TouchableOpacity, View } from "react-native"
 import { RectButton } from "react-native-gesture-handler"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Car } from "../MyCarsScreen/Car"
@@ -20,6 +21,22 @@ import { Car } from "../MyCarsScreen/Car"
 const logoWithText = require("../../../../assets/app-icons/classic-garage.png")
 
 export function UserCarsScreen() {
+  const { currentOwnerships, pastOwnerships } = useVehicleOwnerships()
+  console.log("Current Ownerships:", currentOwnerships)
+  console.log("Past Ownerships:", pastOwnerships)
+  const data = useMemo(() => {
+    return [
+      {
+        title: "Current Vehicles",
+        data: currentOwnerships,
+      },
+      {
+        title: "Past Vehicles",
+        data: pastOwnerships,
+      },
+    ]
+  }, [currentOwnerships, pastOwnerships])
+
   const [cars, setCars] = useState<VehicleOwnership[]>([])
   const [loading, setLoading] = useState(true)
   const [isAddingVehicle, setIsAddingVehicle] = useState(false)
@@ -126,7 +143,7 @@ export function UserCarsScreen() {
             }}
           />
           <View style={styles.profileDetails}>
-            <Text style={styles.fullName}>
+            <Text weight="semiBold" style={styles.fullName}>
               {profile?.firstName} {profile?.lastName}
             </Text>
             <Text style={styles.vehicleCount}>Vehicles: {vehicleCount}</Text>
@@ -139,10 +156,20 @@ export function UserCarsScreen() {
         {loading ? (
           <Loading />
         ) : (
-          <FlatList
-            data={cars}
+          // <FlatList
+          //   data={cars}
+          //   keyExtractor={(item) => item.id}
+          //   renderItem={({ item }) => <Car data={item} onPress={() => handleVehiclePress(item)} />}
+          //   contentContainerStyle={styles.carList}
+          //   showsVerticalScrollIndicator={false}
+          // />
+          <SectionList
+            sections={data}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <Car data={item} onPress={() => handleVehiclePress(item)} />}
+            renderSectionHeader={({ section: { title } }) => (
+              <Text style={styles.sectionHeaderTitle}>{title}</Text>
+            )}
             contentContainerStyle={styles.carList}
             showsVerticalScrollIndicator={false}
           />
@@ -194,7 +221,6 @@ const styles = StyleSheet.create({
   },
   fullName: {
     fontSize: 18,
-    fontWeight: "bold",
     marginBottom: spacing.xs,
   },
   vehicleCount: {
@@ -206,5 +232,9 @@ const styles = StyleSheet.create({
   },
   carList: {
     padding: spacing.md,
+  },
+  sectionHeaderTitle: {
+    fontSize: 18,
+    marginBottom: spacing.md,
   },
 })

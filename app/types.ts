@@ -135,6 +135,8 @@ export interface VehicleOwnership extends BaseEntity {
 
 export interface VehicleDetails extends BaseEntity {
   registrationNumber: string
+  make: string
+  model?: string
   taxStatus: string
   taxDueDate: Date
   motStatus: string

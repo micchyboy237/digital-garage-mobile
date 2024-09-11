@@ -1,12 +1,13 @@
 import { Ionicons } from "@expo/vector-icons"
 import { pickImage } from "app/utils/filePicker"
+import * as ImageManipulator from "expo-image-manipulator" // Import ImageManipulator
 import * as ExpoImagePicker from "expo-image-picker"
 import React, { useEffect, useState } from "react"
 import { Image, ImageStyle, StyleSheet, TouchableOpacity, View, ViewStyle } from "react-native"
 import { colors } from "../theme"
 
-interface ImagePickerProps {
-  onImageSelected: (file: ExpoImagePicker.ImagePickerAsset) => void
+export interface ImagePickerProps {
+  onImageSelected?: (file: ExpoImagePicker.ImagePickerAsset) => void
   containerStyle?: ViewStyle
   children?: React.ReactNode
   size?: number
@@ -34,8 +35,24 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
     const fileAsset = await pickImage()
 
     if (fileAsset) {
-      setSelectedImage(fileAsset.uri)
-      onImageSelected(fileAsset)
+      const compressedImage = await compressImage(fileAsset.uri) // Compress the image
+      setSelectedImage(compressedImage.uri)
+      onImageSelected?.(compressedImage)
+    }
+  }
+
+  const compressImage = async (uri: string) => {
+    try {
+      // Compress the image without losing quality
+      const result = await ImageManipulator.manipulateAsync(
+        uri,
+        [], // No resize or rotation actions, only compression
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }, // Adjust compress value to balance quality and size
+      )
+      return result
+    } catch (error) {
+      console.error("Error compressing image:", error)
+      return { uri } // Return original if compression fails
     }
   }
 
@@ -44,16 +61,12 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
       onPress={handlePickImage}
       style={[styles.container, containerStyle, fullWidth && styles.fullWidthContainer]}
     >
-      <View
-        style={[
-          fullWidth && { width: "100%" }, // Ensure touchable takes full width
-        ]}
-      >
+      <View style={[fullWidth && { width: "100%" }]}>
         <View
           style={[
             styles.placeholder,
             { width: size, height: size, borderRadius: size / 2 },
-            fullWidth && { width: "100%", height: size, borderRadius: 0 }, // Ensure aspect ratio is preserved
+            fullWidth && { width: "100%", height: size, borderRadius: 0 },
           ]}
         >
           {selectedImage ? (
@@ -65,10 +78,9 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
                 fullWidth && {
                   width: "100%",
                   height: size,
-                  // aspectRatio: 1,
                   borderRadius: 0,
                   resizeMode: "cover",
-                }, // Cover to ensure aspect ratio
+                },
               ]}
             />
           ) : (
@@ -76,7 +88,6 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
           )}
         </View>
       </View>
-
       {children}
     </TouchableOpacity>
   )
